@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useReducer, useState, useSyncExternalStore, type CSSProperties } from "react";
+import { useEffect, useReducer, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
+import Link from "next/link";
 import { Walker } from "@/walker/Walker";
 import { Procession } from "@/components/Procession";
 import { SAMPLE_WALKERS } from "@/walker/samples";
@@ -32,6 +33,8 @@ import { cleanDisplayName } from "@/walker/validate";
 import { useI18n } from "@/i18n/I18nProvider";
 import { EMPTY_DRAFT, clearDraft, parseDraft, readDraftRaw, writeDraft, type Draft } from "./draft";
 import { PaintEditor } from "./PaintEditor";
+import { SavePanel } from "./SavePanel";
+import { useCloudSync } from "./useCloudSync";
 import { Choices, HeadChoices, Swatches, ToggleChoices } from "./pickers";
 import styles from "./creator.module.css";
 
@@ -57,6 +60,7 @@ type Action =
   | { type: "strokes"; surface: Surface; strokes: Stroke[] }
   | { type: "addStroke"; surface: Surface; stroke: Stroke }
   | { type: "focus"; surface: Surface }
+  | { type: "load"; name: string; appearance: WalkerAppearance }
   | { type: "undo" }
   | { type: "redo" }
   | { type: "reset" };
@@ -76,6 +80,9 @@ function reducer(state: State, action: Action): State {
       return { ...state, appearance: { ...a, face: { ...a.face, ...action.patch } } };
     case "focus":
       return { ...state, focus: action.surface };
+    case "load":
+      // A saved walker replaces the draft; painting history starts afresh.
+      return { ...state, name: action.name, appearance: action.appearance, past: [], future: [] };
     case "extra": {
       const extras = { ...a.extras };
       if (action.color) extras[action.id] = action.color;
@@ -184,9 +191,19 @@ function Creator({ initial }: { initial: Draft }) {
   const displayName = cleanDisplayName(name) || t.creator.defaultName;
   const o = t.options;
 
-  // Autosave the draft on this device whenever it changes.
+  const sync = useCloudSync(initial, { name, appearance: a }, (w) =>
+    dispatch({ type: "load", name: w.name, appearance: w.appearance }),
+  );
+
+  // Autosave the draft on this device whenever it changes (not on first
+  // render, so opening the page doesn't count as an edit).
+  const firstRender = useRef(true);
   useEffect(() => {
-    const ok = writeDraft({ name, appearance: a });
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    const ok = writeDraft({ name, appearance: a, updatedAt: Date.now() });
     // Only report storage trouble; success is the quiet default.
     if (!ok) queueMicrotask(() => setSaved(false));
   }, [name, a]);
@@ -253,7 +270,11 @@ function Creator({ initial }: { initial: Draft }) {
             {confirmReset ? t.creator.confirmStartOver : t.creator.startOver}
           </button>
         </div>
-        <p className={styles.saveNote}>{saved === false ? t.creator.draftUnavailable : t.creator.draftSaved}</p>
+        {saved === false && <p className={styles.saveError}>{t.creator.draftUnavailable}</p>}
+        <SavePanel
+          sync={sync}
+          onPublished={() => setStep("preview")}
+        />
       </section>
 
       <section className={styles.panel}>
@@ -438,8 +459,21 @@ function Creator({ initial }: { initial: Draft }) {
 
           {step === "preview" && (
             <div className={styles.finale}>
-              <h2>{t.creator.readyTitle(displayName)}</h2>
-              <p>{t.creator.readyBody}</p>
+              {sync.notice === "published" && sync.remote ? (
+                <>
+                  <h2>{t.save.publishedTitle(displayName)}</h2>
+                  <p>
+                    <Link className={styles.saveLink} href={`/${locale}/w/${sync.remote.id}`}>
+                      {t.save.viewProfile} →
+                    </Link>
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h2>{t.creator.readyTitle(displayName)}</h2>
+                  <p>{t.creator.readyBody}</p>
+                </>
+              )}
             </div>
           )}
         </div>

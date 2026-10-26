@@ -8,7 +8,9 @@ import { sanitizeAppearance } from "@/walker/validate";
 // v2: paint on several surfaces, separate headwear/eyewear, extras.
 const KEY = "walkers:draft:v2";
 
-export type Draft = { name: string; appearance: WalkerAppearance };
+// `updatedAt` (ms) lets a signed-in visitor's newer local edits win over
+// an older saved walker.
+export type Draft = { name: string; appearance: WalkerAppearance; updatedAt?: number };
 
 export const EMPTY_DRAFT: Draft = { name: "", appearance: DEFAULT_APPEARANCE };
 
@@ -27,7 +29,8 @@ export function parseDraft(raw: string | null): Draft {
     if (typeof data !== "object" || data === null) return EMPTY_DRAFT;
     const d = data as Record<string, unknown>;
     const name = typeof d.name === "string" ? d.name.slice(0, NAME_MAX) : "";
-    return { name, appearance: sanitizeAppearance(d.appearance) };
+    const updatedAt = typeof d.updatedAt === "number" ? d.updatedAt : undefined;
+    return { name, appearance: sanitizeAppearance(d.appearance), updatedAt };
   } catch {
     return EMPTY_DRAFT;
   }

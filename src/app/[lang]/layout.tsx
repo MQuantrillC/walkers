@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SiteHeader } from "@/components/SiteHeader";
 import { I18nProvider } from "@/i18n/I18nProvider";
+import { AuthProvider } from "@/auth/AuthProvider";
 import { LOCALES, isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import "../globals.css";
@@ -39,8 +40,10 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
     <html lang={lang} className={`${geistSans.variable} ${geistMono.variable}`}>
       <body>
         <I18nProvider locale={lang}>
-          <SiteHeader />
-          <main>{children}</main>
+          <AuthProvider>
+            <SiteHeader />
+            <main>{children}</main>
+          </AuthProvider>
         </I18nProvider>
       </body>
     </html>

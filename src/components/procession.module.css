@@ -39,3 +39,9 @@
     animation-play-state: paused;
   }
 }
+
+a.marcher:hover .name,
+a.marcher:focus-visible .name {
+  color: var(--foreground);
+  text-decoration: underline;
+}

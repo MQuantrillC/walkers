@@ -66,8 +66,10 @@ export function PaintEditor({ appearance, surface, onAdd, onReplace, onUndo, onR
   const box = SURFACE_BOX[surface];
   const view = VIEWS[surface];
   const strokes = appearance.paint[surface];
-  const full =
-    strokes.length >= PAINT_LIMITS.strokesPerSurface || pointCount(strokes) >= PAINT_LIMITS.pointsPerSurface;
+  const allPoints = Object.values(appearance.paint).reduce((n, list) => n + pointCount(list), 0);
+  // Room left for the next stroke: per surface and across the whole walker.
+  const room = Math.min(PAINT_LIMITS.pointsPerSurface - pointCount(strokes), PAINT_LIMITS.pointsTotal - allPoints);
+  const full = strokes.length >= PAINT_LIMITS.strokesPerSurface || room <= 0;
 
   function toSvg(e: { clientX: number; clientY: number }) {
     const m = svgRef.current?.getScreenCTM();
@@ -147,7 +149,7 @@ export function PaintEditor({ appearance, surface, onAdd, onReplace, onUndo, onR
     const pts = liveRef.current;
     if (pts) {
       const points = simplify(pts).map(roundPoint);
-      if (pointCount(strokes) + points.length / 2 <= PAINT_LIMITS.pointsPerSurface) {
+      if (points.length / 2 <= room) {
         onAdd(surface, { color, size, points });
       } else {
         setNotice(t.paint.tooBig);

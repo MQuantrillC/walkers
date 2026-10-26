@@ -1,20 +1,29 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { LOCALES, LOCALE_COOKIE, pickLocale } from "@/i18n/config";
+import { refreshSession } from "@/lib/supabase/proxy";
 
-// Sends visitors without a language in the URL to /en/... or /es/...,
-// choosing by their saved choice, then their country (Vercel's geo header),
-// then their browser's languages.
-export function proxy(request: NextRequest) {
+// 1. Sends visitors without a language in the URL to /en/... or /es/...,
+//    choosing by their saved choice, then their country (Vercel's geo
+//    header), then their browser's languages.
+// 2. Keeps the visitor's sign-in session fresh on every page request.
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (LOCALES.some((l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`))) return;
 
-  const locale = pickLocale({
-    cookie: request.cookies.get(LOCALE_COOKIE)?.value,
-    country: request.headers.get("x-vercel-ip-country"),
-    acceptLanguage: request.headers.get("accept-language"),
-  });
-  request.nextUrl.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
-  return NextResponse.redirect(request.nextUrl);
+  // The sign-in callback handles its own cookies.
+  if (pathname.startsWith("/auth/")) return NextResponse.next();
+
+  if (!LOCALES.some((l) => pathname === `/${l}` || pathname.startsWith(`/${l}/`))) {
+    const locale = pickLocale({
+      cookie: request.cookies.get(LOCALE_COOKIE)?.value,
+      country: request.headers.get("x-vercel-ip-country"),
+      acceptLanguage: request.headers.get("accept-language"),
+    });
+    const url = request.nextUrl.clone();
+    url.pathname = `/${locale}${pathname === "/" ? "" : pathname}`;
+    return NextResponse.redirect(url);
+  }
+
+  return refreshSession(request, NextResponse.next({ request }));
 }
 
 export const config = {

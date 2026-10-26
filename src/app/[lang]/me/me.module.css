@@ -1,0 +1,89 @@
+.page {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.name {
+  font-size: 20px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.status {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.note {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 34em;
+}
+
+.error {
+  color: #c2412f;
+  font-size: 13px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.chip,
+.primary {
+  font: inherit;
+  font-size: 13px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.primary {
+  background: var(--foreground);
+  color: var(--background);
+  border-color: var(--foreground);
+}
+
+.chip[data-danger] {
+  border-color: #c2412f;
+  color: #c2412f;
+}
+
+.chip:disabled,
+.primary:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.link {
+  font-size: 14px;
+  border-bottom: 1px solid currentColor;
+}

@@ -1,0 +1,38 @@
+.stage {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: 12px;
+  overflow: hidden;
+}
+
+.ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--ground-y);
+  height: 10px;
+  border-top: 1.5px solid var(--foreground);
+  background-image: linear-gradient(90deg, var(--foreground) 1.5px, transparent 1.5px);
+  background-size: calc(var(--stride-px) / 4) 8px;
+  background-repeat: repeat-x;
+  opacity: 0.3;
+  animation: ground var(--wk-dur, 1.2s) linear infinite;
+}
+
+@keyframes ground {
+  to {
+    background-position-x: calc(var(--stride-px) * -1);
+  }
+}
+
+.walker {
+  position: relative;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ground {
+    animation: none;
+  }
+}

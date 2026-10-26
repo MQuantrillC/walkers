@@ -100,7 +100,19 @@ function paint(v: unknown, issues: Issues): Paint {
     issues.push("paint is missing");
     return DEFAULT_APPEARANCE.paint;
   }
-  return Object.fromEntries(SURFACES.map((s) => [s, strokes(v[s], `paint.${s}`, issues)])) as Paint;
+  const out = Object.fromEntries(SURFACES.map((s) => [s, strokes(v[s], `paint.${s}`, issues)])) as Paint;
+  // Across all surfaces, keep whole surfaces in order until the total is used.
+  let total = 0;
+  for (const s of SURFACES) {
+    const n = out[s].reduce((sum, st) => sum + st.points.length / 2, 0);
+    if (total + n > PAINT_LIMITS.pointsTotal) {
+      issues.push(`paint is limited to ${PAINT_LIMITS.pointsTotal} points in total`);
+      out[s] = [];
+    } else {
+      total += n;
+    }
+  }
+  return out;
 }
 
 function extras(v: unknown, issues: Issues): WalkerAppearance["extras"] {

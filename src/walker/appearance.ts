@@ -133,11 +133,14 @@ export const BRUSH_SIZES = [
   { size: 3.4, id: "bold" },
 ] as const;
 
-// Keep drawings small enough to store and cheap to render in a crowd.
+// Keep drawings small enough to store and cheap to render in a crowd. At
+// roughly 12 bytes per stored point, the total stays well under the
+// database's 100 KB cap on a walker's appearance.
 export const PAINT_LIMITS = {
   strokesPerSurface: 60,
   pointsPerStroke: 300,
-  pointsPerSurface: 2500,
+  pointsPerSurface: 1500,
+  pointsTotal: 4000,
 } as const;
 
 export const NAME_MAX = 24;

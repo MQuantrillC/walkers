@@ -44,3 +44,6 @@ next-env.d.ts
 /.claude-flow/
 /.claude/proven-config.json
 /.claude/.proven-config-version
+
+# Example env file is safe to commit
+!.env.example

@@ -1,12 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useState, type CSSProperties } from "react";
 import { Walker } from "@/walker/Walker";
 import type { WalkerAppearance } from "@/walker/appearance";
 import { VIEWBOX, walkSpeedPx } from "@/walker/walkCss";
 import styles from "./procession.module.css";
 
-export type ProcessionWalker = { name: string; appearance: WalkerAppearance };
+// `href` makes the walker clickable (e.g. to its public profile).
+export type ProcessionWalker = { name: string; appearance: WalkerAppearance; href?: string };
 
 // Walkers cross the band at exactly their ground speed, evenly spaced and
 // with staggered phases.
@@ -37,16 +39,24 @@ export function Procession({ walkers, height = 150 }: { walkers: ProcessionWalke
       style={{ height: `${height + 28}px`, "--loop": `${loop}px`, "--walker-w": `${walkerW}px` } as CSSProperties}
     >
       {trackW > 0 &&
-        walkers.map((w, i) => (
-          <div
-            key={`${w.name}-${i}`}
-            className={styles.marcher}
-            style={{ animationDuration: `${crossS}s`, animationDelay: `${(-i / n) * crossS}s` }}
-          >
-            <Walker appearance={w.appearance} height={height} phase={(i * 0.37) % 1} title={w.name} />
-            <span className={styles.name}>{w.name}</span>
-          </div>
-        ))}
+        walkers.map((w, i) => {
+          const style = { animationDuration: `${crossS}s`, animationDelay: `${(-i / n) * crossS}s` };
+          const figure = (
+            <>
+              <Walker appearance={w.appearance} height={height} phase={(i * 0.37) % 1} title={w.href ? undefined : w.name} />
+              <span className={styles.name}>{w.name}</span>
+            </>
+          );
+          return w.href ? (
+            <Link key={`${w.name}-${i}`} href={w.href} className={styles.marcher} style={style}>
+              {figure}
+            </Link>
+          ) : (
+            <div key={`${w.name}-${i}`} className={styles.marcher} style={style}>
+              {figure}
+            </div>
+          );
+        })}
     </div>
   );
 }
