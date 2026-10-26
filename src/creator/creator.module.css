@@ -396,8 +396,22 @@
   font-size: 14px;
 }
 
-.processionPreview {
-  grid-column: 1 / -1;
+.finale {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.finaleWalk {
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.finale .savePanel {
+  align-self: stretch;
+  max-width: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -439,11 +453,6 @@
 
   .panel {
     order: 2;
-  }
-
-  .processionPreview {
-    order: 3;
-    margin: 0 -16px;
   }
 
   .saveArea,

@@ -10,6 +10,8 @@ export const en = {
     me: "My Walker",
     language: "Language",
     switchTo: "Español",
+    toDark: "Switch to dark mode",
+    toLight: "Switch to light mode",
   },
   auth: {
     signIn: "Sign in",
@@ -167,6 +169,7 @@ export const en = {
     readyBody:
       "This is how your walker looks in the procession. Publish it to add it to the public gallery.",
     processionLabel: "Your walker in the procession",
+    seeTheWalk: "See The Walk",
   },
   paint: {
     canvasLabel: (part: string) => `Painting area for the ${part}. Draw with a mouse, pen or finger.`,

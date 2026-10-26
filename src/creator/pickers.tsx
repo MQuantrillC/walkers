@@ -2,7 +2,7 @@
 
 import type { CSSProperties, ReactNode } from "react";
 import { HeadParts, Walker } from "@/walker/Walker";
-import type { Swatch, WalkerAppearance } from "@/walker/appearance";
+import { INK, type Swatch, type WalkerAppearance } from "@/walker/appearance";
 import { useI18n } from "@/i18n/I18nProvider";
 import styles from "./creator.module.css";
 
@@ -98,7 +98,7 @@ export function HeadChoices<T extends string>({
           title={labels[o]}
           onClick={() => onChange(o)}
         >
-          <svg viewBox="54 -4 58 58" aria-hidden>
+          <svg viewBox="54 -4 58 58" aria-hidden style={{ color: INK }}>
             <HeadParts a={preview(o)} />
           </svg>
           <span>{labels[o]}</span>

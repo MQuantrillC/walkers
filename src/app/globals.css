@@ -1,3 +1,5 @@
+/* Theme: light by default, dark when the device prefers it, and the
+   header toggle can force either (data-theme on <html>). */
 :root {
   --background: #f3f1ec;
   --foreground: #211f1d;
@@ -5,27 +7,39 @@
   --line: #d6d1c8;
   --surface: #fbfaf7;
   --paper: #f3f1ec;
+  --paper-outline: #211f1d;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --background: #171615;
+  --foreground: #eeeae3;
+  --muted: #9a948b;
+  --line: #3a3733;
+  --surface: #e9e5dd;
+  --paper: #242220;
+  --paper-outline: #ece8e0;
+  color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --background: #171615;
     --foreground: #eeeae3;
     --muted: #9a948b;
     --line: #3a3733;
     --surface: #e9e5dd;
-    --paper: #e9e5dd;
+    --paper: #242220;
+    --paper-outline: #ece8e0;
+    color-scheme: dark;
   }
 }
 
-/* Walkers are drawn with dark outlines, so they always sit on paper, like
-   artwork on a wall. In light mode the paper matches the page; in dark mode
-   it keeps outlines, black clothes and dark hair readable. Text and lines
-   inside use dark-on-paper colours. */
+/* The surface walkers stand on. Their outlines follow it: dark ink on light
+   paper, light lines on the dark walkway, so black clothes and dark hair
+   keep their shape in both themes. */
 .paper {
-  --foreground: #211f1d;
-  --muted: #6d675f;
-  --line: #d6d1c8;
+  --wk-outline: var(--paper-outline);
   background: var(--paper);
   color: var(--foreground);
 }
@@ -62,12 +76,6 @@ body {
 a {
   color: inherit;
   text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
 }
 
 main {

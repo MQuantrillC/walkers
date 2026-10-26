@@ -8,6 +8,7 @@ import { LOCALE_COOKIE } from "@/i18n/config";
 import { useAuth } from "@/auth/AuthProvider";
 import { useUserAgent } from "@/auth/SignInButton";
 import { isInAppBrowser } from "@/lib/inAppBrowser";
+import { ThemeToggle } from "./ThemeToggle";
 import styles from "./siteHeader.module.css";
 
 // The current path is only known at request time on dynamic routes (like a
@@ -52,6 +53,7 @@ function HeaderBar({ pathname }: { pathname: string | null }) {
         ))}
       </nav>
       <div className={styles.tools}>
+        <ThemeToggle />
         {auth.status === "signedOut" && !inApp && (
           <button className={styles.account} onClick={() => signIn(here)}>
             {t.auth.signIn}

@@ -37,6 +37,11 @@ import {
 // ink first and then all fills, so a limb reads as one continuous shape.
 const OUT = 2.2;
 
+// Outlines take the SVG's text colour, so the surface a walker stands on
+// decides them: dark ink on light paper, light lines on a dark walkway
+// (see `.paper` in globals.css). Facial features always stay INK.
+const LINE = "currentColor";
+
 type Pass = "ink" | "fill";
 
 // Darken a #rrggbb colour; used to push far-side limbs back.
@@ -56,7 +61,7 @@ function Seg({ pass, len, w, color }: { pass: Pass; len: number; w: number; colo
       y1={0}
       x2={0}
       y2={len}
-      stroke={pass === "ink" ? INK : color}
+      stroke={pass === "ink" ? LINE : color}
       strokeWidth={pass === "ink" ? w + 2 * OUT : w}
       strokeLinecap="round"
     />
@@ -66,7 +71,7 @@ function Seg({ pass, len, w, color }: { pass: Pass; len: number; w: number; colo
 // A shape that joins the limb outline (no edge drawn inside the union).
 function Shape({ pass, d, color }: { pass: Pass; d: string; color: string }) {
   return pass === "ink" ? (
-    <path d={d} fill={INK} stroke={INK} strokeWidth={2 * OUT} strokeLinejoin="round" />
+    <path d={d} fill={LINE} stroke={LINE} strokeWidth={2 * OUT} strokeLinejoin="round" />
   ) : (
     <path d={d} fill={color} />
   );
@@ -74,7 +79,7 @@ function Shape({ pass, d, color }: { pass: Pass; d: string; color: string }) {
 
 // A shape with its own complete outline, drawn over whatever is beneath it.
 function Outlined({ d, color }: { d: string; color: string }) {
-  return <path d={d} fill={color} stroke={INK} strokeWidth={OUT} strokeLinejoin="round" />;
+  return <path d={d} fill={color} stroke={LINE} strokeWidth={OUT} strokeLinejoin="round" />;
 }
 
 function Passes({ children }: { children: (pass: Pass) => ReactNode }) {
@@ -257,7 +262,7 @@ function Items({ layers, color }: { layers: readonly ItemLayer[]; color: string 
       key={i}
       d={layer.d}
       fill={fills[layer.fill]}
-      stroke={layer.stroke === "color" ? color : INK}
+      stroke={layer.stroke === "color" ? color : LINE}
       strokeWidth={layer.width ?? OUT}
       strokeLinejoin="round"
       strokeLinecap="round"
@@ -355,7 +360,7 @@ export function TorsoParts({ a }: { a: WalkerAppearance }) {
       </Passes>
       {seatPaint && <PaintLayer surface="bottom" strokes={a.paint.bottom} clip={TORSO_SEAT} />}
       <PaintLayer surface="top" strokes={a.paint.top} clip={TORSO_TOP} />
-      <path d="M69 104L91 104" stroke={INK} strokeWidth={OUT} strokeLinecap="round" />
+      <path d="M69 104L91 104" stroke={LINE} strokeWidth={OUT} strokeLinecap="round" />
       {a.top === "hoodie" && (
         <>
           <Outlined d={HOOD} color={a.topColor} />
@@ -370,7 +375,7 @@ export function TorsoParts({ a }: { a: WalkerAppearance }) {
       )}
       {backpack && (
         <>
-          <path d={EXTRA_PATHS.backpackStrap} fill="none" stroke={INK} strokeWidth={4.6} strokeLinecap="round" />
+          <path d={EXTRA_PATHS.backpackStrap} fill="none" stroke={LINE} strokeWidth={4.6} strokeLinecap="round" />
           <path d={EXTRA_PATHS.backpackStrap} fill="none" stroke={backpack} strokeWidth={2.4} strokeLinecap="round" />
         </>
       )}
@@ -458,7 +463,13 @@ export function Walker({ appearance: a, phase = 0, height = 220, className, styl
       width={(height * VIEWBOX.width) / VIEWBOX.height}
       height={height}
       className={className}
-      style={{ overflow: "visible", ...style, ["--wk-phase" as string]: phase }}
+      style={{
+        overflow: "visible",
+        // Frozen frames are for images, where CSS variables don't resolve.
+        color: frame === undefined ? `var(--wk-outline, ${INK})` : INK,
+        ...style,
+        ["--wk-phase" as string]: phase,
+      }}
       role={title ? "img" : undefined}
       aria-label={title}
       aria-hidden={title ? undefined : true}

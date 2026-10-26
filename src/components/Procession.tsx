@@ -68,7 +68,8 @@ export function Procession({
         Array.from({ length: slots }, (_, slot) => {
           const index = (slot + (laps[slot] ?? 0) * slots) % total;
           const w = walkers[index];
-          const style = { animationDuration: `${crossS}s`, animationDelay: `${(-slot / slots) * crossS}s` };
+          // Offset by half a gap so someone is already on screen at the start.
+          const style = { animationDuration: `${crossS}s`, animationDelay: `${(-(slot + 0.5) / slots) * crossS}s` };
           const figure = (
             <>
               <Walker

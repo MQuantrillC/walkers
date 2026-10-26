@@ -1,4 +1,7 @@
 .procession {
+  /* Full width even inside centred flex columns (its walkers are absolutely
+     positioned, so it has no content width of its own). */
+  width: 100%;
   position: relative;
   overflow: hidden;
   border-bottom: 1.5px solid var(--line);

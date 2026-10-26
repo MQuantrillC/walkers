@@ -329,9 +329,11 @@ function Creator({ initial }: { initial: Draft }) {
           </button>
         </div>
         {saved === false && <p className={styles.saveError}>{t.creator.draftUnavailable}</p>}
-        <div className={styles.saveArea}>
-          <SavePanel sync={sync} onPublished={() => setStep("preview")} />
-        </div>
+        {step !== "preview" && (
+          <div className={styles.saveArea}>
+            <SavePanel sync={sync} onPublished={() => setStep("preview")} />
+          </div>
+        )}
       </section>
 
       <section className={styles.panel}>
@@ -515,21 +517,31 @@ function Creator({ initial }: { initial: Draft }) {
           )}
 
           {step === "preview" && (
+            // The last step: your walker among those already walking, with
+            // the publish controls right here instead of under the preview.
             <div className={styles.finale}>
-              {sync.notice === "published" && sync.remote ? (
-                <>
-                  <h2>{t.save.publishedTitle(displayName)}</h2>
-                  <p>
-                    <Link className={styles.saveLink} href={`/${locale}/w/${sync.remote.id}`}>
-                      {t.save.viewProfile} →
-                    </Link>
-                  </p>
-                </>
-              ) : (
-                <>
-                  <h2>{t.creator.readyTitle(displayName)}</h2>
-                  <p>{t.creator.readyBody}</p>
-                </>
+              <h2>
+                {sync.notice === "published" && sync.remote
+                  ? t.save.publishedTitle(displayName)
+                  : t.creator.readyTitle(displayName)}
+              </h2>
+              {!(sync.notice === "published" && sync.remote) && <p>{t.creator.readyBody}</p>}
+              <div className={styles.finaleWalk} aria-label={t.creator.processionLabel}>
+                <Procession
+                  walkers={[
+                    { name: displayName, appearance: a },
+                    ...others
+                      .filter((w) => w.id !== sync.remote?.id)
+                      .map((w) => ({ name: w.name, appearance: w.appearance, href: `/${locale}/w/${w.id}` })),
+                  ]}
+                  height={compact ? 120 : 140}
+                />
+              </div>
+              <SavePanel sync={sync} onPublished={() => setStep("preview")} />
+              {sync.remote?.status === "published" && (
+                <Link className={styles.saveLink} href={`/${locale}`}>
+                  {t.creator.seeTheWalk} →
+                </Link>
               )}
             </div>
           )}
@@ -547,19 +559,6 @@ function Creator({ initial }: { initial: Draft }) {
         </div>
       </section>
 
-      {step === "preview" && (
-        <section className={styles.processionPreview} aria-label={t.creator.processionLabel}>
-          <Procession
-            walkers={[
-              { name: displayName, appearance: a },
-              ...others
-                .filter((w) => w.id !== sync.remote?.id)
-                .map((w) => ({ name: w.name, appearance: w.appearance, href: `/${locale}/w/${w.id}` })),
-            ]}
-            height={compact ? 130 : 170}
-          />
-        </section>
-      )}
     </div>
   );
 }

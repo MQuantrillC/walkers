@@ -12,6 +12,8 @@ export const es: Dictionary = {
     me: "Mi caminante",
     language: "Idioma",
     switchTo: "English",
+    toDark: "Cambiar a modo oscuro",
+    toLight: "Cambiar a modo claro",
   },
   auth: {
     signIn: "Iniciar sesión",
@@ -169,6 +171,7 @@ export const es: Dictionary = {
     readyBody:
       "Así se ve tu caminante en la procesión. Publícalo para sumarlo a la galería pública.",
     processionLabel: "Tu caminante en la procesión",
+    seeTheWalk: "Ver El Camino",
   },
   paint: {
     canvasLabel: (part) => `Zona para pintar: ${part}. Dibuja con el ratón, un lápiz o el dedo.`,

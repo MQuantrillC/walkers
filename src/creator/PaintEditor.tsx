@@ -171,7 +171,7 @@ export function PaintEditor({ appearance, surface, onAdd, onReplace, onUndo, onR
       <svg
         ref={svgRef}
         className={styles.paintCanvas}
-        style={{ aspectRatio: `${view.w} / ${view.h}`, maxWidth: canvasMaxW }}
+        style={{ aspectRatio: `${view.w} / ${view.h}`, maxWidth: canvasMaxW, color: INK }}
         data-tool={tool}
         viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}
         onPointerDown={onPointerDown}

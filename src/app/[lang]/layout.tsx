@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { THEME_SCRIPT } from "@/components/ThemeToggle";
 import { I18nProvider } from "@/i18n/I18nProvider";
 import { AuthProvider } from "@/auth/AuthProvider";
 import { LOCALES, isLocale } from "@/i18n/config";
@@ -38,7 +39,11 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   return (
-    <html lang={lang} className={`${geistSans.variable} ${geistMono.variable}`}>
+    // The theme script may set data-theme before React hydrates.
+    <html lang={lang} className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body>
         <I18nProvider locale={lang}>
           <AuthProvider>

@@ -103,3 +103,34 @@
     display: none;
   }
 }
+
+.theme,
+.themePlaceholder {
+  width: 32px;
+  height: 32px;
+  flex: none;
+}
+
+.theme {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.theme:hover {
+  color: var(--foreground);
+  border-color: var(--foreground);
+}
+
+.theme svg {
+  width: 17px;
+  height: 17px;
+}
+
+.tools {
+  gap: 12px;
+}
