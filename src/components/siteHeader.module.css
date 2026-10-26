@@ -1,149 +1,327 @@
-.header {
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 20px 16px;
+.wrap {
+  position: relative;
+  z-index: 20;
+}
+
+.inner {
+  position: relative;
+}
+
+.bar {
+  height: 80px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  gap: 40px;
+  border-bottom: 1px solid var(--rule);
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-family: var(--font-display), Georgia, serif;
-  font-style: italic;
-  font-size: 27px;
-  line-height: 1;
-  letter-spacing: -0.01em;
+  gap: 8px;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  flex: none;
 }
 
 .brand svg {
-  width: 30px;
-  height: 30px;
-  margin: -4px -4px 0 -6px;
+  width: 26px;
+  height: 26px;
+  margin: -2px -4px 0 -5px;
   color: var(--accent);
 }
 
-.nav,
-.tools {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  font-size: 14px;
-}
-
 .nav {
-  margin-left: auto;
+  display: flex;
+  gap: 28px;
+  font-size: 15px;
+  white-space: nowrap;
 }
 
 .nav a,
-.tools a {
+.sheetNav a {
   color: var(--muted);
-  padding: 4px 0;
-  border-bottom: 1.5px solid transparent;
 }
 
 .nav a:hover,
-.tools a:hover {
-  color: var(--foreground);
+.sheetNav a:hover {
+  color: var(--accent);
 }
 
-.nav a[aria-current="page"] {
+.nav a[aria-current="page"],
+.sheetNav a[aria-current="page"] {
   color: var(--foreground);
-  border-bottom-color: var(--accent);
+  font-weight: 500;
 }
 
-.tools a.lang {
-  font-family: var(--font-mono), monospace;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  padding: 3px 9px;
+/* Utilities on the right: language, theme, account, all 36px high. */
+.tools {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings,
+.sheetSettings {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.separator {
+  width: 1px;
+  height: 20px;
+  margin: 0 6px;
+  background: var(--line);
+}
+
+.lang {
+  height: 36px;
+  display: flex;
+  padding: 3px;
   border: 1px solid var(--line);
   border-radius: 999px;
 }
 
-.tools a.lang:hover {
-  border-color: var(--foreground);
-}
-
-.account {
-  font: inherit;
-  font-size: 14px;
+.lang > * {
+  display: grid;
+  place-items: center;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   color: var(--muted);
-  background: none;
-  border: 0;
-  padding: 4px 0;
-  cursor: pointer;
 }
 
-.account:hover {
+.lang > a:hover {
   color: var(--foreground);
 }
 
-/* Phones: brand and language on one row, the three destinations below.
-   Signing in and out lives on the My Walker page and in the creator. */
-@media (max-width: 560px) {
-  .header {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-areas:
-      "brand tools"
-      "nav nav";
-    row-gap: 12px;
-    padding: 14px 16px 10px;
-  }
+.lang > [aria-current] {
+  background: var(--foreground);
+  color: var(--background);
+}
 
-  .brand {
-    grid-area: brand;
-  }
+.theme,
+.themePlaceholder,
+.burger {
+  width: 36px;
+  height: 36px;
+  flex: none;
+}
 
-  .tools {
-    grid-area: tools;
-  }
+.theme,
+.burger,
+.signIn,
+.accountButton {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+}
 
-  .nav {
-    grid-area: nav;
-    margin-left: 0;
-    justify-content: space-between;
-    gap: 8px;
-    font-size: 15px;
-  }
+.theme,
+.burger {
+  display: grid;
+  place-items: center;
+}
 
-  .account {
+.theme:hover,
+.burger:hover,
+.signIn:hover,
+.accountButton:hover,
+.accountButton[aria-expanded="true"] {
+  background: var(--hover);
+}
+
+.theme svg {
+  width: 16px;
+  height: 16px;
+}
+
+.signIn {
+  height: 36px;
+  padding: 0 16px;
+  font: inherit;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* Account button and menu */
+
+.account {
+  position: relative;
+}
+
+.accountButton {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px 0 3px;
+  color: var(--muted);
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: #e3c9b8;
+  color: #7a3a22;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  top: 44px;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  background: var(--menu);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgb(31 30 28 / 0.1);
+}
+
+.menuHead {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--menu-line);
+  min-width: 0;
+}
+
+.menuHead strong {
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menuHead span {
+  font-size: 12px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menu [role="menuitem"] {
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.menu [role="menuitem"]:hover,
+.menu [role="menuitem"]:focus-visible {
+  background: var(--background);
+  outline: none;
+}
+
+.menu .menuDanger {
+  color: var(--danger);
+  margin-top: 4px;
+  border-top: 1px solid var(--menu-line);
+  border-radius: 0 0 8px 8px;
+}
+
+.menu .menuDanger:hover,
+.menu .menuDanger:focus-visible {
+  background: var(--danger-hover);
+}
+
+.wrap :focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+}
+
+/* Phone menu: only on narrow screens. */
+
+.burger {
+  display: none;
+}
+
+.sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 18px clamp(16px, 4.4vw, 56px) 22px;
+  background: var(--background);
+  border-bottom: 1px solid var(--rule);
+  box-shadow: 0 18px 30px rgb(0 0 0 / 0.08);
+}
+
+.sheet[hidden] {
+  display: none;
+}
+
+.sheetNav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sheetNav a {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  padding: 4px 0;
+}
+
+@media (min-width: 761px) {
+  .sheet {
     display: none;
   }
 }
 
-.theme,
-.themePlaceholder {
-  width: 32px;
-  height: 32px;
-  flex: none;
-}
+@media (max-width: 760px) {
+  .bar {
+    height: 64px;
+    gap: 16px;
+  }
 
-.theme {
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-}
+  .sheet {
+    top: 64px;
+  }
 
-.theme:hover {
-  color: var(--foreground);
-  border-color: var(--foreground);
-}
+  .nav,
+  .settings,
+  .separator {
+    display: none;
+  }
 
-.theme svg {
-  width: 17px;
-  height: 17px;
-}
-
-.tools {
-  gap: 12px;
+  .burger {
+    display: grid;
+  }
 }

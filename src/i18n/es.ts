@@ -14,6 +14,9 @@ export const es: Dictionary = {
     switchTo: "English",
     toDark: "Cambiar a modo oscuro",
     toLight: "Cambiar a modo claro",
+    menu: "Menú",
+    closeMenu: "Cerrar menú",
+    account: "Cuenta",
   },
   auth: {
     signIn: "Iniciar sesión",

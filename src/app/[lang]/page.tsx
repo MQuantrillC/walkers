@@ -16,16 +16,16 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   const t = getDictionary(lang);
   return (
     <div className={styles.home}>
-      <div className={styles.intro}>
+      <div className={`container ${styles.intro}`}>
         <h1>
-          {t.home.headline} <em>{t.home.headlineEnd}</em>
+          {t.home.headline} <span>{t.home.headlineEnd}</span>
         </h1>
         <Link href={`/${lang}/create`} className={styles.cta}>
           {t.home.cta}
           <ArrowRight />
         </Link>
       </div>
-      <Suspense fallback={<div className={`${styles.walkway} paper`} aria-busy="true" />}>
+      <Suspense fallback={<div className={styles.walkway} aria-busy="true" />}>
         <FirstPage />
       </Suspense>
     </div>

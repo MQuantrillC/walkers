@@ -2,22 +2,20 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 14px;
+  gap: 24px;
 }
 
 .controls {
-  width: 100%;
-  max-width: 1100px;
-  padding: 0 16px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
 }
 
 .toggle {
   display: inline-flex;
+  gap: 4px;
   padding: 3px;
   border-radius: 999px;
   border: 1px solid var(--line);
@@ -26,7 +24,7 @@
 .toggle button {
   font: inherit;
   font-size: 14px;
-  padding: 6px 14px;
+  padding: 8px 16px;
   border-radius: 999px;
   border: 0;
   background: transparent;
@@ -37,13 +35,12 @@
 .toggle button[aria-pressed="true"] {
   background: var(--foreground);
   color: var(--background);
+  font-weight: 500;
 }
 
 .searchBox {
-  flex: 1;
-  min-width: 160px;
-  max-width: 320px;
-  margin-left: auto;
+  width: 360px;
+  max-width: 100%;
   position: relative;
   display: flex;
   align-items: center;
@@ -51,21 +48,26 @@
 
 .searchBox svg {
   position: absolute;
-  left: 13px;
-  color: var(--muted);
+  left: 15px;
+  color: var(--placeholder);
   pointer-events: none;
 }
 
 .search {
   width: 100%;
+  height: 42px;
   font: inherit;
   /* 16px keeps iOS from zooming into the field. */
   font-size: 16px;
-  padding: 8px 14px 8px 38px;
+  padding: 0 16px 0 40px;
   border-radius: 999px;
   border: 1px solid var(--line);
   background: transparent;
   color: var(--foreground);
+}
+
+.search::placeholder {
+  color: var(--placeholder);
 }
 
 .search:focus-visible,
@@ -75,33 +77,43 @@
   outline-offset: 2px;
 }
 
-.walkway {
+/* The walk: a whole screen of walkers, lanes stacked towards the bottom. */
+.stage {
   width: 100%;
-  border-bottom: 1.5px solid var(--line);
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 3svh;
+  scroll-snap-align: start;
+  overflow: hidden;
+}
+
+/* Scrolling down settles on the walk. */
+:global(html):has(.stage) {
+  scroll-snap-type: y proximity;
 }
 
 .empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  margin: auto;
   padding: 0 24px;
+  max-width: 28em;
   text-align: center;
   color: var(--muted);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.5;
 }
 
-.empty p {
-  max-width: 28em;
-}
-
 .grid {
-  width: 100%;
+  flex: 1;
+  overflow-y: auto;
   display: flex;
   flex-wrap: wrap;
+  align-content: flex-start;
   justify-content: center;
   gap: 8px 4px;
-  padding: 16px;
+  padding: 24px 16px;
 }
 
 .cell {
@@ -113,6 +125,7 @@
 }
 
 .more {
+  align-self: center;
   font: inherit;
   font-size: 14px;
   padding: 8px 18px;
@@ -125,8 +138,6 @@
 
 @media (max-width: 560px) {
   .searchBox {
-    max-width: none;
-    margin-left: 0;
-    flex-basis: 100%;
+    width: 100%;
   }
 }

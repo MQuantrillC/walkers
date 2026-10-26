@@ -1,39 +1,60 @@
 /* Theme: light by default, dark when the device prefers it, and the
    header toggle can force either (data-theme on <html>). */
 :root {
-  --background: #f3f1ec;
-  --foreground: #211f1d;
-  --muted: #77726b;
-  --line: #d6d1c8;
+  --background: #f2f0eb;
+  --foreground: #1f1e1c;
+  --muted: #6b6760;
+  --placeholder: #8a857c;
+  --line: #d6d2c9;
+  --rule: #dedbd3;
+  --hover: #e8e5de;
+  --menu: #ffffff;
+  --menu-line: #eeebe4;
+  --danger: #b23a1f;
+  --danger-hover: #fbede8;
   --surface: #fbfaf7;
-  --paper: #f3f1ec;
-  --paper-outline: #211f1d;
-  --accent: #cf4a2b;
+  --paper: #f2f0eb;
+  --paper-outline: #1f1e1c;
+  --accent: #d2492a;
   color-scheme: light;
 }
 
 :root[data-theme="dark"] {
-  --background: #171615;
-  --foreground: #eeeae3;
-  --muted: #9a948b;
-  --line: #3a3733;
+  --background: #1a1917;
+  --foreground: #f2f0eb;
+  --muted: #a29d94;
+  --placeholder: #807a71;
+  --line: #3a3833;
+  --rule: #2e2c29;
+  --hover: #2a2825;
+  --menu: #23211f;
+  --menu-line: #33312d;
+  --danger: #f07a5c;
+  --danger-hover: #3a241e;
   --surface: #e9e5dd;
   --paper: #242220;
   --paper-outline: #a39d93;
-  --accent: #ee7552;
+  --accent: #d2492a;
   color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --background: #171615;
-    --foreground: #eeeae3;
-    --muted: #9a948b;
-    --line: #3a3733;
+    --background: #1a1917;
+    --foreground: #f2f0eb;
+    --muted: #a29d94;
+    --placeholder: #807a71;
+    --line: #3a3833;
+    --rule: #2e2c29;
+    --hover: #2a2825;
+    --menu: #23211f;
+    --menu-line: #33312d;
+    --danger: #f07a5c;
+    --danger-hover: #3a241e;
     --surface: #e9e5dd;
     --paper: #242220;
     --paper-outline: #a39d93;
-    --accent: #ee7552;
+    --accent: #d2492a;
     color-scheme: dark;
   }
 }
@@ -87,25 +108,21 @@ main {
   flex-direction: column;
 }
 
-/* Type roles: a serif for headlines and walkers' names, a mono for small
-   labels and numbers; everything else uses the body face. */
+/* Type roles: a firm grotesque for headlines and walkers' names, Geist for
+   everything else. */
 h1,
 h2 {
-  font-family: var(--font-display), Georgia, serif;
-  font-weight: 400;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
-h1 em,
-h2 em {
-  font-style: italic;
-}
-
-.label {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+/* Content width shared by the header, the home page and the footer. */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-inline: clamp(16px, 4.4vw, 56px);
 }
 
 ::selection {

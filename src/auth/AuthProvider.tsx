@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import type { User } from "@supabase/supabase-js";
 import { getBrowserSupabase } from "@/lib/supabase/client";
 import { supabaseConfigured } from "@/lib/supabase/config";
 
@@ -9,7 +10,10 @@ export type AuthState =
   | { status: "unavailable" }
   | { status: "loading" }
   | { status: "signedOut" }
-  | { status: "signedIn"; userId: string };
+  | { status: "signedIn"; userId: string; profile: Profile };
+
+// What the header's account menu shows, from the Google account.
+export type Profile = { name: string; email: string; avatarUrl: string | null };
 
 type AuthContextValue = {
   auth: AuthState;
@@ -30,7 +34,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!supabase) return;
     // Fires once straight away with the current session, then on every change.
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      setAuth(session ? { status: "signedIn", userId: session.user.id } : { status: "signedOut" });
+      setAuth(
+        session
+          ? { status: "signedIn", userId: session.user.id, profile: profileOf(session.user) }
+          : { status: "signedOut" },
+      );
     });
     return () => data.subscription.unsubscribe();
   }, []);
@@ -45,6 +53,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return <AuthContext value={{ auth, signIn, signOut }}>{children}</AuthContext>;
+}
+
+function profileOf(user: User): Profile {
+  const meta = user.user_metadata ?? {};
+  const text = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+  const email = user.email ?? "";
+  const avatar = text(meta.avatar_url) || text(meta.picture);
+  return {
+    name: text(meta.full_name) || text(meta.name) || email.split("@")[0],
+    email,
+    avatarUrl: avatar.startsWith("https://") ? avatar : null,
+  };
 }
 
 export function useAuth() {

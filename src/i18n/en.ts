@@ -12,6 +12,9 @@ export const en = {
     switchTo: "Español",
     toDark: "Switch to dark mode",
     toLight: "Switch to light mode",
+    menu: "Menu",
+    closeMenu: "Close menu",
+    account: "Account",
   },
   auth: {
     signIn: "Sign in",
