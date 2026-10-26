@@ -122,7 +122,7 @@ export const es: Dictionary = {
     loading: "Cargando…",
   },
   home: {
-    headline: "Crea una persona. Hazla tuya. Mírala caminar.",
+    headline: "Dale vida a tu avatar. Súmalo a El Camino.",
     cta: "Crea tu caminante",
     empty: "Todavía no hay nadie caminando. Crea tu caminante y sé la primera persona en unirse.",
   },

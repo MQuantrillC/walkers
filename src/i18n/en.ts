@@ -120,7 +120,7 @@ export const en = {
     loading: "Loading…",
   },
   home: {
-    headline: "Create a person. Make them your own. Watch them walk.",
+    headline: "Bring your avatar to life. Add it to The Walk.",
     cta: "Create your walker",
     empty: "Nobody is walking yet. Create your walker and be the first to join.",
   },
