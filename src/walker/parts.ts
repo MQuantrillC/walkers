@@ -136,11 +136,15 @@ export const HAIR: Record<HairStyle, HairLayer[]> = {
 const UNDER_BRIM = "M0 32.3L160 9.8L160 220L0 220Z";
 // The beanie cuff's lower edge, from behind the ear up to the forehead.
 const BEANIE_EDGE = "M65.2 29.9C75.2 28.3 89.3 22.9 98.1 18.4";
+// Past the forehead the edge turns down, so nothing pokes out in front.
+const UNDER_BEANIE = `M0 34L${BEANIE_EDGE.slice(1)}L104 25L160 25L160 220L0 220Z`;
 export const HAIR_CLIP: Partial<Record<Headwear, string>> = {
-  cap: UNDER_BRIM,
+  cap: "M0 37.3L160 8.7L160 220L0 220Z",
   bucket: UNDER_BRIM,
-  // Past the forehead the edge turns down, so nothing pokes out in front.
-  beanie: `M0 34L${BEANIE_EDGE.slice(1)}L104 25L160 25L160 220L0 220Z`,
+  beanie: UNDER_BEANIE,
+  chullo: UNDER_BEANIE,
+  beret: "M0 29.1L160 13.2L160 220L0 220Z",
+  helmet: "M0 35.5L160 12L160 220L0 220Z",
 };
 
 // Voluminous styles squashed under a hat: a rounded puff hugging the back
@@ -173,14 +177,28 @@ export const FACIAL_HAIR_PATHS: Record<Exclude<FacialHair, "none">, { beard?: st
 };
 
 // Headwear and eyewear layers. `color` uses the item's colour, `dark` a
-// near-black lens, `glass` a faint tint.
-export type ItemLayer = { d: string; fill: "color" | "dark" | "glass" | "none"; stroke?: "color" | "ink"; width?: number };
+// near-black lens, `glass` a faint tint; a `light` stroke is a pale
+// highlight or knitted pattern.
+export type ItemLayer = {
+  d: string;
+  fill: "color" | "dark" | "glass" | "none";
+  stroke?: "color" | "ink" | "light";
+  width?: number;
+};
 
 export const HEADWEAR_LAYERS: Record<Headwear, ItemLayer[]> = {
   none: [],
+  // A structured crown that sits snug on the head, a button on top, one
+  // seam, and a bill that curves down and thins towards its tip.
   cap: [
-    { d: "M66.5 23C66 13.5 72.5 7.5 82 7.5C91 7.5 97.2 12 97.5 18.5L66.5 23Z", fill: "color", stroke: "ink" },
-    { d: "M95 16.8L108.5 18C109.7 18.1 109.7 20.1 108.5 20.2L95 19.9Z", fill: "color", stroke: "ink" },
+    { d: circle(81.6, 7.6, 1.7), fill: "color", stroke: "ink", width: 1.6 },
+    {
+      d: "M96.5 17.6C102 17.4 107.5 18.6 111.5 21.2C112.6 21.9 112.2 23.3 110.8 23.1C106 22.4 101.5 22 97.5 22.4Z",
+      fill: "color",
+      stroke: "ink",
+    },
+    { d: "M65.8 25.5C64.8 15 71.5 8 81.5 8C91 8 97.8 13 98.8 19.6Z", fill: "color", stroke: "ink" },
+    { d: "M82.4 8.6C88.4 9.8 93.6 13.6 95.8 19.2", fill: "none", stroke: "ink", width: 0.9 },
   ],
   // One knitted piece that hugs the skull: the crown follows the head's
   // curve a little outside it, and the folded cuff wraps from the forehead
@@ -196,6 +214,19 @@ export const HEADWEAR_LAYERS: Record<Headwear, ItemLayer[]> = {
     // Folded cuff, standing slightly proud of the crown at both ends.
     { d: "M64.7 24.4C74.5 22.8 88.8 17.6 98.3 13.1L98.1 18.4C89.3 22.9 75.2 28.3 65.2 29.9Z", fill: "color", stroke: "ink" },
   ],
+  // The beanie's Andean cousin: earflap, tie and a knitted zigzag.
+  chullo: [
+    { d: circle(80.5, 3.8, 3.4), fill: "color", stroke: "ink" },
+    { d: "M77 39.5C76.5 43 76.8 46.5 77.5 49", fill: "none", stroke: "ink", width: 1.4 },
+    { d: circle(77.6, 50.2, 1.5), fill: "color", stroke: "ink", width: 1.4 },
+    { d: "M71.4 27.4C72 32.5 74 37 77 39.5C79.5 37 81 31.5 80.8 25.4Z", fill: "color", stroke: "ink" },
+    {
+      d: "M97.4 18C97.8 9.6 91 4.4 82.4 4.4C72.2 4.4 65.2 11.6 65.2 20.8C65.2 24.2 65.5 27.2 65.9 29.5C75 27.8 89 22.5 97.4 18Z",
+      fill: "color",
+      stroke: "ink",
+    },
+    { d: "M67.6 24.2L70.3 20.6L73.0 22.2L75.7 18.6L78.4 20.2L81.1 16.7L83.8 18.3L86.5 14.7L89.2 16.3L91.9 12.7", fill: "none", stroke: "light", width: 1.3 },
+  ],
   bucket: [
     { d: "M68.5 21.5C68 13 74 8.5 83 8.5C92 8.5 97 12.5 97 18L68.5 21.5Z", fill: "color", stroke: "ink" },
     {
@@ -203,6 +234,32 @@ export const HEADWEAR_LAYERS: Record<Headwear, ItemLayer[]> = {
       fill: "color",
       stroke: "ink",
     },
+  ],
+  // Soft and slouched towards the back, with a little stalk on top.
+  beret: [
+    { d: "M82.6 7.4L83.4 4.2", fill: "none", stroke: "ink", width: 2 },
+    {
+      d: "M66 22.5C62 18 64 10.5 74 8.2C83 6.2 95 8 98.8 13.5C100.5 16 99.5 18.6 97.2 19.4C88 21.6 75 22.8 66 22.5Z",
+      fill: "color",
+      stroke: "ink",
+    },
+  ],
+  // A long shell with a pointed tail, air vents and a short visor.
+  helmet: [
+    {
+      d: "M97.6 18.8L105.4 19.8C106.8 20 106.8 22.2 105.4 22.3L98 22.6Z",
+      fill: "color",
+      stroke: "ink",
+      width: 1.6,
+    },
+    {
+      d: "M61 22C61.5 12 70.5 5.5 82.5 5.5C93 5.5 100 11.5 100.8 18.8C101 20.3 100 21 98.6 21L68 25.5C65 26 62.5 24.5 61 22Z",
+      fill: "color",
+      stroke: "ink",
+    },
+    { d: "M72 10.9C74 9.4 76.5 8.6 79 8.4L79.4 10.6C77 10.8 74.8 11.6 73.1 12.8Z", fill: "dark", stroke: "ink", width: 1 },
+    { d: "M82.4 8.2C85.4 8.2 88.4 9 90.9 10.5L89.8 12.4C87.6 11.2 85 10.5 82.4 10.5Z", fill: "dark", stroke: "ink", width: 1 },
+    { d: "M93.2 12C95.2 13.4 96.8 15.4 97.8 17.6L95.7 18.2C94.9 16.4 93.7 14.8 92.1 13.6Z", fill: "dark", stroke: "ink", width: 1 },
   ],
   headband: [{ d: "M66 21.8L98.3 16.8L98.1 13.4L66.4 18.4Z", fill: "color", stroke: "ink" }],
 };
@@ -218,6 +275,18 @@ export const EYEWEAR_LAYERS = {
     { d: "M90 24.2L79 25.6", fill: "none", stroke: "color", width: 1.8 },
     { d: LENS, fill: "dark", stroke: "color", width: 1.8 },
   ],
+  // Wraparound cycling shades: one mirrored lens in the chosen colour that
+  // curves past the face, with a glint.
+  sport: [
+    { d: "M86 23.4L76.5 25", fill: "none", stroke: "ink", width: 1.8 },
+    {
+      d: "M85.5 21.6C90.5 20.4 96.5 20.2 100.3 21.3C100.8 23.6 100 26.2 98.7 27.6C95 28.5 90.5 28.1 87.6 27C86 26.3 85.2 24 85.5 21.6Z",
+      fill: "color",
+      stroke: "ink",
+      width: 1.6,
+    },
+    { d: "M88.4 23C91.5 22.3 95 22.2 97.6 22.7", fill: "none", stroke: "light", width: 1 },
+  ],
 } satisfies Record<string, ItemLayer[]>;
 
 // Extras, each in the frame of the part that carries it.
@@ -227,8 +296,6 @@ export const EXTRA_PATHS = {
   watchFace: "M3.6 21.6H7.4V27.4H3.6Z",
   bracelet: "M-5.4 27.4H5.4V30.2H-5.4Z",
   glovesCuff: "M-5.8 27.2H5.8V31.6H-5.8Z",
-  // A band round the fingers, on the front of the hand (centred at y = 34).
-  ring: "M0.4 34.4H6.6V38.6H0.4Z",
   // Body frame (leaned with the torso).
   scarfWrap: "M75 48.5C80 46.5 88 46.5 92 49L92.5 56C87 58.5 80 58.5 74.5 56Z",
   scarfTail: "M77 52L71.5 53.5L65.5 69C65 71 67 72 68.5 71L76 59Z",
@@ -237,7 +304,7 @@ export const EXTRA_PATHS = {
   backpackStrap: "M70 58C74 54.5 82 54.3 85.5 58.5C88.5 64 89.2 72 86.5 80C83.5 88 77 94 71 97",
 } as const;
 
-export const EXTRA_ORDER: readonly Extra[] = ["backpack", "scarf", "necklace", "bracelet", "watch", "gloves", "ring"];
+export const EXTRA_ORDER: readonly Extra[] = ["backpack", "scarf", "necklace", "bracelet", "watch", "gloves"];
 
 // Preset facial features, all in the head frame.
 export const EYES = {

@@ -40,7 +40,7 @@ import { EMPTY_DRAFT, clearDraft, parseDraft, readDraftRaw, writeDraft, type Dra
 import { PaintEditor } from "./PaintEditor";
 import { SavePanel } from "./SavePanel";
 import { useCloudSync } from "./useCloudSync";
-import { Choices, HeadChoices, Swatches, ToggleChoices } from "./pickers";
+import { Choices, HeadChoices, Swatches, ToggleChoices, ToneSlider } from "./pickers";
 import { ArrowLeft, ArrowRight, Dice, Restart } from "@/components/icons";
 import styles from "./creator.module.css";
 
@@ -142,7 +142,6 @@ const cloth = Object.fromEntries(PALETTE.cloth.map((c) => [c.id, c.hex])) as Rec
 const EXTRA_DEFAULT_COLOR: Record<Extra, string> = {
   bracelet: cloth.ochre,
   watch: cloth.black,
-  ring: cloth.ochre,
   gloves: cloth.black,
   scarf: cloth.red,
   necklace: cloth.ochre,
@@ -385,7 +384,7 @@ function Creator({ initial }: { initial: Draft }) {
                 />
                 <small>{t.creator.nameHelp(NAME_MAX - name.length)}</small>
               </label>
-              <Swatches title={t.creator.skin} swatches={PALETTE.skin} value={a.skin} onChange={(skin) => look({ skin })} />
+              <ToneSlider title={t.creator.skin} swatches={PALETTE.skin} value={a.skin} onChange={(skin) => look({ skin })} />
               <HeadChoices
                 title={t.creator.hair}
                 options={HAIR_STYLES}

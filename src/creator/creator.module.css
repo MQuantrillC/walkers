@@ -615,3 +615,62 @@
 .sizeButton:hover {
   background: var(--hover);
 }
+
+/* Skin tone slider: the gradient is the track, the knob shows the tone. */
+.tone {
+  --knob: 30px;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  max-width: 420px;
+  height: var(--knob);
+  margin: 0;
+  border-radius: 999px;
+  background: var(--tones);
+  border: 1px solid color-mix(in srgb, var(--foreground) 18%, transparent);
+  cursor: pointer;
+  touch-action: pan-y;
+}
+
+.tone::-webkit-slider-runnable-track {
+  height: 100%;
+  background: transparent;
+}
+
+.tone::-moz-range-track {
+  height: 100%;
+  background: transparent;
+}
+
+.tone::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--knob);
+  height: var(--knob);
+  border-radius: 50%;
+  background: var(--tone);
+  box-shadow:
+    0 0 0 3px var(--background),
+    0 0 0 5px var(--foreground);
+  transition: transform 0.15s ease;
+}
+
+.tone::-moz-range-thumb {
+  width: var(--knob);
+  height: var(--knob);
+  border: 0;
+  border-radius: 50%;
+  background: var(--tone);
+  box-shadow:
+    0 0 0 3px var(--background),
+    0 0 0 5px var(--foreground);
+}
+
+.tone:hover::-webkit-slider-thumb {
+  transform: scale(1.08);
+}
+
+.tone:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 6px;
+}

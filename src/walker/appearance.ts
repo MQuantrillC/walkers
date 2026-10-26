@@ -8,10 +8,10 @@ export const FACIAL_HAIR = ["none", "stubble", "moustache", "beard"] as const;
 export const TOP_STYLES = ["tee", "longsleeve", "tank", "hoodie"] as const;
 export const BOTTOM_STYLES = ["trousers", "cropped", "shorts", "skirt"] as const;
 export const SHOE_STYLES = ["sneaker", "hightop", "boot", "flat", "sandal"] as const;
-export const HEADWEAR = ["none", "cap", "beanie", "bucket", "headband"] as const;
-export const EYEWEAR = ["none", "glasses", "sunglasses"] as const;
+export const HEADWEAR = ["none", "cap", "beanie", "chullo", "bucket", "beret", "helmet", "headband"] as const;
+export const EYEWEAR = ["none", "glasses", "sunglasses", "sport"] as const;
 // Extras can be combined; each one worn carries its own colour.
-export const EXTRAS = ["bracelet", "watch", "ring", "gloves", "scarf", "necklace", "backpack"] as const;
+export const EXTRAS = ["bracelet", "watch", "gloves", "scarf", "necklace", "backpack"] as const;
 export const EYE_STYLES = ["dot", "wide", "closed", "none"] as const;
 export const BROW_STYLES = ["none", "line", "arched"] as const;
 export const MOUTH_STYLES = ["none", "smile", "line", "open"] as const;
@@ -76,13 +76,22 @@ export type Swatch = { hex: string; id: string };
 export const INK = "#211f1d";
 
 export const PALETTE = {
+  // Lightest to deepest, picked on a slider. The original six tones are
+  // kept exactly (walkers already saved use them), with one between each
+  // pair and a deeper end.
   skin: [
     { hex: "#f5d6c1", id: "porcelain" },
+    { hex: "#eecaaf", id: "peach" },
     { hex: "#e8bd9c", id: "sand" },
+    { hex: "#dcac87", id: "almond" },
     { hex: "#d09a71", id: "honey" },
+    { hex: "#bf8860", id: "amber" },
     { hex: "#ad7550", id: "caramel" },
+    { hex: "#9a6444", id: "cinnamon" },
     { hex: "#865437", id: "chestnut" },
+    { hex: "#70472e", id: "mocha" },
     { hex: "#5b3a26", id: "espresso" },
+    { hex: "#432a1c", id: "ebony" },
   ],
   hair: [
     { hex: "#1f1b18", id: "black" },
@@ -150,7 +159,7 @@ export const EMPTY_PAINT: Paint = { face: [], top: [], bottom: [], shoes: [] };
 export const DEFAULT_FACE: Face = { eyes: "dot", brows: "none", mouth: "none", blush: false };
 
 export const DEFAULT_APPEARANCE: WalkerAppearance = {
-  skin: PALETTE.skin[1].hex,
+  skin: PALETTE.skin[2].hex,
   hair: "short",
   hairColor: PALETTE.hair[1].hex,
   facialHair: "none",

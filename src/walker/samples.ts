@@ -16,12 +16,12 @@ const stripes = [0.3, 0.42, 0.54, 0.66].map((v) => ({ color: "#ffffff", size: 2,
 export const SAMPLE_WALKERS: { name: string; appearance: WalkerAppearance }[] = [
   {
     name: "Ada",
-    appearance: look({ skin: skin[1], hair: "short", hairColor: hair.darkBrown, topColor: cloth.red, bottomColor: cloth.inkBlue, shoeColor: cloth.chalk }),
+    appearance: look({ skin: skin[2], hair: "short", hairColor: hair.darkBrown, topColor: cloth.red, bottomColor: cloth.inkBlue, shoeColor: cloth.chalk }),
   },
   {
     name: "Noor",
     appearance: look({
-      skin: skin[3], hair: "long", hairColor: hair.black, top: "longsleeve", topColor: cloth.ochre, bottom: "skirt",
+      skin: skin[6], hair: "long", hairColor: hair.black, top: "longsleeve", topColor: cloth.ochre, bottom: "skirt",
       bottomColor: cloth.inkBlue, shoes: "flat", shoeColor: cloth.black, face: { ...DEFAULT_FACE, mouth: "smile" },
       extras: { bracelet: cloth.chalk },
     }),
@@ -36,28 +36,28 @@ export const SAMPLE_WALKERS: { name: string; appearance: WalkerAppearance }[] = 
   {
     name: "Mia",
     appearance: look({
-      skin: skin[2], hair: "ponytail", hairColor: hair.brown, top: "longsleeve", topColor: cloth.pink, bottomColor: cloth.blue,
+      skin: skin[4], hair: "ponytail", hairColor: hair.brown, top: "longsleeve", topColor: cloth.pink, bottomColor: cloth.blue,
       face: { ...DEFAULT_FACE, blush: true }, paint: { ...EMPTY_PAINT, top: stripes },
     }),
   },
   {
     name: "Kofi",
     appearance: look({
-      skin: skin[5], hair: "afro", hairColor: hair.black, facialHair: "beard", top: "tank", topColor: cloth.chalk,
+      skin: skin[10], hair: "afro", hairColor: hair.black, facialHair: "beard", top: "tank", topColor: cloth.chalk,
       bottomColor: cloth.black, shoeColor: cloth.red, headwear: "beanie", headwearColor: cloth.ochre,
     }),
   },
   {
     name: "Lena",
     appearance: look({
-      skin: skin[1], hair: "braid", hairColor: hair.auburn, top: "tee", topColor: cloth.inkBlue, bottom: "skirt",
+      skin: skin[2], hair: "braid", hairColor: hair.auburn, top: "tee", topColor: cloth.inkBlue, bottom: "skirt",
       bottomColor: cloth.violet, shoes: "boot", shoeColor: cloth.black, eyewear: "sunglasses", extras: { scarf: cloth.ochre },
     }),
   },
   {
     name: "Sami",
     appearance: look({
-      skin: skin[4], hair: "curly", hairColor: hair.black, facialHair: "moustache", top: "hoodie", topColor: cloth.blue,
+      skin: skin[8], hair: "curly", hairColor: hair.black, facialHair: "moustache", top: "hoodie", topColor: cloth.blue,
       bottom: "cropped", bottomColor: cloth.umber, shoes: "sandal", shoeColor: cloth.ochre, headwear: "cap", headwearColor: cloth.ochre,
     }),
   },

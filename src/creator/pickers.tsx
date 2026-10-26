@@ -88,6 +88,42 @@ export function Swatches({
   );
 }
 
+// A row of tones picked by sliding, lightest to deepest. The track's
+// gradient puts each tone right under the thumb's centre at its stop.
+export function ToneSlider({
+  title,
+  swatches,
+  value,
+  onChange,
+}: {
+  title: string;
+  swatches: readonly Swatch[];
+  value: string;
+  onChange: (hex: string) => void;
+}) {
+  const { t } = useI18n();
+  const name = (s: Swatch) => t.colors[s.id as keyof typeof t.colors] ?? s.id;
+  const index = Math.max(0, swatches.findIndex((s) => s.hex === value));
+  const last = swatches.length - 1;
+  const stops = swatches.map((s, i) => `${s.hex} calc(var(--knob) / 2 + (100% - var(--knob)) * ${i / last})`);
+  return (
+    <Field title={`${title} · ${name(swatches[index])}`}>
+      <input
+        type="range"
+        className={styles.tone}
+        min={0}
+        max={last}
+        step={1}
+        value={index}
+        aria-label={title}
+        aria-valuetext={name(swatches[index])}
+        style={{ "--tones": `linear-gradient(to right, ${stops.join(", ")})`, "--tone": value } as CSSProperties}
+        onChange={(e) => onChange(swatches[Number(e.target.value)].hex)}
+      />
+    </Field>
+  );
+}
+
 // Head thumbnails, for options you need to see (hair, hats, glasses).
 export function HeadChoices<T extends string>({
   title,
