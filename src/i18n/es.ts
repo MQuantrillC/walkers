@@ -106,6 +106,8 @@ export const es: Dictionary = {
   },
   footer: {
     privacy: "Privacidad",
+    madeBy: "Hecho con ❤️ por",
+    personalPage: "Página personal",
   },
   gallery: {
     label: "El Camino",

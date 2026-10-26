@@ -104,6 +104,8 @@ export const en = {
   },
   footer: {
     privacy: "Privacy",
+    madeBy: "Made with ❤️ by",
+    personalPage: "Personal Page",
   },
   gallery: {
     label: "The Walk",
