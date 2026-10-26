@@ -1,0 +1,205 @@
+.studio {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 16px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+
+.header h1 {
+  font-size: 20px;
+  letter-spacing: 0.32em;
+  font-weight: 600;
+}
+
+.header p {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.h2 {
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.treadmillSection {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+  gap: 40px;
+  align-items: center;
+}
+
+.treadmill {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding-top: 24px;
+  overflow: hidden;
+}
+
+/* Ticks scroll backwards by one stride per cycle, in step with the walker. */
+.ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--ground-y);
+  height: 10px;
+  border-top: 1.5px solid var(--foreground);
+  background-image: linear-gradient(90deg, var(--foreground) 1.5px, transparent 1.5px);
+  background-size: calc(var(--stride-px) / 4) 8px;
+  background-repeat: repeat-x;
+  opacity: 0.35;
+  animation: ground var(--wk-dur) linear infinite;
+  animation-play-state: var(--wk-play, running);
+  animation-delay: calc(var(--wk-phase, 0) * var(--wk-dur) * -1);
+}
+
+@keyframes ground {
+  from {
+    background-position-x: 0;
+  }
+  to {
+    background-position-x: calc(var(--stride-px) * -1);
+  }
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip,
+.chipOn {
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.chipOn {
+  background: var(--foreground);
+  color: var(--background);
+  border-color: var(--foreground);
+}
+
+.scrub {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.scrub[aria-disabled="true"] {
+  opacity: 0.45;
+}
+
+.note {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.sheet {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 24px;
+}
+
+.sheet figure {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: -36px;
+}
+
+.sheet figcaption {
+  font-size: 11px;
+  color: var(--muted);
+  padding: 4px 0;
+}
+
+.sizes {
+  display: flex;
+  align-items: flex-end;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.sizes figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.sizes figcaption {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.procession {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1.5px solid var(--line);
+}
+
+.marcher {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation-name: cross;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes cross {
+  from {
+    transform: translateX(calc(var(--walker-w) * -1));
+  }
+  to {
+    transform: translateX(calc(var(--loop) - var(--walker-w)));
+  }
+}
+
+.name {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  height: 28px;
+  line-height: 28px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ground,
+  .marcher {
+    animation-play-state: paused;
+  }
+}
+
+@media (max-width: 760px) {
+  .treadmillSection {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
