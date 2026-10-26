@@ -4,7 +4,6 @@ import { useEffect, useReducer, useRef, useState, useSyncExternalStore, type CSS
 import Link from "next/link";
 import { Walker } from "@/walker/Walker";
 import { Procession } from "@/components/Procession";
-import { SAMPLE_WALKERS } from "@/walker/samples";
 import { GAIT } from "@/walker/gait";
 import { VIEWBOX } from "@/walker/walkCss";
 import {
@@ -30,6 +29,12 @@ import {
   type WalkerAppearance,
 } from "@/walker/appearance";
 import { cleanDisplayName } from "@/walker/validate";
+import { listLatestWalkers } from "@/walker/actions";
+import type { PublicWalker } from "@/walker/records";
+import { useMediaQuery } from "@/lib/useMediaQuery";
+import { isInAppBrowser } from "@/lib/inAppBrowser";
+import { useUserAgent } from "@/auth/SignInButton";
+import { DRAFT_HASH, decodeDraft, encodeDraft } from "./transfer";
 import { useI18n } from "@/i18n/I18nProvider";
 import { EMPTY_DRAFT, clearDraft, parseDraft, readDraftRaw, writeDraft, type Draft } from "./draft";
 import { PaintEditor } from "./PaintEditor";
@@ -169,16 +174,40 @@ function randomLook(): Look & { extras: WalkerAppearance["extras"] } {
   };
 }
 
-const PREVIEW_H = 290;
+// Walker height in the live preview; smaller on phones, where the preview
+// stays pinned above the options.
+const PREVIEW_H = { wide: 290, compact: 170 };
 const noSubscribe = () => () => {};
 
 // Reads the saved draft once storage is available. On the server (and the
 // first hydration pass) there is no draft yet, so the editor waits a beat
 // rather than flashing the default walker and then swapping it.
+//
+// A draft can also arrive in the URL fragment, carried over from another
+// browser (see transfer.ts); it is saved on this device and then used.
 export function CreatorPage() {
   const raw = useSyncExternalStore(noSubscribe, readDraftRaw, () => undefined);
-  if (raw === undefined) return <div className={styles.loading} aria-busy="true" />;
-  return <Creator initial={parseDraft(raw)} />;
+  const carried = useSyncExternalStore(noSubscribe, readCarriedDraft, () => null);
+  const [imported, setImported] = useState<Draft | null | undefined>(undefined);
+
+  useEffect(() => {
+    if (!carried) return;
+    decodeDraft(carried).then((draft) => {
+      if (draft) writeDraft({ ...draft, updatedAt: Date.now() });
+      const { pathname, search } = window.location;
+      window.history.replaceState(window.history.state, "", `${pathname}${search}`);
+      setImported(draft);
+    });
+  }, [carried]);
+
+  if (raw === undefined || (carried && imported === undefined)) {
+    return <div className={styles.loading} aria-busy="true" />;
+  }
+  return <Creator initial={imported ?? parseDraft(raw)} />;
+}
+
+function readCarriedDraft() {
+  return window.location.hash.startsWith(DRAFT_HASH) ? window.location.hash.slice(DRAFT_HASH.length) : null;
 }
 
 function Creator({ initial }: { initial: Draft }) {
@@ -208,6 +237,20 @@ function Creator({ initial }: { initial: Draft }) {
     if (!ok) queueMicrotask(() => setSaved(false));
   }, [name, a]);
 
+  // Inside Instagram & co., keep the draft in the URL fragment too, so
+  // "open in browser" carries it to Safari/Chrome where sign-in works.
+  const inApp = isInAppBrowser(useUserAgent());
+  useEffect(() => {
+    if (!inApp) return;
+    const timer = setTimeout(() => {
+      encodeDraft({ name, appearance: a }).then((code) => {
+        const { pathname, search } = window.location;
+        window.history.replaceState(window.history.state, "", `${pathname}${search}${DRAFT_HASH}${code}`);
+      });
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [inApp, name, a]);
+
   // Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z (or Ctrl+Y) while painting.
   useEffect(() => {
     if (step !== "paint") return;
@@ -224,10 +267,25 @@ function Creator({ initial }: { initial: Draft }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [step]);
 
+  // Others already walking, shown beside the new walker on the last step.
+  const [others, setOthers] = useState<PublicWalker[]>([]);
+  useEffect(() => {
+    if (step !== "preview") return;
+    let cancelled = false;
+    listLatestWalkers().then((list) => {
+      if (!cancelled) setOthers(list);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [step]);
+
+  const compact = useMediaQuery("(max-width: 800px)");
+  const previewH = compact ? PREVIEW_H.compact : PREVIEW_H.wide;
   const index = STEPS.indexOf(step);
   const look = (patch: Look) => dispatch({ type: "look", patch });
   const face = (patch: Partial<Face>) => dispatch({ type: "face", patch });
-  const stridePx = GAIT.stride * (PREVIEW_H / VIEWBOX.height);
+  const stridePx = GAIT.stride * (previewH / VIEWBOX.height);
   const worn = EXTRAS.filter((id) => a.extras[id]);
 
   return (
@@ -238,20 +296,20 @@ function Creator({ initial }: { initial: Draft }) {
           style={
             {
               "--stride-px": `${stridePx}px`,
-              "--ground-y": `${(PREVIEW_H * (VIEWBOX.height - 210)) / VIEWBOX.height}px`,
+              "--ground-y": `${(previewH * (VIEWBOX.height - 210)) / VIEWBOX.height}px`,
             } as CSSProperties
           }
         >
           <div className={styles.ground} />
           <Walker
             appearance={a}
-            height={PREVIEW_H}
+            height={previewH}
             title={t.creator.walking(displayName)}
             className={styles.previewWalker}
           />
         </div>
         <p className={styles.previewName}>{displayName}</p>
-        <div className={styles.previewActions}>
+        <div className={`${styles.previewActions} ${styles.lookActions}`}>
           <button className={styles.chip} onClick={() => look(randomLook())}>
             {t.creator.randomise}
           </button>
@@ -271,10 +329,9 @@ function Creator({ initial }: { initial: Draft }) {
           </button>
         </div>
         {saved === false && <p className={styles.saveError}>{t.creator.draftUnavailable}</p>}
-        <SavePanel
-          sync={sync}
-          onPublished={() => setStep("preview")}
-        />
+        <div className={styles.saveArea}>
+          <SavePanel sync={sync} onPublished={() => setStep("preview")} />
+        </div>
       </section>
 
       <section className={styles.panel}>
@@ -492,7 +549,15 @@ function Creator({ initial }: { initial: Draft }) {
 
       {step === "preview" && (
         <section className={styles.processionPreview} aria-label={t.creator.processionLabel}>
-          <Procession walkers={[{ name: displayName, appearance: a }, ...SAMPLE_WALKERS.slice(0, 5)]} height={170} />
+          <Procession
+            walkers={[
+              { name: displayName, appearance: a },
+              ...others
+                .filter((w) => w.id !== sync.remote?.id)
+                .map((w) => ({ name: w.name, appearance: w.appearance, href: `/${locale}/w/${w.id}` })),
+            ]}
+            height={compact ? 130 : 170}
+          />
         </section>
       )}
     </div>

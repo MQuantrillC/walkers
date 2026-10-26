@@ -18,6 +18,13 @@ export const en = {
     unavailable: "Accounts aren't switched on yet.",
     failed: "Sign-in didn't work. Please try again.",
   },
+  inApp: {
+    title: "Open WALKERS in your browser",
+    body: "Google sign-in doesn't work inside this app's built-in browser. Open the page in your phone's browser to save and publish. Your walker comes with you.",
+    openChrome: "Open in Chrome",
+    iosSteps: "Tap ⋯ at the top right, then “Open in external browser”.",
+    copyLink: "Copy link",
+  },
   save: {
     signInToSave: "Sign in to save and publish your walker. Your draft stays on this device until then.",
     save: "Save",
@@ -68,6 +75,7 @@ export const en = {
   home: {
     headline: "Create a person. Make them your own. Watch them walk.",
     cta: "Create your walker",
+    empty: "Nobody is walking yet. Create your walker and be the first to join.",
   },
   creator: {
     steps: { you: "You", clothes: "Clothes", extras: "Extras", paint: "Paint", preview: "Preview" },

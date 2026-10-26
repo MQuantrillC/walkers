@@ -6,6 +6,8 @@ import { Suspense } from "react";
 import { useI18n } from "@/i18n/I18nProvider";
 import { LOCALE_COOKIE } from "@/i18n/config";
 import { useAuth } from "@/auth/AuthProvider";
+import { useUserAgent } from "@/auth/SignInButton";
+import { isInAppBrowser } from "@/lib/inAppBrowser";
 import styles from "./siteHeader.module.css";
 
 // The current path is only known at request time on dynamic routes (like a
@@ -26,6 +28,8 @@ function HeaderWithPath() {
 function HeaderBar({ pathname }: { pathname: string | null }) {
   const { locale, t } = useI18n();
   const { auth, signIn, signOut } = useAuth();
+  // Inside Instagram & co. Google sign-in is blocked; pages explain instead.
+  const inApp = isInAppBrowser(useUserAgent());
   const other = locale === "en" ? "es" : "en";
   const links = [
     { href: `/${locale}`, label: t.nav.walk },
@@ -46,7 +50,9 @@ function HeaderBar({ pathname }: { pathname: string | null }) {
             {l.label}
           </Link>
         ))}
-        {auth.status === "signedOut" && (
+      </nav>
+      <div className={styles.tools}>
+        {auth.status === "signedOut" && !inApp && (
           <button className={styles.account} onClick={() => signIn(here)}>
             {t.auth.signIn}
           </button>
@@ -69,7 +75,7 @@ function HeaderBar({ pathname }: { pathname: string | null }) {
         >
           {other.toUpperCase()}
         </Link>
-      </nav>
+      </div>
     </header>
   );
 }

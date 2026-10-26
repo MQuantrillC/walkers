@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/auth/AuthProvider";
+import { SignInButton } from "@/auth/SignInButton";
 import { useI18n } from "@/i18n/I18nProvider";
 import { WalkerStage } from "@/components/WalkerStage";
 import { ShareButton } from "@/components/ShareButton";
@@ -13,7 +14,7 @@ import styles from "./me.module.css";
 
 export function MyWalker() {
   const { t, locale } = useI18n();
-  const { auth, signIn } = useAuth();
+  const { auth, signOut } = useAuth();
   // undefined while loading; null when there is no saved walker.
   const [walker, setWalker] = useState<Saved | null | undefined>(undefined);
   const [error, setError] = useState<ActionError | null>(null);
@@ -52,9 +53,7 @@ export function MyWalker() {
     body = (
       <>
         <p className={styles.note}>{t.me.signInPrompt}</p>
-        <button className={styles.primary} onClick={() => signIn(`/${locale}/me`)}>
-          {t.auth.continueWithGoogle}
-        </button>
+        <SignInButton next={`/${locale}/me`} className={styles.primary} />
       </>
     );
   } else if (!walker) {
@@ -132,6 +131,11 @@ export function MyWalker() {
       <h1 className={styles.title}>{t.me.title}</h1>
       {body}
       {error && <p className={styles.error}>{t.save.errors[error]}</p>}
+      {auth.status === "signedIn" && (
+        <button className={styles.signOut} onClick={() => signOut()}>
+          {t.auth.signOut}
+        </button>
+      )}
     </div>
   );
 }

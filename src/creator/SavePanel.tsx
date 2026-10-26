@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { useAuth } from "@/auth/AuthProvider";
+import { SignInButton } from "@/auth/SignInButton";
 import { useI18n } from "@/i18n/I18nProvider";
 import type { CloudSync } from "./useCloudSync";
 import styles from "./creator.module.css";
@@ -13,7 +14,7 @@ const signInFailed = () => new URLSearchParams(window.location.search).get("sign
 // Save / publish controls under the live preview.
 export function SavePanel({ sync, onPublished }: { sync: CloudSync; onPublished: () => void }) {
   const { t, locale } = useI18n();
-  const { auth, signIn } = useAuth();
+  const { auth } = useAuth();
   const failed = useSyncExternalStore(noSubscribe, signInFailed, () => false);
   const { remote, dirty, busy, error, notice } = sync;
 
@@ -26,9 +27,7 @@ export function SavePanel({ sync, onPublished }: { sync: CloudSync; onPublished:
       <div className={styles.savePanel}>
         {failed && <p className={styles.saveError}>{t.auth.failed}</p>}
         <p className={styles.saveNote}>{t.save.signInToSave}</p>
-        <button className={styles.primary} onClick={() => signIn(`/${locale}/create`)}>
-          {t.auth.continueWithGoogle}
-        </button>
+        <SignInButton next={`/${locale}/create`} className={styles.primary} />
       </div>
     );
   }

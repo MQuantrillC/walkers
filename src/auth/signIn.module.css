@@ -1,0 +1,48 @@
+.notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 340px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  text-align: center;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.body,
+.steps {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.steps {
+  color: var(--foreground);
+}
+
+.primary,
+.secondary {
+  font: inherit;
+  font-size: 14px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--foreground);
+  cursor: pointer;
+}
+
+.primary {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+.secondary {
+  background: transparent;
+  color: var(--foreground);
+  border-color: var(--line);
+}

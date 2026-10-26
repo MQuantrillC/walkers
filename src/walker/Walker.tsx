@@ -14,6 +14,7 @@ import {
   HAIR,
   HEADWEAR_LAYERS,
   HAIR_CLIP,
+  HAIR_UNDER_HAT,
   HOOD,
   HOODIE_STRING,
   LIMB,
@@ -287,14 +288,15 @@ const HEAD_SHAPE = (
 const HEAD_OUTLINE = `${circle(HEAD.x, HEAD.y, HEAD.r)}${circle(NOSE.x, NOSE.y, NOSE.r)}`;
 
 function Hair({ a }: { a: WalkerAppearance }) {
-  const layers = HAIR[a.hair].map((l, i) =>
+  const clip = HAIR_CLIP[a.headwear];
+  const shapes = (clip && HAIR_UNDER_HAT[a.hair]) || HAIR[a.hair];
+  const layers = shapes.map((l, i) =>
     l.faint ? (
       <path key={i} d={l.d} fill={a.hairColor} opacity={0.4} />
     ) : (
       <Outlined key={i} d={l.d} color={a.hairColor} />
     ),
   );
-  const clip = HAIR_CLIP[a.headwear];
   return clip ? <Clipped shape={<path d={clip} />}>{layers}</Clipped> : layers;
 }
 

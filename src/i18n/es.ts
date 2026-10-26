@@ -7,7 +7,7 @@ export const es: Dictionary = {
     create: "Crear · WALKERS",
   },
   nav: {
-    walk: "El Paseo",
+    walk: "El Camino",
     create: "Crear",
     me: "Mi caminante",
     language: "Idioma",
@@ -19,6 +19,13 @@ export const es: Dictionary = {
     continueWithGoogle: "Continuar con Google",
     unavailable: "Las cuentas aún no están activadas.",
     failed: "No se pudo iniciar sesión. Inténtalo de nuevo.",
+  },
+  inApp: {
+    title: "Abre WALKERS en tu navegador",
+    body: "El inicio de sesión con Google no funciona dentro del navegador de esta app. Abre la página en el navegador de tu teléfono para guardar y publicar. Tu caminante viaja contigo.",
+    openChrome: "Abrir en Chrome",
+    iosSteps: "Toca ⋯ arriba a la derecha y luego «Abrir en el navegador externo».",
+    copyLink: "Copiar enlace",
   },
   save: {
     signInToSave: "Inicia sesión para guardar y publicar tu caminante. Mientras tanto, el borrador se queda en este dispositivo.",
@@ -34,7 +41,7 @@ export const es: Dictionary = {
     statusHidden: "Ocultado por moderación",
     loadedSaved: "Cargamos tu caminante guardado.",
     keptLocal: "Tienes cambios más recientes en este dispositivo que en tu caminante guardado.",
-    publishedTitle: (name) => `¡${name} se unió al paseo!`,
+    publishedTitle: (name) => `¡${name} se unió al camino!`,
     viewProfile: "Ver página pública",
     errors: {
       unavailable: "Las cuentas aún no están activadas.",
@@ -70,6 +77,7 @@ export const es: Dictionary = {
   home: {
     headline: "Crea una persona. Hazla tuya. Mírala caminar.",
     cta: "Crea tu caminante",
+    empty: "Todavía no hay nadie caminando. Crea tu caminante y sé la primera persona en unirse.",
   },
   creator: {
     steps: { you: "Tú", clothes: "Ropa", extras: "Extras", paint: "Pintar", preview: "Vista previa" },

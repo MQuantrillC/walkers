@@ -143,6 +143,20 @@ export const HAIR_CLIP: Partial<Record<Headwear, string>> = {
   beanie: `M0 34L${BEANIE_EDGE.slice(1)}L104 25L160 25L160 220L0 220Z`,
 };
 
+// Voluminous styles squashed under a hat: a rounded puff hugging the back
+// of the head below the hat's edge, instead of whatever wedge of the full
+// shape would be left after hiding the top.
+export const HAIR_UNDER_HAT: Partial<Record<HairStyle, HairLayer[]>> = {
+  afro: [
+    { d: "M66.5 22C62.5 24.5 61 30 62.3 34.6C63.4 38.6 66.8 41.6 71.2 41.8L76.2 36.5C74.6 32.3 74.8 28.2 77.4 24.6Z" },
+  ],
+  curly: [
+    {
+      d: "M66.5 22C63 24 62 28.5 63.6 31.5C62.4 34.5 64 38 67.4 38.6C68.6 41 72 41.6 74.2 40L76.8 35.5C75.2 31.5 75.4 27.5 77.8 24.6Z",
+    },
+  ],
+};
+
 export const FACIAL_HAIR_PATHS: Record<Exclude<FacialHair, "none">, { beard?: string; moustache?: string; faint?: boolean }> = {
   stubble: {
     beard: "M79.5 30.5C79 37 83 42.5 90 43C95.5 43.3 99 40 99.5 34.5L96.8 33.6C96 36.5 93.8 38 91 37.7C87.5 37.3 85 35 84 31.5L81.5 29Z",

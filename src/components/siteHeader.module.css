@@ -15,20 +15,27 @@
   letter-spacing: 0.32em;
 }
 
-.nav {
+.nav,
+.tools {
   display: flex;
   align-items: center;
   gap: 20px;
   font-size: 14px;
 }
 
-.nav a {
+.nav {
+  margin-left: auto;
+}
+
+.nav a,
+.tools a {
   color: var(--muted);
   padding: 4px 0;
   border-bottom: 1.5px solid transparent;
 }
 
-.nav a:hover {
+.nav a:hover,
+.tools a:hover {
   color: var(--foreground);
 }
 
@@ -37,7 +44,7 @@
   border-bottom-color: var(--foreground);
 }
 
-.nav a.lang {
+.tools a.lang {
   font-size: 12px;
   letter-spacing: 0.08em;
   padding: 3px 9px;
@@ -45,7 +52,7 @@
   border-radius: 999px;
 }
 
-.nav a.lang:hover {
+.tools a.lang:hover {
   border-color: var(--foreground);
 }
 
@@ -63,14 +70,36 @@
   color: var(--foreground);
 }
 
+/* Phones: brand and language on one row, the three destinations below.
+   Signing in and out lives on the My Walker page and in the creator. */
 @media (max-width: 560px) {
   .header {
-    flex-wrap: wrap;
-    row-gap: 10px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "brand tools"
+      "nav nav";
+    row-gap: 12px;
+    padding: 14px 16px 10px;
+  }
+
+  .brand {
+    grid-area: brand;
+  }
+
+  .tools {
+    grid-area: tools;
   }
 
   .nav {
-    gap: 14px;
-    flex-wrap: wrap;
+    grid-area: nav;
+    margin-left: 0;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 15px;
+  }
+
+  .account {
+    display: none;
   }
 }

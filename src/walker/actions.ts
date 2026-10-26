@@ -3,7 +3,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { validateAppearance, validateDisplayName } from "./validate";
-import { toMyWalker, MY_WALKER_COLUMNS, type MyWalker } from "./records";
+import { toMyWalker, MY_WALKER_COLUMNS, type MyWalker, type PublicWalker } from "./records";
+import { getLatestWalkers } from "./publicData";
 
 // Every write goes through here so the full appearance validation runs on
 // the server, not just in the browser. Ownership and publication rules are
@@ -25,6 +26,11 @@ function mapError(error: { code?: string } | null): ActionError {
   if (error?.code === "42501") return "hidden";
   if (error?.code === "23514") return "invalid";
   return "failed";
+}
+
+// Newest published walkers, for showing a new walker among the crowd.
+export async function listLatestWalkers(): Promise<PublicWalker[]> {
+  return getLatestWalkers(12);
 }
 
 export async function getMyWalker(): Promise<ActionResult<MyWalker | null>> {

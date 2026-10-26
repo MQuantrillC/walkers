@@ -75,6 +75,12 @@
   gap: 8px;
 }
 
+.saveArea {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 .saveNote {
   font-size: 12px;
   color: var(--muted);
@@ -403,10 +409,58 @@
 @media (max-width: 800px) {
   .creator {
     grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+    padding-top: 0;
   }
 
+  /* The preview's pieces join the page grid: the stage stays pinned at the
+     top while the options scroll beneath it, and the look/save controls
+     move below the steps. */
   .preview {
-    position: static;
+    display: contents;
+  }
+
+  .stage {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    order: 0;
+    width: auto;
+    margin: 0 -16px;
+    padding-top: 10px;
+    border-radius: 0 0 18px 18px;
+    box-shadow: 0 8px 18px rgb(0 0 0 / 0.14);
+  }
+
+  .previewName {
+    order: 1;
+    margin-top: -6px;
+  }
+
+  .panel {
+    order: 2;
+  }
+
+  .processionPreview {
+    order: 3;
+    margin: 0 -16px;
+  }
+
+  .saveArea,
+  .preview > .saveError {
+    order: 4;
+  }
+
+  .lookActions {
+    order: 5;
+  }
+
+  .panel {
+    gap: 18px;
+  }
+
+  .stepBody {
+    gap: 20px;
   }
 }
 
@@ -440,4 +494,15 @@
 .primary:disabled {
   opacity: 0.45;
   cursor: default;
+}
+
+@media (max-width: 480px) {
+  .step {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+
+  .step span {
+    display: none;
+  }
 }
