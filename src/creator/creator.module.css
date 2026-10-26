@@ -674,3 +674,13 @@
   outline: 2px solid var(--foreground);
   outline-offset: 6px;
 }
+
+/* A print shown as a round fabric swatch. */
+.thumb svg.fabric {
+  width: 44px;
+  height: 44px;
+  margin: 6px 0 8px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--foreground) 22%, transparent);
+  overflow: hidden;
+}

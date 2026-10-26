@@ -3,7 +3,7 @@
 import { useState, useSyncExternalStore } from "react";
 import { Walkway } from "@/components/Walkway";
 import { randomLook } from "@/creator/Creator";
-import { BRUSH_SIZES, DEFAULT_APPEARANCE, PALETTE, PAINT_LIMITS, SURFACES, type Paint } from "@/walker/appearance";
+import { BRUSH_SIZES, DEFAULT_APPEARANCE, PALETTE, PAINT_LIMITS, SURFACES, type Paint, type TopPattern } from "@/walker/appearance";
 
 const noSubscribe = () => () => {};
 // Same page size as the real gallery.
@@ -17,17 +17,21 @@ export function Crowd() {
 }
 
 // ?n=50 walkers; ?paint=1 gives everyone as much drawing as allowed;
+// ?print=stripes (or plain, ...) gives everyone that print on long sleeves;
 // ?paged=1 hands them over a page at a time, like the gallery loading more.
 function RandomCrowd() {
   const [{ everyone, paged }] = useState(() => {
     const params = new URLSearchParams(location.search);
     const n = Math.min(500, Math.max(1, Number(params.get("n")) || 20));
     const painted = params.get("paint") === "1";
+    const print = params.get("print") as TopPattern | null;
     return {
       paged: params.get("paged") === "1",
       everyone: Array.from({ length: n }, (_, i) => ({
         name: `Walker ${i + 1}`,
-        appearance: { ...DEFAULT_APPEARANCE, ...randomLook(), ...(painted ? { paint: heavyPaint() } : {}) },
+        appearance: { ...DEFAULT_APPEARANCE, ...randomLook(), ...(painted ? { paint: heavyPaint() } : {}),
+          ...(print ? { topPattern: print, top: "longsleeve" as const } : {}),
+        },
       })),
     };
   });

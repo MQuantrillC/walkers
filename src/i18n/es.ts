@@ -179,6 +179,9 @@ export const es: Dictionary = {
     brows: "Cejas",
     mouth: "Boca",
     blush: "Rubor",
+    freckles: "Pecas",
+    pattern: "Estampado",
+    patternColor: "Color del estampado",
     off: "No",
     on: "Sí",
     paintWhat: "Qué pintar",
@@ -208,8 +211,9 @@ export const es: Dictionary = {
   },
   options: {
     hair: {
-      short: "Corto", buzz: "Rapado", quiff: "Tupé", curly: "Rizado", bob: "Bob", bun: "Moño",
-      ponytail: "Coleta", braid: "Trenza", long: "Largo", afro: "Afro", mohawk: "Cresta", none: "Sin pelo",
+      short: "Corto", buzz: "Rapado", quiff: "Tupé", sidepart: "Raya al lado", curly: "Rizado", bob: "Bob", bun: "Moño",
+      topknot: "Moño alto", ponytail: "Coleta", pigtails: "Coletas", braid: "Trenza", long: "Largo", locs: "Rastas",
+      afro: "Afro", mohawk: "Cresta", none: "Sin pelo",
     },
     facialHair: { none: "Ninguno", stubble: "Barba de días", moustache: "Bigote", beard: "Barba" },
     top: { tee: "Camiseta", longsleeve: "Manga larga", tank: "Tirantes", hoodie: "Sudadera" },
@@ -220,7 +224,9 @@ export const es: Dictionary = {
       helmet: "Casco", headband: "Cinta",
     },
     eyewear: { none: "Nada", glasses: "Gafas", sunglasses: "Gafas de sol", sport: "Deportivas" },
+    pattern: { plain: "Liso", stripes: "Rayas", dots: "Lunares", checks: "Cuadros", band: "Franja" },
     extras: {
+      headphones: "Audífonos",
       bracelet: "Pulsera", watch: "Reloj", gloves: "Guantes", scarf: "Bufanda", necklace: "Collar", backpack: "Mochila",
     },
     eyes: { dot: "Punto", wide: "Abiertos", closed: "Cerrados", none: "Ninguno" },

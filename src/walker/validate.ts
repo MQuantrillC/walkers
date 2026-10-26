@@ -15,6 +15,7 @@ import {
   PALETTE,
   SHOE_STYLES,
   SURFACES,
+  TOP_PATTERNS,
   TOP_STYLES,
   type Face,
   type Paint,
@@ -50,6 +51,12 @@ function color(v: unknown, allowed: Set<string>, fallback: string, field: string
   if (typeof v === "string" && allowed.has(v)) return v;
   issues.push(`${field} must be a palette colour`);
   return fallback;
+}
+
+// Fields added after launch: walkers saved before them simply don't have
+// them, which isn't a problem, so a missing value quietly takes the default.
+function later<T>(v: unknown, read: () => T, fallback: T): T {
+  return v === undefined ? fallback : read();
 }
 
 function strokes(v: unknown, field: string, issues: Issues): Stroke[] {
@@ -139,11 +146,13 @@ function face(v: unknown, issues: Issues): Face {
     return d;
   }
   if (typeof v.blush !== "boolean") issues.push("face.blush must be true or false");
+  if (v.freckles !== undefined && typeof v.freckles !== "boolean") issues.push("face.freckles must be true or false");
   return {
     eyes: pick(v.eyes, EYE_STYLES, d.eyes, "face.eyes", issues),
     brows: pick(v.brows, BROW_STYLES, d.brows, "face.brows", issues),
     mouth: pick(v.mouth, MOUTH_STYLES, d.mouth, "face.mouth", issues),
     blush: typeof v.blush === "boolean" ? v.blush : d.blush,
+    freckles: typeof v.freckles === "boolean" ? v.freckles : d.freckles,
   };
 }
 
@@ -160,6 +169,12 @@ function appearance(v: unknown, issues: Issues): WalkerAppearance {
     facialHair: pick(v.facialHair, FACIAL_HAIR, d.facialHair, "facialHair", issues),
     top: pick(v.top, TOP_STYLES, d.top, "top", issues),
     topColor: color(v.topColor, CLOTH, d.topColor, "topColor", issues),
+    topPattern: later(v.topPattern, () => pick(v.topPattern, TOP_PATTERNS, d.topPattern, "topPattern", issues), d.topPattern),
+    topPatternColor: later(
+      v.topPatternColor,
+      () => color(v.topPatternColor, CLOTH, d.topPatternColor, "topPatternColor", issues),
+      d.topPatternColor,
+    ),
     bottom: pick(v.bottom, BOTTOM_STYLES, d.bottom, "bottom", issues),
     bottomColor: color(v.bottomColor, CLOTH, d.bottomColor, "bottomColor", issues),
     shoes: pick(v.shoes, SHOE_STYLES, d.shoes, "shoes", issues),

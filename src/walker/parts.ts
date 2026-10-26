@@ -1,4 +1,4 @@
-import type { Extra, FacialHair, HairStyle, Headwear, ShoeStyle } from "./appearance";
+import type { Extra, FacialHair, HairStyle, Headwear, ShoeStyle, TopPattern } from "./appearance";
 
 // Path data for the original vector parts, in walker SVG units
 // (viewBox 0 0 160 220, facing +x). Head parts are in the head's frame; the
@@ -8,7 +8,7 @@ export const circle = (cx: number, cy: number, r: number) =>
   `M${cx - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`;
 
 // A rounded bar hanging down from its joint (limb-local, along +y).
-const capsule = (w: number, len: number) =>
+export const capsule = (w: number, len: number) =>
   `M${-w / 2} 0A${w / 2} ${w / 2} 0 0 1 ${w / 2} 0L${w / 2} ${len}A${w / 2} ${w / 2} 0 0 1 ${-w / 2} ${len}Z`;
 // Same, but cut square at `len` (a hem).
 const sleeve = (w: number, len: number) => `M${-w / 2} ${len}L${-w / 2} 0A${w / 2} ${w / 2} 0 0 1 ${w / 2} 0L${w / 2} ${len}Z`;
@@ -79,12 +79,29 @@ const SHORT_HAIR =
 const BUZZ =
   "M95 18C93 12.5 88 10.5 82 10.5C73.5 10.5 67.5 16 67.5 24.5C67.5 29 68.5 32.5 70.5 35L73.5 32.5C72.5 29.5 72.5 26.5 74 24C76.5 20.5 81 19.5 86 19.3C89.5 19.2 92.5 18.9 95 18Z";
 
+// One dreadlock: a rounded rope hanging from (x, y), drifting back by `lean`.
+const lock = (x: number, y: number, len: number, w: number, lean = 0) => {
+  const r = w / 2;
+  const bx = x + lean;
+  const by = y + len;
+  // Bowed slightly backwards halfway down, like a hanging rope.
+  const mx = x + lean * 0.35 - 1.2;
+  const my = y + len / 2;
+  return `M${x - r} ${y}Q${mx - r} ${my} ${bx - r} ${by}A${r} ${r} 0 0 0 ${bx + r} ${by}Q${mx + r} ${my} ${x + r} ${y}Z`;
+};
+
 // Hair layers in drawing order. `faint` layers are a soft tint with no
 // outline (shaved sides, stubble).
 export type HairLayer = { d: string; faint?: boolean };
 export const HAIR: Record<HairStyle, HairLayer[]> = {
   short: [{ d: SHORT_HAIR }],
   buzz: [{ d: BUZZ }],
+  // Long, with the fringe swept to one side above the eye.
+  sidepart: [
+    {
+      d: "M98.6 14.5C96 10 89 7.6 80 8.4C70 9.6 63.5 18 63.5 28L62.5 58C62.5 61 65.5 62 70.5 61L78 60C77 50 76.5 36 79 27C82.5 22 88 19.6 93 20C96.5 20.3 98.8 22 99.6 24.6C100.8 21.4 100.4 17.2 98.6 14.5Z",
+    },
+  ],
   quiff: [
     {
       d: "M99 15C100 8 95 3.5 87 4C80 4.5 75 7 71 11C67 15 66 21 66.5 26C67 31 69 35 72 37L75 33C74 29 75 25 79 23C85 21 91 21.5 96 20C98 19 99 17 99 15Z",
@@ -101,6 +118,16 @@ export const HAIR: Record<HairStyle, HairLayer[]> = {
     },
   ],
   bun: [{ d: circle(70, 12, 6) }, { d: SHORT_HAIR }],
+  // Pulled up into a knot on the crown.
+  topknot: [{ d: circle(80.5, 5.4, 5.3) }, { d: SHORT_HAIR }],
+  // Two low bunches: the far one peeks out higher, the near one has a tie.
+  pigtails: [
+    { d: "M68.5 20.5C62.5 17.5 56.5 19.8 54 25.5C52.8 28.5 54.3 30.6 56.4 29.7C58 29 58.6 26.8 60.2 25.5C62.6 23.6 65.8 23.4 69 24.6Z" },
+    { d: circle(68.6, 22.4, 2.2) },
+    { d: "M72 29.5C66 30.5 62.5 36 62 43.5C61.8 47.5 63.5 50 65.5 49.3C67 48.8 66.8 45.5 67 42.5C67.5 38 70 35.5 73.5 35Z" },
+    { d: SHORT_HAIR },
+    { d: circle(72.2, 32.2, 2.3) },
+  ],
   ponytail: [{ d: "M69 17C61 18 57 27 58 40C58.5 45 62.5 46 64 42C63.5 34 65 27 71 22Z" }, { d: SHORT_HAIR }],
   braid: [
     { d: circle(65, 58.5, 2.6) },
@@ -113,6 +140,16 @@ export const HAIR: Record<HairStyle, HairLayer[]> = {
   long: [
     {
       d: "M97 19C95 10 86 8 80 9C70 10 64 18 64 28L63 58C63 61 66 62 71 61L78 60C77 50 76 34 79 24C85 21 92 22 97 19Z",
+    },
+  ],
+  // Ropes falling from the crown to the shoulders, fanning back.
+  locs: [
+    { d: lock(63, 19, 27, 5, -5) },
+    { d: lock(66.5, 17, 38, 5.2, -4) },
+    { d: lock(70.5, 20, 35, 5.2, -2.5) },
+    { d: lock(74.5, 24, 30, 5, -1) },
+    {
+      d: "M96 19C94 11 88 8.5 81.5 8.5C72.5 8.5 66 15 66 24C66 28 67 31 68.5 33.5L74 30C73.5 27 74.5 24 77.5 22.5C83 20.2 90 21 96 19Z",
     },
   ],
   afro: [
@@ -304,6 +341,10 @@ export const EYEWEAR_LAYERS = {
 // Extras, each in the frame of the part that carries it.
 export const EXTRA_PATHS = {
   // Forearm-local (wrist near y = 30).
+  // Head frame: a cup over the ear and the band rising over the crown.
+  headphonesBand: "M79.6 23.5C79 17.8 80.2 12.8 83.6 10",
+  headphonesCup: "M74.6 25.6C74.6 23.5 76 22.2 78.1 22.2L80.5 22.2C82.6 22.2 83.9 23.6 83.9 25.6L83.9 31.6C83.9 33.7 82.5 35 80.4 35L78.1 35C76 35 74.6 33.6 74.6 31.6Z",
+  headphonesPad: "M77.2 25.2H81.3V32H77.2Z",
   watchStrap: "M-5.3 22.6H5.3V26.4H-5.3Z",
   watchFace: "M3.6 21.6H7.4V27.4H3.6Z",
   bracelet: "M-5.4 27.4H5.4V30.2H-5.4Z",
@@ -316,7 +357,7 @@ export const EXTRA_PATHS = {
   backpackStrap: "M70 58C74 54.5 82 54.3 85.5 58.5C88.5 64 89.2 72 86.5 80C83.5 88 77 94 71 97",
 } as const;
 
-export const EXTRA_ORDER: readonly Extra[] = ["backpack", "scarf", "necklace", "bracelet", "watch", "gloves"];
+export const EXTRA_ORDER: readonly Extra[] = ["backpack", "scarf", "necklace", "bracelet", "watch", "gloves", "headphones"];
 
 // Preset facial features, all in the head frame.
 export const EYES = {
@@ -339,3 +380,62 @@ export const MOUTHS = {
 export const BLUSH = { cx: 90.5, cy: 30.5, r: 2.8, color: "#ee90a5" } as const;
 
 export const SOLE_COLOR = "#ece8e0";
+
+// Prints on the top, in the torso frame, clipped to TORSO_TOP. `soft`
+// layers are see-through, so where gingham's bands cross they deepen.
+export type PatternLayer = { d: string; soft?: boolean };
+
+// The rectangle a print is laid out over (it's clipped to the garment).
+type Area = { x0: number; x1: number; y0: number; y1: number };
+const TORSO_AREA: Area = { x0: 58, x1: 102, y0: 50, y1: 108 };
+// Limb-local, covering a sleeve on either arm segment. The shoulder joint
+// sits at y = 64 on the body, so the chest band starts 6 down the arm.
+const SLEEVE_AREA: Area = { x0: -9, x1: 9, y0: -9, y1: 42 };
+
+function bands(area: Area, horizontal: boolean, offset: number, step: number, width: number) {
+  const { x0, x1, y0, y1 } = area;
+  let d = "";
+  if (horizontal) for (let at = y0 + offset; at < y1; at += step) d += `M${x0} ${at}H${x1}V${at + width}H${x0}Z`;
+  else for (let at = x0 + offset; at < x1; at += step) d += `M${at} ${y0}V${y1}H${at + width}V${y0}Z`;
+  return d;
+}
+
+function dotGrid(area: Area) {
+  let d = "";
+  let row = 0;
+  for (let y = area.y0 + 7.5; y < area.y1; y += 6.4, row++) {
+    for (let x = area.x0 + 4 + (row % 2) * 3.2; x < area.x1; x += 6.4) d += circle(x, y, 1.35);
+  }
+  return d;
+}
+
+// One wide stripe across the chest, like a football shirt's band, at
+// `at` (chest height in the area's frame).
+function printOver(area: Area, at: number) {
+  return {
+    band: [{ d: `M${area.x0} ${at}H${area.x1}V${at + 9}H${area.x0}Z` }],
+    stripes: [{ d: bands(area, true, 7, 7, 3) }],
+    dots: [{ d: dotGrid(area) }],
+    checks: [
+      { d: bands(area, true, 6, 7, 3.4), soft: true },
+      { d: bands(area, false, 4, 7, 3.4), soft: true },
+    ],
+  };
+}
+
+export const TOP_PATTERN_LAYERS: Record<Exclude<TopPattern, "plain">, PatternLayer[]> = {
+  ...printOver(TORSO_AREA, 70),
+};
+// Sleeves carry the print too, lined up with the body's.
+export const SLEEVE_PATTERN_LAYERS: Partial<Record<TopPattern, PatternLayer[]>> = printOver(SLEEVE_AREA, 6);
+
+// Freckles across the cheek and the bridge of the nose (head frame).
+export const FRECKLES: readonly [number, number, number][] = [
+  [89.4, 29.2, 0.6],
+  [91.3, 30.4, 0.5],
+  [93.2, 29.4, 0.55],
+  [90.4, 31.9, 0.5],
+  [92.4, 32.2, 0.6],
+  [94.6, 31.2, 0.5],
+  [95.8, 28.6, 0.45],
+];

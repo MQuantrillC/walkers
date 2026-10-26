@@ -11,6 +11,7 @@ import {
   EYES,
   EYEWEAR_LAYERS,
   FACIAL_HAIR_PATHS,
+  FRECKLES,
   HAIR,
   HEADWEAR_LAYERS,
   HAIR_CLIP,
@@ -27,10 +28,14 @@ import {
   SOLE_COLOR,
   TEE_SLEEVE,
   THIGH_CLIP,
+  SLEEVE_PATTERN_LAYERS,
+  capsule,
+  TOP_PATTERN_LAYERS,
   TORSO_SEAT,
   TORSO_TOP,
   circle,
   type ItemLayer,
+  type PatternLayer,
 } from "./parts";
 
 // Outline thickness. Overlapping limb segments are drawn in two passes, all
@@ -167,6 +172,7 @@ function PaintLayer({
 type Colors = {
   skin: string;
   top: string;
+  print: string;
   bottom: string;
   shoe: string;
   sole: string;
@@ -240,18 +246,25 @@ function Leg({ pass, c, a, motion, dim }: { pass: Pass; c: Colors; a: WalkerAppe
   );
 }
 
+// Long sleeves, as clip shapes for a print.
+const UPPER_SLEEVE = capsule(LIMB.upperArm, RIG.upperArm);
+const LOWER_SLEEVE = capsule(LIMB.forearm, RIG.forearm);
+
 function Arm({ pass, c, a, near, motion }: { pass: Pass; c: Colors; a: WalkerAppearance; near: boolean; motion?: Motion }) {
   const long = a.top === "longsleeve" || a.top === "hoodie";
   const fill = pass === "fill";
+  const print = fill && a.top !== "tank" ? SLEEVE_PATTERN_LAYERS[a.topPattern] : undefined;
   const { bracelet, watch, gloves } = a.extras;
   return (
     <g transform={`translate(${RIG.shoulder.x} ${RIG.shoulder.y})`}>
       <g {...joint(motion, "shoulder")}>
         <Seg pass={pass} len={RIG.upperArm} w={LIMB.upperArm} color={long ? c.top : c.skin} />
         {fill && a.top === "tee" && <Outlined d={TEE_SLEEVE} color={c.top} />}
+        {print && <Print layers={print} clip={long ? UPPER_SLEEVE : TEE_SLEEVE} color={c.print} edge={!long} />}
         <g transform={`translate(0 ${RIG.upperArm})`}>
           <g {...joint(motion, "elbow")}>
             <Seg pass={pass} len={RIG.forearm} w={LIMB.forearm} color={long ? c.top : c.skin} />
+            {print && long && a.topPattern !== "band" && <Print layers={print} clip={LOWER_SLEEVE} color={c.print} />}
             <Shape pass={pass} d={circle(0, RIG.forearm + 2, LIMB.hand)} color={c.gloves ?? c.skin} />
             {fill && gloves && <Outlined d={EXTRA_PATHS.glovesCuff} color={c.gloves ?? gloves} />}
             {fill && near && watch && (
@@ -293,6 +306,13 @@ function FaceFeatures({ a }: { a: WalkerAppearance }) {
   return (
     <>
       {face.blush && <circle cx={BLUSH.cx} cy={BLUSH.cy} r={BLUSH.r} fill={BLUSH.color} opacity={0.55} />}
+      {face.freckles && (
+        <g fill={shade(a.skin, 0.34)}>
+          {FRECKLES.map(([cx, cy, r], i) => (
+            <circle key={i} cx={cx} cy={cy} r={r} />
+          ))}
+        </g>
+      )}
       {fh?.beard && <path d={fh.beard} {...hairProps} />}
       {fh?.moustache && <path d={fh.moustache} {...hairProps} />}
       {face.eyes === "dot" && <circle {...EYES.dot} fill={INK} />}
@@ -351,9 +371,43 @@ export function HeadParts({ a }: { a: WalkerAppearance }) {
           see, but stay clipped to the head. */}
       <PaintLayer surface="face" strokes={a.paint.face} clip={HEAD_OUTLINE} />
       <Items layers={EYEWEAR_LAYERS[a.eyewear]} color={a.eyewearColor} />
+      {a.extras.headphones && <Headphones color={a.extras.headphones} />}
       <Items layers={HEADWEAR_LAYERS[a.headwear]} color={a.headwearColor} />
     </>
   );
+}
+
+// Under any hat, so a hat sits over the band like it would in real life.
+function Headphones({ color }: { color: string }) {
+  return (
+    <>
+      <path d={EXTRA_PATHS.headphonesBand} fill="none" stroke={LINE} strokeWidth={4.8} strokeLinecap="round" />
+      <path d={EXTRA_PATHS.headphonesBand} fill="none" stroke={color} strokeWidth={2.6} strokeLinecap="round" />
+      <Outlined d={EXTRA_PATHS.headphonesCup} color={color} />
+      <path d={EXTRA_PATHS.headphonesPad} fill={shade(color, 0.22)} />
+    </>
+  );
+}
+
+// A print clipped to the garment it's on. `edge` redraws an outline the
+// print would otherwise half cover.
+function Print({ layers, clip, color, edge }: { layers: readonly PatternLayer[]; clip: string; color: string; edge?: boolean }) {
+  return (
+    <>
+      <Clipped id={clipId(clip)} shape={<path d={clip} />}>
+        {layers.map((l, i) => (
+          <path key={i} d={l.d} fill={color} opacity={l.soft ? 0.5 : undefined} />
+        ))}
+      </Clipped>
+      {edge && <path d={clip} fill="none" stroke={LINE} strokeWidth={OUT} strokeLinejoin="round" />}
+    </>
+  );
+}
+
+// The print on the top itself, under any painting.
+function TopPattern({ a }: { a: WalkerAppearance }) {
+  if (a.topPattern === "plain") return null;
+  return <Print layers={TOP_PATTERN_LAYERS[a.topPattern]} clip={TORSO_TOP} color={a.topPatternColor} />;
 }
 
 // Neck, torso, hood and anything worn on the chest, in the (unleaned) torso frame.
@@ -372,6 +426,7 @@ export function TorsoParts({ a }: { a: WalkerAppearance }) {
         )}
       </Passes>
       {seatPaint && <PaintLayer surface="bottom" strokes={a.paint.bottom} clip={TORSO_SEAT} />}
+      <TopPattern a={a} />
       <PaintLayer surface="top" strokes={a.paint.top} clip={TORSO_TOP} />
       <path d="M69 104L91 104" stroke={LINE} strokeWidth={OUT} strokeLinecap="round" />
       {a.top === "hoodie" && (
@@ -410,6 +465,7 @@ function colorsFor(a: WalkerAppearance, far: boolean): Colors {
   return {
     skin: d(a.skin, 0.1),
     top: d(a.topColor),
+    print: d(a.topPatternColor),
     bottom: d(a.bottomColor),
     shoe: d(a.shoeColor),
     sole: d(SOLE_COLOR),

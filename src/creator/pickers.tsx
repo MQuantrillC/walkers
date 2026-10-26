@@ -3,6 +3,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { HeadParts, Walker } from "@/walker/Walker";
 import { INK, type Swatch, type WalkerAppearance } from "@/walker/appearance";
+import type { PatternLayer } from "@/walker/parts";
 import { useI18n } from "@/i18n/I18nProvider";
 import { NoneMark } from "@/components/icons";
 import styles from "./creator.module.css";
@@ -120,6 +121,49 @@ export function ToneSlider({
         style={{ "--tones": `linear-gradient(to right, ${stops.join(", ")})`, "--tone": value } as CSSProperties}
         onChange={(e) => onChange(swatches[Number(e.target.value)].hex)}
       />
+    </Field>
+  );
+}
+
+// Prints shown as fabric swatches in the top's own colours.
+export function PatternChoices<T extends string>({
+  title,
+  options,
+  labels,
+  value,
+  onChange,
+  base,
+  color,
+  layers,
+}: {
+  title: string;
+  options: readonly T[];
+  labels: Record<T, string>;
+  value: T;
+  onChange: (v: T) => void;
+  base: string;
+  color: string;
+  layers: (option: T) => readonly PatternLayer[];
+}) {
+  return (
+    <Field title={title}>
+      {options.map((o) => (
+        <button
+          key={o}
+          className={styles.thumb}
+          aria-pressed={o === value}
+          title={labels[o]}
+          onClick={() => onChange(o)}
+        >
+          <svg className={styles.fabric} viewBox="64 58 32 32" aria-hidden>
+            <rect x={64} y={58} width={32} height={32} fill={base} />
+            {layers(o).map((l, i) => (
+              <path key={i} d={l.d} fill={color} opacity={l.soft ? 0.5 : undefined} />
+            ))}
+          </svg>
+          <span>{labels[o]}</span>
+        </button>
+      ))}
     </Field>
   );
 }

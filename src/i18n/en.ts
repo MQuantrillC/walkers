@@ -177,6 +177,9 @@ export const en = {
     brows: "Brows",
     mouth: "Mouth",
     blush: "Blush",
+    freckles: "Freckles",
+    pattern: "Print",
+    patternColor: "Print colour",
     off: "Off",
     on: "On",
     paintWhat: "What to paint",
@@ -206,8 +209,9 @@ export const en = {
   },
   options: {
     hair: {
-      short: "Short", buzz: "Buzz cut", quiff: "Quiff", curly: "Curly", bob: "Bob", bun: "Bun",
-      ponytail: "Ponytail", braid: "Braid", long: "Long", afro: "Afro", mohawk: "Mohawk", none: "None",
+      short: "Short", buzz: "Buzz cut", quiff: "Quiff", sidepart: "Side part", curly: "Curly", bob: "Bob", bun: "Bun",
+      topknot: "Top knot", ponytail: "Ponytail", pigtails: "Pigtails", braid: "Braid", long: "Long", locs: "Locs",
+      afro: "Afro", mohawk: "Mohawk", none: "None",
     },
     facialHair: { none: "None", stubble: "Stubble", moustache: "Moustache", beard: "Beard" },
     top: { tee: "T-shirt", longsleeve: "Long sleeve", tank: "Tank top", hoodie: "Hoodie" },
@@ -218,7 +222,9 @@ export const en = {
       helmet: "Helmet", headband: "Headband",
     },
     eyewear: { none: "None", glasses: "Glasses", sunglasses: "Sunglasses", sport: "Sport" },
+    pattern: { plain: "Plain", stripes: "Stripes", dots: "Dots", checks: "Checks", band: "Band" },
     extras: {
+      headphones: "Headphones",
       bracelet: "Bracelet", watch: "Watch", gloves: "Gloves", scarf: "Scarf", necklace: "Necklace", backpack: "Backpack",
     },
     eyes: { dot: "Dot", wide: "Wide", closed: "Closed", none: "None" },

@@ -2,10 +2,13 @@
 // renderer rebuilds the figure from these values.
 
 export const HAIR_STYLES = [
-  "short", "buzz", "quiff", "curly", "bob", "bun", "ponytail", "braid", "long", "afro", "mohawk", "none",
+  "short", "buzz", "quiff", "sidepart", "curly", "bob", "bun", "topknot", "ponytail", "pigtails", "braid", "long",
+  "locs", "afro", "mohawk", "none",
 ] as const;
 export const FACIAL_HAIR = ["none", "stubble", "moustache", "beard"] as const;
 export const TOP_STYLES = ["tee", "longsleeve", "tank", "hoodie"] as const;
+// A print on the top, in a second colour.
+export const TOP_PATTERNS = ["plain", "stripes", "dots", "checks", "band"] as const;
 export const BOTTOM_STYLES = ["trousers", "cropped", "shorts", "skirt"] as const;
 export const SHOE_STYLES = ["sneaker", "hightop", "boot", "flat", "sandal"] as const;
 export const HEADWEAR = ["none", "cap", "tophat", "beanie", "chullo", "bucket", "beret", "helmet", "headband"] as const;
@@ -14,7 +17,7 @@ export const HEADWEAR = ["none", "cap", "tophat", "beanie", "chullo", "bucket", 
 export const HEADWEAR_OFFERED: readonly Headwear[] = HEADWEAR.filter((h) => h !== "cap");
 export const EYEWEAR = ["none", "glasses", "sunglasses", "sport"] as const;
 // Extras can be combined; each one worn carries its own colour.
-export const EXTRAS = ["bracelet", "watch", "gloves", "scarf", "necklace", "backpack"] as const;
+export const EXTRAS = ["headphones", "bracelet", "watch", "gloves", "scarf", "necklace", "backpack"] as const;
 export const EYE_STYLES = ["dot", "wide", "closed", "none"] as const;
 export const BROW_STYLES = ["none", "line", "arched"] as const;
 export const MOUTH_STYLES = ["none", "smile", "line", "open"] as const;
@@ -24,6 +27,7 @@ export const SURFACES = ["face", "top", "bottom", "shoes"] as const;
 export type HairStyle = (typeof HAIR_STYLES)[number];
 export type FacialHair = (typeof FACIAL_HAIR)[number];
 export type TopStyle = (typeof TOP_STYLES)[number];
+export type TopPattern = (typeof TOP_PATTERNS)[number];
 export type BottomStyle = (typeof BOTTOM_STYLES)[number];
 export type ShoeStyle = (typeof SHOE_STYLES)[number];
 export type Headwear = (typeof HEADWEAR)[number];
@@ -51,6 +55,7 @@ export type Face = {
   brows: BrowStyle;
   mouth: MouthStyle;
   blush: boolean;
+  freckles: boolean;
 };
 
 export type WalkerAppearance = {
@@ -60,6 +65,8 @@ export type WalkerAppearance = {
   facialHair: FacialHair;
   top: TopStyle;
   topColor: string;
+  topPattern: TopPattern;
+  topPatternColor: string;
   bottom: BottomStyle;
   bottomColor: string;
   shoes: ShoeStyle;
@@ -159,7 +166,7 @@ export const NAME_MAX = 24;
 
 export const EMPTY_PAINT: Paint = { face: [], top: [], bottom: [], shoes: [] };
 
-export const DEFAULT_FACE: Face = { eyes: "dot", brows: "none", mouth: "none", blush: false };
+export const DEFAULT_FACE: Face = { eyes: "dot", brows: "none", mouth: "none", blush: false, freckles: false };
 
 export const DEFAULT_APPEARANCE: WalkerAppearance = {
   skin: PALETTE.skin[2].hex,
@@ -168,6 +175,8 @@ export const DEFAULT_APPEARANCE: WalkerAppearance = {
   facialHair: "none",
   top: "tee",
   topColor: PALETTE.cloth[4].hex,
+  topPattern: "plain",
+  topPatternColor: PALETTE.cloth[0].hex,
   bottom: "trousers",
   bottomColor: PALETTE.cloth[1].hex,
   shoes: "sneaker",

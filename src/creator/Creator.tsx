@@ -22,6 +22,7 @@ import {
   PALETTE,
   SHOE_STYLES,
   SURFACES,
+  TOP_PATTERNS,
   TOP_STYLES,
   type Extra,
   type Face,
@@ -41,7 +42,8 @@ import { EMPTY_DRAFT, clearDraft, parseDraft, readDraftRaw, writeDraft, type Dra
 import { PaintEditor } from "./PaintEditor";
 import { SavePanel } from "./SavePanel";
 import { useCloudSync } from "./useCloudSync";
-import { Choices, HeadChoices, Swatches, ToggleChoices, ToneSlider } from "./pickers";
+import { Choices, HeadChoices, PatternChoices, Swatches, ToggleChoices, ToneSlider } from "./pickers";
+import { TOP_PATTERN_LAYERS } from "@/walker/parts";
 import { ArrowLeft, ArrowRight, Dice, Restart } from "@/components/icons";
 import styles from "./creator.module.css";
 
@@ -141,6 +143,7 @@ const cloth = Object.fromEntries(PALETTE.cloth.map((c) => [c.id, c.hex])) as Rec
 
 // Sensible first colour when an extra is switched on.
 const EXTRA_DEFAULT_COLOR: Record<Extra, string> = {
+  headphones: cloth.black,
   bracelet: cloth.ochre,
   watch: cloth.black,
   gloves: cloth.black,
@@ -148,6 +151,9 @@ const EXTRA_DEFAULT_COLOR: Record<Extra, string> = {
   necklace: cloth.ochre,
   backpack: cloth.blue,
 };
+
+// Chalk on anything dark or coloured, ink blue on chalk.
+const contrastWith = (hex: string) => (hex === cloth.chalk ? cloth.inkBlue : cloth.chalk);
 
 const pickAny = <T,>(list: readonly T[]) => list[Math.floor(Math.random() * list.length)];
 const sometimes = <T,>(chance: number, list: readonly T[], otherwise: T) =>
@@ -164,6 +170,8 @@ export function randomLook(): Look & { extras: WalkerAppearance["extras"] } {
     facialHair: sometimes(0.25, FACIAL_HAIR, "none"),
     top: pickAny(TOP_STYLES),
     topColor: pickAny(hexes),
+    topPattern: sometimes(0.25, TOP_PATTERNS.slice(1), "plain"),
+    topPatternColor: pickAny(hexes),
     bottom: pickAny(BOTTOM_STYLES),
     bottomColor: pickAny(hexes),
     shoes: pickAny(SHOE_STYLES),
@@ -416,6 +424,28 @@ function Creator({ initial }: { initial: Draft }) {
             <>
               <Choices title={t.creator.top} options={TOP_STYLES} labels={o.top} value={a.top} onChange={(top) => look({ top })} />
               <Swatches title={t.creator.topColor} swatches={PALETTE.cloth} value={a.topColor} onChange={(topColor) => look({ topColor })} />
+              <PatternChoices
+                title={t.creator.pattern}
+                options={TOP_PATTERNS}
+                labels={o.pattern}
+                value={a.topPattern}
+                // A print in the top's own colour would be invisible, so the
+                // first one picked gets a contrasting colour.
+                onChange={(topPattern) =>
+                  look({ topPattern, ...(a.topPatternColor === a.topColor ? { topPatternColor: contrastWith(a.topColor) } : {}) })
+                }
+                base={a.topColor}
+                color={a.topPatternColor === a.topColor ? contrastWith(a.topColor) : a.topPatternColor}
+                layers={(p) => (p === "plain" ? [] : TOP_PATTERN_LAYERS[p])}
+              />
+              {a.topPattern !== "plain" && (
+                <Swatches
+                  title={t.creator.patternColor}
+                  swatches={PALETTE.cloth}
+                  value={a.topPatternColor}
+                  onChange={(topPatternColor) => look({ topPatternColor })}
+                />
+              )}
               <Choices
                 title={t.creator.bottom}
                 options={BOTTOM_STYLES}
@@ -523,6 +553,13 @@ function Creator({ initial }: { initial: Draft }) {
                     labels={{ off: t.creator.off, on: t.creator.on }}
                     value={a.face.blush ? "on" : "off"}
                     onChange={(v) => face({ blush: v === "on" })}
+                  />
+                  <Choices
+                    title={t.creator.freckles}
+                    options={["off", "on"] as const}
+                    labels={{ off: t.creator.off, on: t.creator.on }}
+                    value={a.face.freckles ? "on" : "off"}
+                    onChange={(v) => face({ freckles: v === "on" })}
                   />
                 </div>
               )}
