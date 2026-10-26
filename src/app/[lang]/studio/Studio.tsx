@@ -54,7 +54,7 @@ export function Studio() {
       <section className={styles.treadmillSection}>
         <div
           ref={treadmillRef}
-          className={styles.treadmill}
+          className={`${styles.treadmill} paper`}
           style={vars({
             "--wk-dur": `${duration}s`,
             "--wk-play": paused ? "paused" : "running",
@@ -113,7 +113,7 @@ export function Studio() {
 
       <section>
         <h2 className={styles.h2}>Contact sheet · one cycle</h2>
-        <div className={styles.sheet} style={vars({ "--wk-play": "paused" })}>
+        <div className={`${styles.sheet} paper`} style={vars({ "--wk-play": "paused" })}>
           {Array.from({ length: SHEET_FRAMES }, (_, i) => (
             <figure key={i}>
               <Walker appearance={sample.appearance} height={SHEET_H} phase={i / SHEET_FRAMES} />
@@ -125,7 +125,7 @@ export function Studio() {
 
       <section>
         <h2 className={styles.h2}>Sizes</h2>
-        <div className={styles.sizes}>
+        <div className={`${styles.sizes} paper`}>
           {SIZES.map((h, i) => (
             <figure key={h}>
               <Walker appearance={sample.appearance} height={h} phase={i * 0.17} />

@@ -4,6 +4,7 @@
   --muted: #77726b;
   --line: #d6d1c8;
   --surface: #fbfaf7;
+  --paper: #f3f1ec;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -13,7 +14,20 @@
     --muted: #9a948b;
     --line: #3a3733;
     --surface: #e9e5dd;
+    --paper: #e9e5dd;
   }
+}
+
+/* Walkers are drawn with dark outlines, so they always sit on paper, like
+   artwork on a wall. In light mode the paper matches the page; in dark mode
+   it keeps outlines, black clothes and dark hair readable. Text and lines
+   inside use dark-on-paper colours. */
+.paper {
+  --foreground: #211f1d;
+  --muted: #6d675f;
+  --line: #d6d1c8;
+  background: var(--paper);
+  color: var(--foreground);
 }
 
 html {

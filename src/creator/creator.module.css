@@ -30,8 +30,9 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  padding-top: 12px;
+  padding-top: 20px;
   overflow: hidden;
+  border-radius: 20px;
 }
 
 /* Ground ticks scroll one stride per cycle, in step with the walker. */

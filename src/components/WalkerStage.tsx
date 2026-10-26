@@ -10,7 +10,7 @@ import styles from "./walkerStage.module.css";
 export function WalkerStage({ appearance, height, title }: { appearance: WalkerAppearance; height: number; title?: string }) {
   return (
     <div
-      className={styles.stage}
+      className={`${styles.stage} paper`}
       style={
         {
           "--stride-px": `${GAIT.stride * (height / VIEWBOX.height)}px`,

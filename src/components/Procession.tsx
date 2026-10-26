@@ -35,7 +35,7 @@ export function Procession({ walkers, height = 150 }: { walkers: ProcessionWalke
   return (
     <div
       ref={ref}
-      className={styles.procession}
+      className={`${styles.procession} paper`}
       style={{ height: `${height + 28}px`, "--loop": `${loop}px`, "--walker-w": `${walkerW}px` } as CSSProperties}
     >
       {trackW > 0 &&

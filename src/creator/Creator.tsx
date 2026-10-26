@@ -234,7 +234,7 @@ function Creator({ initial }: { initial: Draft }) {
     <div className={styles.creator}>
       <section className={styles.preview} aria-label={t.creator.previewLabel}>
         <div
-          className={styles.stage}
+          className={`${styles.stage} paper`}
           style={
             {
               "--stride-px": `${stridePx}px`,
