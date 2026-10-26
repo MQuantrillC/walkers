@@ -129,15 +129,18 @@ export const HAIR: Record<HairStyle, HairLayer[]> = {
   none: [],
 };
 
-// Hats hide whatever hair sits above their band; hair below it (an afro's
-// sides, a braid, long hair) still shows. Everything below this line is kept.
-export const UNDER_HAT = "M0 32.3L160 9.8L160 220L0 220Z";
-export const HIDES_HAIR: Record<Headwear, boolean> = {
-  none: false,
-  cap: true,
-  beanie: true,
-  bucket: true,
-  headband: false,
+// Hats hide whatever hair sits above their lower edge; hair below it (an
+// afro's sides, a braid, long hair) still shows. Each clip keeps everything
+// under the hat's edge, extended sideways, and its edge runs exactly along
+// the hat's own outline so the hat's stroke covers the cut.
+const UNDER_BRIM = "M0 32.3L160 9.8L160 220L0 220Z";
+// The beanie cuff's lower edge, from behind the ear up to the forehead.
+const BEANIE_EDGE = "M65.2 29.9C75.2 28.3 89.3 22.9 98.1 18.4";
+export const HAIR_CLIP: Partial<Record<Headwear, string>> = {
+  cap: UNDER_BRIM,
+  bucket: UNDER_BRIM,
+  // Past the forehead the edge turns down, so nothing pokes out in front.
+  beanie: `M0 34L${BEANIE_EDGE.slice(1)}L104 25L160 25L160 220L0 220Z`,
 };
 
 export const FACIAL_HAIR_PATHS: Record<Exclude<FacialHair, "none">, { beard?: string; moustache?: string; faint?: boolean }> = {
@@ -165,10 +168,19 @@ export const HEADWEAR_LAYERS: Record<Headwear, ItemLayer[]> = {
     { d: "M66.5 23C66 13.5 72.5 7.5 82 7.5C91 7.5 97.2 12 97.5 18.5L66.5 23Z", fill: "color", stroke: "ink" },
     { d: "M95 16.8L108.5 18C109.7 18.1 109.7 20.1 108.5 20.2L95 19.9Z", fill: "color", stroke: "ink" },
   ],
+  // One knitted piece that hugs the skull: the crown follows the head's
+  // curve a little outside it, and the folded cuff wraps from the forehead
+  // down to behind the ear.
   beanie: [
-    { d: circle(81, 5, 3.6), fill: "color", stroke: "ink" },
-    { d: "M66.5 21C66 12 72.5 5.5 82 5.5C91.5 5.5 98 11 98 17L66.5 21Z", fill: "color", stroke: "ink" },
-    { d: "M65.5 24.5L98.5 19.5L98.3 15L66 19.6Z", fill: "color", stroke: "ink" },
+    { d: circle(80.5, 3.8, 3.4), fill: "color", stroke: "ink" },
+    {
+      // Crown, then back down along BEANIE_EDGE to close.
+      d: "M97.4 18C97.8 9.6 91 4.4 82.4 4.4C72.2 4.4 65.2 11.6 65.2 20.8C65.2 24.2 65.5 27.2 65.9 29.5C75 27.8 89 22.5 97.4 18Z",
+      fill: "color",
+      stroke: "ink",
+    },
+    // Folded cuff, standing slightly proud of the crown at both ends.
+    { d: "M64.7 24.4C74.5 22.8 88.8 17.6 98.3 13.1L98.1 18.4C89.3 22.9 75.2 28.3 65.2 29.9Z", fill: "color", stroke: "ink" },
   ],
   bucket: [
     { d: "M68.5 21.5C68 13 74 8.5 83 8.5C92 8.5 97 12.5 97 18L68.5 21.5Z", fill: "color", stroke: "ink" },

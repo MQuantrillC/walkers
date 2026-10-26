@@ -13,7 +13,7 @@ import {
   FACIAL_HAIR_PATHS,
   HAIR,
   HEADWEAR_LAYERS,
-  HIDES_HAIR,
+  HAIR_CLIP,
   HOOD,
   HOODIE_STRING,
   LIMB,
@@ -28,7 +28,6 @@ import {
   THIGH_CLIP,
   TORSO_SEAT,
   TORSO_TOP,
-  UNDER_HAT,
   circle,
   type ItemLayer,
 } from "./parts";
@@ -295,7 +294,8 @@ function Hair({ a }: { a: WalkerAppearance }) {
       <Outlined key={i} d={l.d} color={a.hairColor} />
     ),
   );
-  return HIDES_HAIR[a.headwear] ? <Clipped shape={<path d={UNDER_HAT} />}>{layers}</Clipped> : layers;
+  const clip = HAIR_CLIP[a.headwear];
+  return clip ? <Clipped shape={<path d={clip} />}>{layers}</Clipped> : layers;
 }
 
 // The head with hair, face, paint and headwear, in the head's own frame.
