@@ -10,10 +10,10 @@ import styles from "./procession.module.css";
 // `href` makes the walker clickable (e.g. to its public profile).
 export type ProcessionWalker = { name: string; appearance: WalkerAppearance; href?: string };
 
-// At most this many walkers are drawn in one band at a time; on wide
+// At most this many walkers are drawn at a time; on wide
 // screens they spread out instead. Each one's limbs repaint every frame, so
 // this keeps the walk smooth with any number of walkers.
-const MAX_ON_SCREEN = 5;
+const MAX_ON_SCREEN = 6;
 
 // Walkers cross the band at exactly their ground speed, evenly spaced and
 // with staggered phases. Only as many as fit on screen are drawn: each
