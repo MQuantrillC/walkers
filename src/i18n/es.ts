@@ -218,7 +218,7 @@ export const es: Dictionary = {
     headwear: { none: "Nada", cap: "Gorra", beanie: "Gorro", bucket: "Pescador", headband: "Cinta" },
     eyewear: { none: "Nada", glasses: "Gafas", sunglasses: "Gafas de sol" },
     extras: {
-      bracelet: "Pulsera", watch: "Reloj", gloves: "Guantes", scarf: "Bufanda", necklace: "Collar", backpack: "Mochila",
+      bracelet: "Pulsera", watch: "Reloj", ring: "Anillo", gloves: "Guantes", scarf: "Bufanda", necklace: "Collar", backpack: "Mochila",
     },
     eyes: { dot: "Punto", wide: "Abiertos", closed: "Cerrados", none: "Ninguno" },
     brows: { none: "Ninguna", line: "Rectas", arched: "Arqueadas" },

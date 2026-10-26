@@ -227,6 +227,8 @@ export const EXTRA_PATHS = {
   watchFace: "M3.6 21.6H7.4V27.4H3.6Z",
   bracelet: "M-5.4 27.4H5.4V30.2H-5.4Z",
   glovesCuff: "M-5.8 27.2H5.8V31.6H-5.8Z",
+  // A band round the fingers, on the front of the hand (centred at y = 34).
+  ring: "M0.4 34.4H6.6V38.6H0.4Z",
   // Body frame (leaned with the torso).
   scarfWrap: "M75 48.5C80 46.5 88 46.5 92 49L92.5 56C87 58.5 80 58.5 74.5 56Z",
   scarfTail: "M77 52L71.5 53.5L65.5 69C65 71 67 72 68.5 71L76 59Z",
@@ -235,7 +237,7 @@ export const EXTRA_PATHS = {
   backpackStrap: "M70 58C74 54.5 82 54.3 85.5 58.5C88.5 64 89.2 72 86.5 80C83.5 88 77 94 71 97",
 } as const;
 
-export const EXTRA_ORDER: readonly Extra[] = ["backpack", "scarf", "necklace", "bracelet", "watch", "gloves"];
+export const EXTRA_ORDER: readonly Extra[] = ["backpack", "scarf", "necklace", "bracelet", "watch", "gloves", "ring"];
 
 // Preset facial features, all in the head frame.
 export const EYES = {

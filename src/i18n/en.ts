@@ -216,7 +216,7 @@ export const en = {
     headwear: { none: "None", cap: "Cap", beanie: "Beanie", bucket: "Bucket hat", headband: "Headband" },
     eyewear: { none: "None", glasses: "Glasses", sunglasses: "Sunglasses" },
     extras: {
-      bracelet: "Bracelet", watch: "Watch", gloves: "Gloves", scarf: "Scarf", necklace: "Necklace", backpack: "Backpack",
+      bracelet: "Bracelet", watch: "Watch", ring: "Ring", gloves: "Gloves", scarf: "Scarf", necklace: "Necklace", backpack: "Backpack",
     },
     eyes: { dot: "Dot", wide: "Wide", closed: "Closed", none: "None" },
     brows: { none: "None", line: "Straight", arched: "Arched" },

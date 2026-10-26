@@ -99,7 +99,7 @@ function HeaderBar({ pathname }: { pathname: string | null }) {
             )}
             {auth.status === "signedIn" && <AccountMenu profile={auth.profile} />}
             {auth.status === "signedOut" && !inApp && (
-              <button className={styles.signIn} onClick={() => signIn(pathname ?? `/${locale}`)}>
+              <button className={styles.signIn} onClick={() => signIn(`${pathname ?? `/${locale}`}${window.location.search}`)}>
                 {t.auth.signIn}
               </button>
             )}

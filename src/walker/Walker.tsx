@@ -230,7 +230,7 @@ function Leg({ pass, c, a, motion, dim }: { pass: Pass; c: Colors; a: WalkerAppe
 function Arm({ pass, c, a, near, motion }: { pass: Pass; c: Colors; a: WalkerAppearance; near: boolean; motion?: Motion }) {
   const long = a.top === "longsleeve" || a.top === "hoodie";
   const fill = pass === "fill";
-  const { bracelet, watch, gloves } = a.extras;
+  const { bracelet, watch, gloves, ring } = a.extras;
   return (
     <g transform={`translate(${RIG.shoulder.x} ${RIG.shoulder.y})`}>
       <g {...joint(motion, "shoulder")}>
@@ -248,6 +248,7 @@ function Arm({ pass, c, a, near, motion }: { pass: Pass; c: Colors; a: WalkerApp
               </>
             )}
             {fill && near && bracelet && <Outlined d={EXTRA_PATHS.bracelet} color={bracelet} />}
+            {fill && near && ring && <Outlined d={EXTRA_PATHS.ring} color={ring} />}
           </g>
         </g>
       </g>

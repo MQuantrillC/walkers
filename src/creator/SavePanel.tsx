@@ -12,7 +12,9 @@ const noSubscribe = () => () => {};
 const signInFailed = () => new URLSearchParams(window.location.search).get("signin") === "failed";
 
 // Save / publish controls under the live preview.
-export function SavePanel({ sync, onPublished }: { sync: CloudSync; onPublished: () => void }) {
+// `step` is where the visitor is in the creator, so signing in brings
+// them back to it.
+export function SavePanel({ sync, step, onPublished }: { sync: CloudSync; step: string; onPublished: () => void }) {
   const { t, locale } = useI18n();
   const { auth } = useAuth();
   const failed = useSyncExternalStore(noSubscribe, signInFailed, () => false);
@@ -27,7 +29,7 @@ export function SavePanel({ sync, onPublished }: { sync: CloudSync; onPublished:
       <div className={styles.savePanel}>
         {failed && <p className={styles.saveError}>{t.auth.failed}</p>}
         <p className={styles.saveNote}>{t.save.signInToSave}</p>
-        <SignInButton next={`/${locale}/create`} className={styles.primary} />
+        <SignInButton next={`/${locale}/create?step=${step}`} className={styles.primary} />
       </div>
     );
   }

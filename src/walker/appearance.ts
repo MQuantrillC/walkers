@@ -11,7 +11,7 @@ export const SHOE_STYLES = ["sneaker", "hightop", "boot", "flat", "sandal"] as c
 export const HEADWEAR = ["none", "cap", "beanie", "bucket", "headband"] as const;
 export const EYEWEAR = ["none", "glasses", "sunglasses"] as const;
 // Extras can be combined; each one worn carries its own colour.
-export const EXTRAS = ["bracelet", "watch", "gloves", "scarf", "necklace", "backpack"] as const;
+export const EXTRAS = ["bracelet", "watch", "ring", "gloves", "scarf", "necklace", "backpack"] as const;
 export const EYE_STYLES = ["dot", "wide", "closed", "none"] as const;
 export const BROW_STYLES = ["none", "line", "arched"] as const;
 export const MOUTH_STYLES = ["none", "smile", "line", "open"] as const;

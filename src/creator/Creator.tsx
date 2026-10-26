@@ -142,6 +142,7 @@ const cloth = Object.fromEntries(PALETTE.cloth.map((c) => [c.id, c.hex])) as Rec
 const EXTRA_DEFAULT_COLOR: Record<Extra, string> = {
   bracelet: cloth.ochre,
   watch: cloth.black,
+  ring: cloth.ochre,
   gloves: cloth.black,
   scarf: cloth.red,
   necklace: cloth.ochre,
@@ -207,6 +208,14 @@ export function CreatorPage() {
   return <Creator initial={imported ?? parseDraft(raw)} />;
 }
 
+// The step is kept in the address (?step=…), so signing in, which leaves
+// the page, or reloading it carries on where the visitor was instead of
+// back at the start.
+function returningStep(): StepId {
+  const step = new URLSearchParams(window.location.search).get("step");
+  return (STEPS as readonly string[]).includes(step ?? "") ? (step as StepId) : "you";
+}
+
 function readCarriedDraft() {
   return window.location.hash.startsWith(DRAFT_HASH) ? window.location.hash.slice(DRAFT_HASH.length) : null;
 }
@@ -214,7 +223,7 @@ function readCarriedDraft() {
 function Creator({ initial }: { initial: Draft }) {
   const { t, locale } = useI18n();
   const [state, dispatch] = useReducer(reducer, { ...initial, past: [], future: [], focus: "face" });
-  const [step, setStep] = useState<StepId>("you");
+  const [step, setStep] = useState<StepId>(returningStep);
   const [saved, setSaved] = useState<boolean | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const { appearance: a, name, focus: surface } = state;
@@ -251,6 +260,13 @@ function Creator({ initial }: { initial: Draft }) {
     }, 400);
     return () => clearTimeout(timer);
   }, [inApp, name, a]);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (step === "you") url.searchParams.delete("step");
+    else url.searchParams.set("step", step);
+    window.history.replaceState(window.history.state, "", url);
+  }, [step]);
 
   // Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z (or Ctrl+Y) while painting.
   useEffect(() => {
@@ -334,7 +350,7 @@ function Creator({ initial }: { initial: Draft }) {
         {saved === false && <p className={styles.saveError}>{t.creator.draftUnavailable}</p>}
         {step !== "preview" && (
           <div className={styles.saveArea}>
-            <SavePanel sync={sync} onPublished={() => setStep("preview")} />
+            <SavePanel sync={sync} step={step} onPublished={() => setStep("preview")} />
           </div>
         )}
       </section>
@@ -543,7 +559,7 @@ function Creator({ initial }: { initial: Draft }) {
                   height={compact ? 120 : 140}
                 />
               </div>
-              <SavePanel sync={sync} onPublished={() => setStep("preview")} />
+              <SavePanel sync={sync} step={step} onPublished={() => setStep("preview")} />
               {sync.remote?.status === "published" && (
                 <Link className={styles.saveLink} href={`/${locale}`}>
                   {t.creator.seeTheWalk}
