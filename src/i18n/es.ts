@@ -216,7 +216,7 @@ export const es: Dictionary = {
     bottom: { trousers: "Pantalón", cropped: "Tobillero", shorts: "Pantalón corto", skirt: "Falda" },
     shoes: { sneaker: "Zapatillas", hightop: "Botines", boot: "Botas", flat: "Bailarinas", sandal: "Sandalias" },
     headwear: {
-      none: "Nada", cap: "Gorra", beanie: "Gorro", chullo: "Chullo", bucket: "Pescador", beret: "Boina",
+      none: "Nada", cap: "Gorra", tophat: "Chistera", beanie: "Gorro", chullo: "Chullo", bucket: "Pescador", beret: "Boina",
       helmet: "Casco", headband: "Cinta",
     },
     eyewear: { none: "Nada", glasses: "Gafas", sunglasses: "Gafas de sol", sport: "Deportivas" },

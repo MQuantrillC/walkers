@@ -140,6 +140,7 @@ const BEANIE_EDGE = "M65.2 29.9C75.2 28.3 89.3 22.9 98.1 18.4";
 const UNDER_BEANIE = `M0 34L${BEANIE_EDGE.slice(1)}L104 25L160 25L160 220L0 220Z`;
 export const HAIR_CLIP: Partial<Record<Headwear, string>> = {
   cap: "M0 37.3L160 8.7L160 220L0 220Z",
+  tophat: "M0 27.6L160 4.6L160 220L0 220Z",
   bucket: UNDER_BRIM,
   beanie: UNDER_BEANIE,
   chullo: UNDER_BEANIE,
@@ -213,6 +214,17 @@ export const HEADWEAR_LAYERS: Record<Headwear, ItemLayer[]> = {
     },
     // Folded cuff, standing slightly proud of the crown at both ends.
     { d: "M64.7 24.4C74.5 22.8 88.8 17.6 98.3 13.1L98.1 18.4C89.3 22.9 75.2 28.3 65.2 29.9Z", fill: "color", stroke: "ink" },
+  ],
+  // Tall crown with a band, on a brim that curls up at both ends. Kept
+  // under the top of the frame so it isn't cut off in the walk.
+  tophat: [
+    { d: "M70 17.8L69.6 2C69.6 1.2 70.2 0.6 71 0.5L94.8-2.9C95.7-3 96.4-2.4 96.4-1.5L96 13.9Z", fill: "color", stroke: "ink" },
+    { d: "M70 17.6L69.8 13.4L96.2 9.6L96 13.9Z", fill: "glass", stroke: "ink", width: 1.4 },
+    {
+      d: "M63.5 20.6C63 19.2 64.5 18.3 67 18L99 13.4C101.5 13 103 13.6 102.8 15C102.6 16.3 101 17 99.5 17.2L67.5 21.8C65.5 22.1 63.8 21.7 63.5 20.6Z",
+      fill: "color",
+      stroke: "ink",
+    },
   ],
   // The beanie's Andean cousin: earflap, tie and a knitted zigzag.
   chullo: [

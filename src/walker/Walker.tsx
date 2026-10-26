@@ -114,6 +114,19 @@ function Clipped({ id, shape, children }: { id: string; shape: ReactNode; childr
 // Painted strokes for one surface, drawn in that surface's frame and clipped
 // to `clip` (a path in the current frame). `offset` maps the surface frame
 // into the current one, e.g. body units into a thigh's local frame.
+// Consecutive strokes with the same colour and brush become one path: the
+// colours are opaque, so it looks identical, and a walk full of drawings has
+// far fewer shapes to repaint every frame.
+function runs(strokes: readonly Stroke[]): Stroke[][] {
+  const out: Stroke[][] = [];
+  for (const s of strokes) {
+    const last = out[out.length - 1];
+    if (last && last[0].color === s.color && last[0].size === s.size) last.push(s);
+    else out.push([s]);
+  }
+  return out;
+}
+
 function PaintLayer({
   surface,
   strokes,
@@ -135,13 +148,13 @@ function PaintLayer({
         transform={offset ? `translate(${-offset.x} ${-offset.y})` : undefined}
         opacity={dim ? 0.82 : undefined}
       >
-        {strokes.map((s, i) => (
+        {runs(strokes).map((run, i) => (
           <path
             key={i}
-            d={strokePath(box, s.points)}
+            d={run.map((s) => strokePath(box, s.points)).join("")}
             fill="none"
-            stroke={s.color}
-            strokeWidth={s.size}
+            stroke={run[0].color}
+            strokeWidth={run[0].size}
             strokeLinecap="round"
             strokeLinejoin="round"
           />

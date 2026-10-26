@@ -15,6 +15,7 @@ import {
   FACIAL_HAIR,
   HAIR_STYLES,
   HEADWEAR,
+  HEADWEAR_OFFERED,
   MOUTH_STYLES,
   NAME_MAX,
   PAINT_LIMITS,
@@ -167,7 +168,7 @@ export function randomLook(): Look & { extras: WalkerAppearance["extras"] } {
     bottomColor: pickAny(hexes),
     shoes: pickAny(SHOE_STYLES),
     shoeColor: pickAny(hexes),
-    headwear: sometimes(0.3, HEADWEAR, "none"),
+    headwear: sometimes(0.3, HEADWEAR_OFFERED, "none"),
     headwearColor: pickAny(hexes),
     eyewear: sometimes(0.25, EYEWEAR, "none"),
     eyewearColor: pickAny(hexes),
@@ -442,7 +443,8 @@ function Creator({ initial }: { initial: Draft }) {
             <>
               <HeadChoices
                 title={t.creator.headwear}
-                options={HEADWEAR}
+                // The current choice stays visible even if it's no longer offered.
+                options={HEADWEAR.filter((h) => HEADWEAR_OFFERED.includes(h) || h === a.headwear)}
                 labels={o.headwear}
                 value={a.headwear}
                 onChange={(headwear) => look({ headwear })}
@@ -560,7 +562,8 @@ function Creator({ initial }: { initial: Draft }) {
               </div>
               <SavePanel sync={sync} step={step} onPublished={() => setStep("preview")} />
               {sync.remote?.status === "published" && (
-                <Link className={styles.saveLink} href={`/${locale}`}>
+                // Their avatar leads the line, so they see it walk straight away.
+                <Link className={styles.saveLink} href={`/${locale}?w=${sync.remote.id}`}>
                   {t.creator.seeTheWalk}
                   <ArrowRight />
                 </Link>

@@ -17,6 +17,9 @@ const MAX_ON_SCREEN = 8;
 // Gap from one walker to the next, in walker widths: close, one behind the
 // other, with room for their names.
 const GAP = 1;
+// Room above the figure for whatever sticks up past its frame (a top hat,
+// a mohawk), so it isn't cut off.
+const HEADROOM = 1.03;
 
 // Walkers cross the band at exactly their ground speed, close together and
 // with staggered phases. A few walk as a group (starting mid-screen) and go
@@ -68,7 +71,7 @@ export function Procession({
       ref={ref}
       className={`${styles.procession} paper`}
       data-offscreen={offscreen || undefined}
-      style={{ height: `${height + 28}px`, "--loop": `${loop}px`, "--walker-w": `${walkerW}px` } as CSSProperties}
+      style={{ height: `${Math.ceil(height * HEADROOM) + 28}px`, "--loop": `${loop}px`, "--walker-w": `${walkerW}px` } as CSSProperties}
     >
       {trackW > 0 && (
         // A new line (and lap count) whenever its shape changes, so every

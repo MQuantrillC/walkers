@@ -21,16 +21,20 @@ const toProcession = (lang: string) => (w: PublicWalker): ProcessionWalker => ({
 
 // The public gallery: everyone (in the order they joined) or the latest,
 // optionally filtered by name. Pages load as the procession needs them.
-export function Gallery({ initial }: { initial: GalleryPage }) {
+// `featured` leads the line (and isn't repeated further back).
+export function Gallery({ initial, featured }: { initial: GalleryPage; featured?: PublicWalker | null }) {
   const { t, locale } = useI18n();
   const [order, setOrder] = useState<GalleryOrder>("everyone");
   const [input, setInput] = useState("");
   const [query, setQuery] = useState("");
-  const [walkers, setWalkers] = useState<PublicWalker[]>(initial.walkers);
+  const [walkers, setWalkers] = useState<PublicWalker[]>(() =>
+    featured ? [featured, ...initial.walkers.filter((w) => w.id !== featured.id)] : initial.walkers,
+  );
   const [nextOffset, setNextOffset] = useState<number | null>(initial.nextOffset);
   const [loading, setLoading] = useState(false);
   const loadingMore = useRef(false);
-  const firstLoad = useRef(true);
+  // The order and search the list currently shows.
+  const shownKey = useRef("everyone|");
   const still = useMediaQuery("(prefers-reduced-motion: reduce)");
   const compact = useMediaQuery("(max-width: 560px)");
 
@@ -41,12 +45,11 @@ export function Gallery({ initial }: { initial: GalleryPage }) {
   }, [input]);
 
   // New order or search: start again from the first page. The server
-  // already rendered the default view, so skip the very first run.
+  // already rendered the default view, so nothing to do until it changes.
   useEffect(() => {
-    if (firstLoad.current) {
-      firstLoad.current = false;
-      return;
-    }
+    const key = `${order}|${query}`;
+    if (key === shownKey.current) return;
+    shownKey.current = key;
     let cancelled = false;
     queueMicrotask(() => setLoading(true));
     browseWalkers({ order, query, offset: 0 }).then((page) => {

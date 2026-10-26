@@ -214,7 +214,7 @@ export const en = {
     bottom: { trousers: "Trousers", cropped: "Cropped", shorts: "Shorts", skirt: "Skirt" },
     shoes: { sneaker: "Trainers", hightop: "High-tops", boot: "Boots", flat: "Flats", sandal: "Sandals" },
     headwear: {
-      none: "None", cap: "Cap", beanie: "Beanie", chullo: "Chullo", bucket: "Bucket hat", beret: "Beret",
+      none: "None", cap: "Cap", tophat: "Top hat", beanie: "Beanie", chullo: "Chullo", bucket: "Bucket hat", beret: "Beret",
       helmet: "Helmet", headband: "Headband",
     },
     eyewear: { none: "None", glasses: "Glasses", sunglasses: "Sunglasses", sport: "Sport" },

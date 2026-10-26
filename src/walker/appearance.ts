@@ -8,7 +8,10 @@ export const FACIAL_HAIR = ["none", "stubble", "moustache", "beard"] as const;
 export const TOP_STYLES = ["tee", "longsleeve", "tank", "hoodie"] as const;
 export const BOTTOM_STYLES = ["trousers", "cropped", "shorts", "skirt"] as const;
 export const SHOE_STYLES = ["sneaker", "hightop", "boot", "flat", "sandal"] as const;
-export const HEADWEAR = ["none", "cap", "beanie", "chullo", "bucket", "beret", "helmet", "headband"] as const;
+export const HEADWEAR = ["none", "cap", "tophat", "beanie", "chullo", "bucket", "beret", "helmet", "headband"] as const;
+// What the creator offers. The cap is resting while its design is reworked;
+// avatars that already wear one keep it.
+export const HEADWEAR_OFFERED: readonly Headwear[] = HEADWEAR.filter((h) => h !== "cap");
 export const EYEWEAR = ["none", "glasses", "sunglasses", "sport"] as const;
 // Extras can be combined; each one worn carries its own colour.
 export const EXTRAS = ["bracelet", "watch", "gloves", "scarf", "necklace", "backpack"] as const;
