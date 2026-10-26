@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { WalkerStage } from "@/components/WalkerStage";
 import { ShareButton } from "@/components/ShareButton";
+import { ReportButton } from "@/components/ReportButton";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { getPublishedWalker } from "@/walker/publicData";
@@ -57,6 +58,7 @@ async function Profile({ params }: { params: Promise<{ lang: string; id: string 
           {t.profile.createYours}
         </Link>
       </div>
+      <ReportButton walkerId={walker.id} />
     </div>
   );
 }

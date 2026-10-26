@@ -1,5 +1,5 @@
-import { useId, type CSSProperties, type ReactNode } from "react";
-import { RIG } from "./gait";
+import type { CSSProperties, ReactNode } from "react";
+import { RIG, poseAt, type GaitPose } from "./gait";
 import { INK, type Stroke, type Surface, type WalkerAppearance } from "./appearance";
 import { VIEWBOX, WALK_CSS } from "./walkCss";
 import { HEAD, NOSE, SURFACE_BOX, strokePath } from "./paint";
@@ -86,13 +86,18 @@ function Passes({ children }: { children: (pass: Pass) => ReactNode }) {
   );
 }
 
-function useClipId(prefix: string) {
-  return `${prefix}-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+// Clip ids come from the clip's own geometry rather than React's useId, so
+// the walker is a pure function of its appearance (it can be rendered to an
+// SVG string for share images). Identical ids always mean identical shapes,
+// so repeating them across walkers on one page is harmless.
+function clipId(geometry: string) {
+  let h = 5381;
+  for (let i = 0; i < geometry.length; i++) h = ((h << 5) + h + geometry.charCodeAt(i)) | 0;
+  return `wk-clip-${(h >>> 0).toString(36)}`;
 }
 
 // Content clipped to a shape given in the current frame.
-function Clipped({ shape, children }: { shape: ReactNode; children: ReactNode }) {
-  const id = useClipId("wk-clip");
+function Clipped({ id, shape, children }: { id: string; shape: ReactNode; children: ReactNode }) {
   return (
     <>
       <clipPath id={id}>{shape}</clipPath>
@@ -120,7 +125,7 @@ function PaintLayer({
   if (!strokes.length) return null;
   const box = SURFACE_BOX[surface];
   return (
-    <Clipped shape={<path d={clip} />}>
+    <Clipped id={clipId(clip)} shape={<path d={clip} />}>
       <g
         transform={offset ? `translate(${-offset.x} ${-offset.y})` : undefined}
         opacity={dim ? 0.82 : undefined}
@@ -150,8 +155,16 @@ type Colors = {
   gloves?: string;
 };
 
-function anim(still: boolean | undefined, name: string) {
-  return still ? undefined : `wk-a ${name}`;
+// How a limb joint moves: animated by the shared CSS walk cycle (default),
+// held in the standing rest pose, or frozen at one computed frame (for
+// static images, where CSS animations don't run).
+type Motion = undefined | "rest" | GaitPose;
+type Joint = "thigh" | "knee" | "foot" | "shoulder" | "elbow";
+
+function joint(motion: Motion, name: Joint) {
+  if (motion === undefined) return { className: `wk-a wk-${name}` };
+  if (motion === "rest") return {};
+  return { transform: `rotate(${motion[name].toFixed(2)})` };
 }
 
 export function Shoe({ pass, a, c, dim }: { pass: Pass; a: WalkerAppearance; c: Colors; dim?: boolean }) {
@@ -171,21 +184,21 @@ export function Shoe({ pass, a, c, dim }: { pass: Pass; a: WalkerAppearance; c: 
 const THIGH_OFFSET = { x: RIG.hip.x, y: RIG.hip.y };
 const SHIN_OFFSET = { x: RIG.hip.x, y: RIG.hip.y + RIG.thigh };
 
-function Leg({ pass, c, a, still, dim }: { pass: Pass; c: Colors; a: WalkerAppearance; still?: boolean; dim?: boolean }) {
+function Leg({ pass, c, a, motion, dim }: { pass: Pass; c: Colors; a: WalkerAppearance; motion?: Motion; dim?: boolean }) {
   const b = a.bottom;
   const paint = a.paint.bottom;
   const fill = pass === "fill";
   const thighCloth = b === "trousers" || b === "cropped";
   return (
     <g transform={`translate(${RIG.hip.x} ${RIG.hip.y})`}>
-      <g className={anim(still, "wk-thigh")}>
+      <g {...joint(motion, "thigh")}>
         <Seg pass={pass} len={RIG.thigh} w={LIMB.thigh} color={thighCloth ? c.bottom : c.skin} />
         {fill && b === "shorts" && <Outlined d={SHORTS} color={c.bottom} />}
         {fill && (thighCloth || b === "shorts") && (
           <PaintLayer surface="bottom" strokes={paint} clip={b === "shorts" ? SHORTS : THIGH_CLIP} offset={THIGH_OFFSET} dim={dim} />
         )}
         <g transform={`translate(0 ${RIG.thigh})`}>
-          <g className={anim(still, "wk-knee")}>
+          <g {...joint(motion, "knee")}>
             <Seg pass={pass} len={RIG.shin} w={LIMB.shin} color={b === "trousers" ? c.bottom : c.skin} />
             {fill && b === "cropped" && <Outlined d={CROPPED} color={c.bottom} />}
             {fill && (b === "trousers" || b === "cropped") && (
@@ -198,7 +211,7 @@ function Leg({ pass, c, a, still, dim }: { pass: Pass; c: Colors; a: WalkerAppea
               />
             )}
             <g transform={`translate(0 ${RIG.shin})`}>
-              <g className={anim(still, "wk-foot")}>
+              <g {...joint(motion, "foot")}>
                 <Shoe pass={pass} a={a} c={c} dim={dim} />
               </g>
             </g>
@@ -209,17 +222,17 @@ function Leg({ pass, c, a, still, dim }: { pass: Pass; c: Colors; a: WalkerAppea
   );
 }
 
-function Arm({ pass, c, a, near, still }: { pass: Pass; c: Colors; a: WalkerAppearance; near: boolean; still?: boolean }) {
+function Arm({ pass, c, a, near, motion }: { pass: Pass; c: Colors; a: WalkerAppearance; near: boolean; motion?: Motion }) {
   const long = a.top === "longsleeve" || a.top === "hoodie";
   const fill = pass === "fill";
   const { bracelet, watch, gloves } = a.extras;
   return (
     <g transform={`translate(${RIG.shoulder.x} ${RIG.shoulder.y})`}>
-      <g className={anim(still, "wk-shoulder")}>
+      <g {...joint(motion, "shoulder")}>
         <Seg pass={pass} len={RIG.upperArm} w={LIMB.upperArm} color={long ? c.top : c.skin} />
         {fill && a.top === "tee" && <Outlined d={TEE_SLEEVE} color={c.top} />}
         <g transform={`translate(0 ${RIG.upperArm})`}>
-          <g className={anim(still, "wk-elbow")}>
+          <g {...joint(motion, "elbow")}>
             <Seg pass={pass} len={RIG.forearm} w={LIMB.forearm} color={long ? c.top : c.skin} />
             <Shape pass={pass} d={circle(0, RIG.forearm + 2, LIMB.hand)} color={c.gloves ?? c.skin} />
             {fill && gloves && <Outlined d={EXTRA_PATHS.glovesCuff} color={c.gloves ?? gloves} />}
@@ -297,7 +310,13 @@ function Hair({ a }: { a: WalkerAppearance }) {
       <Outlined key={i} d={l.d} color={a.hairColor} />
     ),
   );
-  return clip ? <Clipped shape={<path d={clip} />}>{layers}</Clipped> : layers;
+  return clip ? (
+    <Clipped id={clipId(clip)} shape={<path d={clip} />}>
+      {layers}
+    </Clipped>
+  ) : (
+    layers
+  );
 }
 
 // The head with hair, face, paint and headwear, in the head's own frame.
@@ -306,7 +325,7 @@ export function HeadParts({ a }: { a: WalkerAppearance }) {
   return (
     <>
       <Passes>{(pass) => <Shape pass={pass} d={HEAD_OUTLINE} color={a.skin} />}</Passes>
-      <Clipped shape={HEAD_SHAPE}>
+      <Clipped id="wk-clip-head" shape={HEAD_SHAPE}>
         <FaceFeatures a={a} />
       </Clipped>
       <Hair a={a} />
@@ -388,7 +407,7 @@ export function LegParts({ a }: { a: WalkerAppearance }) {
     <>
       <Passes>{(pass) => <Shape pass={pass} d={TORSO_SEAT} color={a.bottomColor} />}</Passes>
       {a.bottom !== "skirt" && <PaintLayer surface="bottom" strokes={a.paint.bottom} clip={TORSO_SEAT} />}
-      <Passes>{(pass) => <Leg pass={pass} c={c} a={a} still />}</Passes>
+      <Passes>{(pass) => <Leg pass={pass} c={c} a={a} motion="rest" />}</Passes>
       {a.bottom === "skirt" && <Skirt a={a} />}
     </>
   );
@@ -421,9 +440,14 @@ export type WalkerProps = {
   className?: string;
   style?: CSSProperties;
   title?: string;
+  // Freeze at this point of the walk cycle (0..1) with no CSS animation,
+  // e.g. for share images. Omit to walk.
+  frame?: number;
 };
 
-export function Walker({ appearance: a, phase = 0, height = 220, className, style, title }: WalkerProps) {
+export function Walker({ appearance: a, phase = 0, height = 220, className, style, title, frame }: WalkerProps) {
+  const nearPose = frame === undefined ? undefined : poseAt(frame);
+  const farPose = frame === undefined ? undefined : poseAt(frame + 0.5);
   const near = colorsFor(a, false);
   const far = colorsFor(a, true);
   const { scarf, backpack } = a.extras;
@@ -439,15 +463,17 @@ export function Walker({ appearance: a, phase = 0, height = 220, className, styl
       aria-label={title}
       aria-hidden={title ? undefined : true}
     >
-      <style href="walkers-walk-cycle" precedence="default">
-        {WALK_CSS}
-      </style>
-      <g className="wk-a wk-bob">
+      {!nearPose && (
+        <style href="walkers-walk-cycle" precedence="default">
+          {WALK_CSS}
+        </style>
+      )}
+      <g {...(nearPose ? { transform: `translate(0 ${nearPose.bob.toFixed(2)})` } : { className: "wk-a wk-bob" })}>
         <g className="wk-far">
           <g transform={lean}>
-            <Passes>{(pass) => <Arm pass={pass} c={far} a={a} near={false} />}</Passes>
+            <Passes>{(pass) => <Arm pass={pass} c={far} a={a} near={false} motion={farPose} />}</Passes>
           </g>
-          <Passes>{(pass) => <Leg pass={pass} c={far} a={a} dim />}</Passes>
+          <Passes>{(pass) => <Leg pass={pass} c={far} a={a} dim motion={farPose} />}</Passes>
         </g>
 
         <g transform={lean}>
@@ -456,13 +482,13 @@ export function Walker({ appearance: a, phase = 0, height = 220, className, styl
           <TorsoParts a={a} />
         </g>
 
-        <Passes>{(pass) => <Leg pass={pass} c={near} a={a} />}</Passes>
+        <Passes>{(pass) => <Leg pass={pass} c={near} a={a} motion={nearPose} />}</Passes>
 
         <g transform={lean}>
           {a.bottom === "skirt" && <Skirt a={a} />}
           {scarf && <Outlined d={EXTRA_PATHS.scarfWrap} color={scarf} />}
           <HeadParts a={a} />
-          <Passes>{(pass) => <Arm pass={pass} c={near} a={a} near />}</Passes>
+          <Passes>{(pass) => <Arm pass={pass} c={near} a={a} near motion={nearPose} />}</Passes>
         </g>
       </g>
     </svg>

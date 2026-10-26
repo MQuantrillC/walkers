@@ -4,7 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { getServerSupabase } from "@/lib/supabase/server";
 import { validateAppearance, validateDisplayName } from "./validate";
 import { toMyWalker, MY_WALKER_COLUMNS, type MyWalker, type PublicWalker } from "./records";
-import { getLatestWalkers } from "./publicData";
+import { getGalleryPage, getLatestWalkers, type GalleryOrder, type GalleryPage } from "./publicData";
 
 // Every write goes through here so the full appearance validation runs on
 // the server, not just in the browser. Ownership and publication rules are
@@ -31,6 +31,14 @@ function mapError(error: { code?: string } | null): ActionError {
 // Newest published walkers, for showing a new walker among the crowd.
 export async function listLatestWalkers(): Promise<PublicWalker[]> {
   return getLatestWalkers(12);
+}
+
+// A page of the public gallery, for loading more and searching.
+export async function browseWalkers(input: { order: GalleryOrder; query: string; offset: number }): Promise<GalleryPage> {
+  const order: GalleryOrder = input.order === "latest" ? "latest" : "everyone";
+  const query = typeof input.query === "string" ? input.query : "";
+  const offset = Number.isFinite(input.offset) ? input.offset : 0;
+  return getGalleryPage({ order, query, offset });
 }
 
 export async function getMyWalker(): Promise<ActionResult<MyWalker | null>> {

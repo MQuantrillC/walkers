@@ -158,6 +158,33 @@ select rls_test.act_as('ana');
 select rls_test.expect('Ana can still delete her walker',
   $q$delete from public.walkers where display_name = 'Ana'$q$, true, 1);
 
+-- Reports and accounts (second migration) ---------------------------------
+select rls_test.act_as('ben');
+select rls_test.expect('Ana''s deleted walker is gone for moderators too',
+  $q$select id from public.walkers where display_name = 'Ana'$q$, true, 0);
+select rls_test.expect('Ben creates a walker and publishes it',
+  $q$insert into public.walkers (display_name, appearance, status) values ('Ben', '{}', 'published')$q$, true, 1);
+
+select rls_test.act_as('ana');
+select rls_test.expect('Ana reports Ben''s walker',
+  $q$insert into public.reports (walker_id, reason) select id, 'drawing' from public.walkers where display_name = 'Ben'$q$, true, 1);
+select rls_test.expect('Ana cannot report the same walker twice',
+  $q$insert into public.reports (walker_id, reason) select id, 'drawing' from public.walkers where display_name = 'Ben'$q$, false);
+
+select rls_test.act_as('anon');
+select rls_test.expect('Visitors cannot delete accounts',
+  $q$select public.delete_my_account()$q$, false);
+
+select rls_test.act_as('ben');
+select rls_test.expect('Ben deletes his own account',
+  $q$select public.delete_my_account()$q$, true);
+
+reset role;
+select rls_test.expect('Ben''s account and walker are gone',
+  $q$select 1 from auth.users u where u.id = 'b0000000-0000-4000-8000-00000000000b' union all select 1 from public.walkers w where w.display_name = 'Ben'$q$, true, 0);
+select rls_test.expect('Ana still exists',
+  $q$select 1 from auth.users u where u.id = 'a0000000-0000-4000-8000-00000000000a'$q$, true, 1);
+
 -- Tidy up and show the results -------------------------------------------
 reset role;
 select set_config('request.jwt.claims', '', false);

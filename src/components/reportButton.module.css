@@ -1,0 +1,102 @@
+.link {
+  font: inherit;
+  font-size: 13px;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 6px;
+}
+
+.note {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.form {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  text-align: left;
+}
+
+.form fieldset {
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form legend {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+}
+
+.option input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--foreground);
+}
+
+.form textarea {
+  font: inherit;
+  /* 16px keeps iOS from zooming into the field. */
+  font-size: 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--foreground);
+  resize: vertical;
+}
+
+.error {
+  font-size: 13px;
+  color: #c2412f;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.primary,
+.secondary {
+  font: inherit;
+  font-size: 14px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--foreground);
+  cursor: pointer;
+}
+
+.primary {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+.primary:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.secondary {
+  background: transparent;
+  color: var(--foreground);
+  border-color: var(--line);
+}

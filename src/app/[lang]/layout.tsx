@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { I18nProvider } from "@/i18n/I18nProvider";
 import { AuthProvider } from "@/auth/AuthProvider";
 import { LOCALES, isLocale } from "@/i18n/config";
@@ -43,6 +44,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
           <AuthProvider>
             <SiteHeader />
             <main>{children}</main>
+            <SiteFooter />
           </AuthProvider>
         </I18nProvider>
       </body>

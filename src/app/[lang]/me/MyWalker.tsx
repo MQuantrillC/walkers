@@ -10,6 +10,7 @@ import { ShareButton } from "@/components/ShareButton";
 import { deleteMyWalker, getMyWalker, setPublished, type ActionError } from "@/walker/actions";
 import type { MyWalker as Saved } from "@/walker/records";
 import { clearDraft } from "@/creator/draft";
+import { deleteMyAccount } from "@/walker/moderation";
 import styles from "./me.module.css";
 
 export function MyWalker() {
@@ -21,6 +22,19 @@ export function MyWalker() {
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  const [confirmAccount, setConfirmAccount] = useState(false);
+  const [accountState, setAccountState] = useState<"idle" | "deleting" | "deleted" | "failed">("idle");
+
+  async function deleteAccount() {
+    if (!confirmAccount) return setConfirmAccount(true);
+    setConfirmAccount(false);
+    setAccountState("deleting");
+    const res = await deleteMyAccount();
+    if (!res.ok) return setAccountState("failed");
+    clearDraft();
+    await signOut();
+    setAccountState("deleted");
+  }
 
   useEffect(() => {
     if (auth.status !== "signedIn") return;
@@ -131,10 +145,23 @@ export function MyWalker() {
       <h1 className={styles.title}>{t.me.title}</h1>
       {body}
       {error && <p className={styles.error}>{t.save.errors[error]}</p>}
+      {accountState === "deleted" && <p className={styles.note}>{t.account.deleted}</p>}
+      {accountState === "failed" && <p className={styles.error}>{t.account.failed}</p>}
       {auth.status === "signedIn" && (
-        <button className={styles.signOut} onClick={() => signOut()}>
-          {t.auth.signOut}
-        </button>
+        <div className={styles.accountActions}>
+          <button className={styles.signOut} onClick={() => signOut()}>
+            {t.auth.signOut}
+          </button>
+          <button
+            className={styles.signOut}
+            data-danger={confirmAccount || undefined}
+            disabled={accountState === "deleting"}
+            onBlur={() => setConfirmAccount(false)}
+            onClick={deleteAccount}
+          >
+            {confirmAccount ? t.account.confirm : t.account.delete}
+          </button>
+        </div>
       )}
     </div>
   );

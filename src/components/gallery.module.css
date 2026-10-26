@@ -1,0 +1,118 @@
+.gallery {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.controls {
+  width: 100%;
+  max-width: 1100px;
+  padding: 0 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.toggle {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+
+.toggle button {
+  font: inherit;
+  font-size: 14px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.toggle button[aria-pressed="true"] {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+.search {
+  flex: 1;
+  min-width: 160px;
+  max-width: 320px;
+  margin-left: auto;
+  font: inherit;
+  /* 16px keeps iOS from zooming into the field. */
+  font-size: 16px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--foreground);
+}
+
+.search:focus-visible,
+.toggle button:focus-visible,
+.more:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+}
+
+.walkway {
+  width: 100%;
+  border-bottom: 1.5px solid var(--line);
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.empty p {
+  max-width: 28em;
+}
+
+.grid {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 4px;
+  padding: 16px;
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.more {
+  font: inherit;
+  font-size: 14px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+@media (max-width: 560px) {
+  .search {
+    max-width: none;
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}
