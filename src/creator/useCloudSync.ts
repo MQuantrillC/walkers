@@ -7,6 +7,7 @@ import type { MyWalker } from "@/walker/records";
 import type { WalkerAppearance } from "@/walker/appearance";
 import { cleanDisplayName } from "@/walker/validate";
 import { EMPTY_DRAFT, type Draft } from "./draft";
+import { settle } from "@/walker/settle";
 
 const snapshot = (name: string, appearance: WalkerAppearance) =>
   JSON.stringify([cleanDisplayName(name), appearance]);
@@ -42,7 +43,7 @@ export function useCloudSync(
   useEffect(() => {
     if (!signedIn) return;
     let cancelled = false;
-    getMyWalker().then((res) => {
+    settle(getMyWalker).then((res) => {
       if (cancelled) return;
       if (!res.ok) return setError(res.error);
       const w = res.data;
@@ -70,7 +71,7 @@ export function useCloudSync(
   async function save(publish = false) {
     setBusy(true);
     setError(null);
-    const res = await saveWalker({ name: current.name, appearance: current.appearance, publish });
+    const res = await settle(() => saveWalker({ name: current.name, appearance: current.appearance, publish }));
     setBusy(false);
     if (!res.ok) {
       setError(res.error);
@@ -85,7 +86,7 @@ export function useCloudSync(
   async function unpublish() {
     setBusy(true);
     setError(null);
-    const res = await setPublished(false);
+    const res = await settle(() => setPublished(false));
     setBusy(false);
     if (!res.ok) return setError(res.error);
     setRemote(res.data);

@@ -3,11 +3,16 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { isLocale, type Locale } from "@/i18n/config";
 import { SITE } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
 import styles from "./privacy.module.css";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/privacy">): Promise<Metadata> {
   const { lang } = await params;
-  return { title: lang === "es" ? "Privacidad · WALKERS" : "Privacy · WALKERS" };
+  if (!isLocale(lang)) return {};
+  return pageMetadata(lang, "/privacy", {
+    title: lang === "es" ? "Privacidad · WALKERS" : "Privacy · WALKERS",
+    description: lang === "es" ? "Qué guarda WALKERS y por qué." : "What WALKERS keeps and why.",
+  });
 }
 
 function updated(lang: Locale) {
@@ -39,25 +44,25 @@ const CONTENT: Record<Locale, { title: string; updated: string; sections: [strin
         </p>,
       ],
       [
-        "Your walker",
+        "Your avatar",
         <p key="p">
-          We store your walker&apos;s display name, how it looks (including anything you paint on it), whether it is
-          published, and when it was saved and published. A published walker, with its display name and publication
+          We store your avatar&apos;s display name, how it looks (including anything you paint on it), whether it is
+          published, and when it was saved and published. A published avatar, with its display name and publication
           date, is visible to anyone in the gallery and on its own page. Drafts are private.
         </p>,
       ],
       [
         "Reports",
         <p key="p">
-          If you report a walker, we store which walker, the reason, any text you add and, if you were signed in, your
+          If you report an avatar, we store which avatar, the reason, any text you add and, if you were signed in, your
           account ID, so moderators can review it.
         </p>,
       ],
       [
         "On your device",
         <p key="p">
-          Your in-progress walker is saved in your browser so you don&apos;t lose it. We also use a cookie to keep you
-          signed in, a cookie to remember your language, and a short list of walkers you have reported. Your country,
+          Your in-progress avatar is saved in your browser so you don&apos;t lose it. We also use a cookie to keep you
+          signed in, a cookie to remember your language, and a short list of avatars you have reported. Your country,
           as estimated by our host from your IP address, is used only to pick a language and is not stored.
         </p>,
       ],
@@ -71,8 +76,8 @@ const CONTENT: Record<Locale, { title: string; updated: string; sections: [strin
       [
         "Your choices",
         <p key="p">
-          You can edit, unpublish or delete your walker at any time from My Walker. You can also delete your account
-          there, which removes your account, profile and walker. Reports you filed are kept without your account ID.
+          You can edit, unpublish or delete your avatar at any time from My avatar. You can also delete your account
+          there, which removes your account, profile and avatar. Reports you filed are kept without your account ID.
         </p>,
       ],
       ["Children", <p key="p">WALKERS is not intended for children under 13.</p>],
@@ -99,25 +104,25 @@ const CONTENT: Record<Locale, { title: string; updated: string; sections: [strin
         </p>,
       ],
       [
-        "Tu caminante",
+        "Tu avatar",
         <p key="p">
-          Guardamos el nombre público de tu caminante, cómo se ve (incluido lo que pintes), si está publicado y cuándo se
-          guardó y publicó. Un caminante publicado, con su nombre y fecha de publicación, es visible para cualquiera en
+          Guardamos el nombre público de tu avatar, cómo se ve (incluido lo que pintes), si está publicado y cuándo se
+          guardó y publicó. Un avatar publicado, con su nombre y fecha de publicación, es visible para cualquiera en
           la galería y en su propia página. Los borradores son privados.
         </p>,
       ],
       [
         "Reportes",
         <p key="p">
-          Si reportas un caminante, guardamos cuál, el motivo, el texto que añadas y, si habías iniciado sesión, el ID
+          Si reportas un avatar, guardamos cuál, el motivo, el texto que añadas y, si habías iniciado sesión, el ID
           de tu cuenta, para que la moderación pueda revisarlo.
         </p>,
       ],
       [
         "En tu dispositivo",
         <p key="p">
-          Tu caminante en progreso se guarda en tu navegador para que no lo pierdas. También usamos una cookie para
-          mantener tu sesión, otra para recordar tu idioma, y una pequeña lista de caminantes que has reportado. Tu
+          Tu avatar en progreso se guarda en tu navegador para que no lo pierdas. También usamos una cookie para
+          mantener tu sesión, otra para recordar tu idioma, y una pequeña lista de avatares que has reportado. Tu
           país, estimado por nuestro proveedor a partir de tu IP, solo se usa para elegir el idioma y no se guarda.
         </p>,
       ],
@@ -131,8 +136,8 @@ const CONTENT: Record<Locale, { title: string; updated: string; sections: [strin
       [
         "Tus opciones",
         <p key="p">
-          Puedes editar, despublicar o eliminar tu caminante en cualquier momento desde Mi caminante. Ahí también puedes
-          eliminar tu cuenta, lo que borra tu cuenta, tu perfil y tu caminante. Los reportes que hayas enviado se
+          Puedes editar, despublicar o eliminar tu avatar en cualquier momento desde Mi avatar. Ahí también puedes
+          eliminar tu cuenta, lo que borra tu cuenta, tu perfil y tu avatar. Los reportes que hayas enviado se
           conservan sin el ID de tu cuenta.
         </p>,
       ],

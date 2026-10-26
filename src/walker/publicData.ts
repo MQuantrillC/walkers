@@ -1,32 +1,57 @@
 import "server-only";
+import { cache } from "react";
 import { getPublicSupabase } from "@/lib/supabase/server";
 import { PUBLIC_WALKER_COLUMNS, isWalkerId, toPublicWalker, type PublicWalker } from "./records";
 
 // Reads made as an anonymous visitor, so they can only ever see published
 // walkers. Not cached: unpublishing or moderation takes effect immediately.
+// A failed read throws (to the page's error screen) rather than looking
+// like an empty gallery or a deleted avatar.
 
-export async function getPublishedWalker(id: string): Promise<PublicWalker | null> {
+function check(error: { message: string } | null) {
+  if (error) throw new Error(`Couldn't read walkers: ${error.message}`);
+}
+
+// Shared within one request: the page, its metadata and its preview image
+// all ask for the same walker.
+export const getPublishedWalker = cache(async (id: string): Promise<PublicWalker | null> => {
   const supabase = getPublicSupabase();
   if (!supabase || !isWalkerId(id)) return null;
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("walkers")
     .select(PUBLIC_WALKER_COLUMNS)
     .eq("id", id)
     .eq("status", "published")
     .maybeSingle();
+  check(error);
   return data ? toPublicWalker(data) : null;
-}
+});
 
 export async function getLatestWalkers(limit: number): Promise<PublicWalker[]> {
   const supabase = getPublicSupabase();
   if (!supabase) return [];
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("walkers")
     .select(PUBLIC_WALKER_COLUMNS)
     .eq("status", "published")
     .order("published_at", { ascending: false })
     .limit(limit);
+  check(error);
   return (data ?? []).map(toPublicWalker);
+}
+
+// Every published walker's id and last change, for the sitemap.
+export async function listPublishedWalkers(limit = 5000): Promise<{ id: string; updatedAt: string }[]> {
+  const supabase = getPublicSupabase();
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("walkers")
+    .select("id, updated_at")
+    .eq("status", "published")
+    .order("published_at", { ascending: true })
+    .limit(limit);
+  check(error);
+  return (data ?? []).map((w) => ({ id: w.id as string, updatedAt: w.updated_at as string }));
 }
 
 export type GalleryOrder = "everyone" | "latest";
@@ -61,7 +86,8 @@ export async function getGalleryPage({
     .range(from, from + GALLERY_PAGE_SIZE);
   const q = query.trim().slice(0, 24);
   if (q) request = request.ilike("display_name", `%${likeEscape(q)}%`);
-  const { data } = await request;
+  const { data, error } = await request;
+  check(error);
   const rows = data ?? [];
   return {
     walkers: rows.slice(0, GALLERY_PAGE_SIZE).map(toPublicWalker),

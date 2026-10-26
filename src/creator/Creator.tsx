@@ -45,6 +45,7 @@ import { useCloudSync } from "./useCloudSync";
 import { Choices, HeadChoices, PatternChoices, Swatches, ToggleChoices, ToneSlider } from "./pickers";
 import { TOP_PATTERN_LAYERS } from "@/walker/parts";
 import { ArrowLeft, ArrowRight, Dice, Restart } from "@/components/icons";
+import { ShareButton } from "@/components/ShareButton";
 import styles from "./creator.module.css";
 
 const STEPS = ["you", "clothes", "extras", "paint", "preview"] as const;
@@ -297,9 +298,12 @@ function Creator({ initial }: { initial: Draft }) {
   useEffect(() => {
     if (step !== "preview") return;
     let cancelled = false;
-    listLatestWalkers().then((list) => {
-      if (!cancelled) setOthers(list);
-    });
+    listLatestWalkers()
+      .then((list) => {
+        if (!cancelled) setOthers(list);
+      })
+      // Without them the new avatar simply walks alone.
+      .catch(() => {});
     return () => {
       cancelled = true;
     };
@@ -586,7 +590,7 @@ function Creator({ initial }: { initial: Draft }) {
                   : t.creator.readyTitle(displayName)}
               </h2>
               {!(sync.notice === "published" && sync.remote) && <p>{t.creator.readyBody}</p>}
-              <div className={styles.finaleWalk} aria-label={t.creator.processionLabel}>
+              <div className={styles.finaleWalk} role="group" aria-label={t.creator.processionLabel}>
                 <Procession
                   walkers={[
                     { name: displayName, appearance: a },
@@ -599,11 +603,15 @@ function Creator({ initial }: { initial: Draft }) {
               </div>
               <SavePanel sync={sync} step={step} onPublished={() => setStep("preview")} />
               {sync.remote?.status === "published" && (
-                // Their avatar leads the line, so they see it walk straight away.
-                <Link className={styles.saveLink} href={`/${locale}?w=${sync.remote.id}`}>
-                  {t.creator.seeTheWalk}
-                  <ArrowRight />
-                </Link>
+                <div className={styles.finaleLinks}>
+                  {/* The profile link, whose preview shows their avatar. */}
+                  <ShareButton path={`/${locale}/w/${sync.remote.id}`} title={t.profile.shareText(sync.remote.name)} />
+                  {/* Their avatar leads the line, so they see it walk straight away. */}
+                  <Link className={styles.saveLink} href={`/${locale}?w=${sync.remote.id}`}>
+                    {t.creator.seeTheWalk}
+                    <ArrowRight />
+                  </Link>
+                </div>
               )}
             </div>
           )}

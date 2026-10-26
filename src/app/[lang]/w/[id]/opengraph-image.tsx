@@ -8,7 +8,7 @@ import { getDictionary } from "@/i18n/dictionaries";
 // The preview card shown when a walker's link is shared (WhatsApp,
 // iMessage, Instagram DMs...): the walker mid-stride with its name.
 
-export const alt = "A walker on WALKERS";
+export const alt = "WALKERS";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

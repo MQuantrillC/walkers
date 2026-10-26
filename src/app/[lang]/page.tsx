@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
@@ -6,7 +7,15 @@ import { getGalleryPage, getPublishedWalker } from "@/walker/publicData";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { ArrowRight } from "@/components/icons";
+import { pageMetadata } from "@/lib/seo";
 import styles from "./home.module.css";
+
+export async function generateMetadata({ params }: PageProps<"/[lang]">): Promise<Metadata> {
+  const { lang } = await params;
+  if (!isLocale(lang)) return {};
+  const t = getDictionary(lang);
+  return pageMetadata(lang, "", { title: t.meta.title, description: t.meta.description });
+}
 
 // The Walk: the public gallery. The first page is rendered on the server;
 // filtering, search and further pages load in the browser. `?w=<id>` puts

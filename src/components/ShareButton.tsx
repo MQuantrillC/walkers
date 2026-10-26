@@ -16,8 +16,9 @@ export function ShareButton({ path, title }: { path: string; title: string }) {
       try {
         await navigator.share({ title, url });
         return;
-      } catch {
-        // Cancelled or unavailable: fall back to copying.
+      } catch (e) {
+        // Closing the sheet means "never mind"; anything else falls back to copying.
+        if (e instanceof DOMException && e.name === "AbortError") return;
       }
     }
     try {

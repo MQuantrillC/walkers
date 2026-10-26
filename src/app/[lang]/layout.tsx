@@ -8,6 +8,7 @@ import { I18nProvider } from "@/i18n/I18nProvider";
 import { AuthProvider } from "@/auth/AuthProvider";
 import { LOCALES, isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
+import { SITE_URL } from "@/lib/seo";
 import "../globals.css";
 
 // Interface and body text.
@@ -31,11 +32,8 @@ export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Prom
   const { lang } = await params;
   if (!isLocale(lang)) return {};
   const t = getDictionary(lang);
-  return {
-    title: t.meta.title,
-    description: t.meta.description,
-    alternates: { languages: Object.fromEntries(LOCALES.map((l) => [l, `/${l}`])) },
-  };
+  // Pages add their own address and language twin (see lib/seo).
+  return { metadataBase: SITE_URL, title: t.meta.title, description: t.meta.description };
 }
 
 export default async function RootLayout({ children, params }: LayoutProps<"/[lang]">) {

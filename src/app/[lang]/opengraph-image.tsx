@@ -23,7 +23,16 @@ const cloth = PALETTE.cloth.map((s) => s.hex);
 const CROWD: WalkerAppearance[] = [
   { ...DEFAULT_APPEARANCE, skin: skin[6], hair: "afro", hairColor: hair[0], topColor: cloth[5], bottomColor: cloth[1] },
   { ...DEFAULT_APPEARANCE, skin: skin[0], hair: "bob", hairColor: hair[5], top: "hoodie", topColor: cloth[6], bottom: "skirt", bottomColor: cloth[11] },
-  { ...DEFAULT_APPEARANCE, skin: skin[2], hair: "short", hairColor: hair[1], headwear: "cap", headwearColor: cloth[4], topColor: cloth[2] },
+  {
+    ...DEFAULT_APPEARANCE,
+    skin: skin[2],
+    hair: "topknot",
+    hairColor: hair[1],
+    topColor: cloth[2],
+    topPattern: "stripes",
+    topPatternColor: cloth[0],
+    extras: { headphones: cloth[4] },
+  },
 ];
 
 const image = (a: WalkerAppearance, frame: number) =>

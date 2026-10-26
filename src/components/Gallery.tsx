@@ -52,12 +52,17 @@ export function Gallery({ initial, featured }: { initial: GalleryPage; featured?
     shownKey.current = key;
     let cancelled = false;
     queueMicrotask(() => setLoading(true));
-    browseWalkers({ order, query, offset: 0 }).then((page) => {
-      if (cancelled) return;
-      setWalkers(page.walkers);
-      setNextOffset(page.nextOffset);
-      setLoading(false);
-    });
+    browseWalkers({ order, query, offset: 0 })
+      .then((page) => {
+        if (cancelled) return;
+        setWalkers(page.walkers);
+        setNextOffset(page.nextOffset);
+      })
+      // Offline or unreachable: keep showing what's there.
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
     return () => {
       cancelled = true;
     };
@@ -66,13 +71,18 @@ export function Gallery({ initial, featured }: { initial: GalleryPage; featured?
   async function loadMore() {
     if (nextOffset === null || loadingMore.current) return;
     loadingMore.current = true;
-    const page = await browseWalkers({ order, query, offset: nextOffset });
-    setWalkers((prev) => {
-      const seen = new Set(prev.map((w) => w.id));
-      return [...prev, ...page.walkers.filter((w) => !seen.has(w.id))];
-    });
-    setNextOffset(page.nextOffset);
-    loadingMore.current = false;
+    try {
+      const page = await browseWalkers({ order, query, offset: nextOffset });
+      setWalkers((prev) => {
+        const seen = new Set(prev.map((w) => w.id));
+        return [...prev, ...page.walkers.filter((w) => !seen.has(w.id))];
+      });
+      setNextOffset(page.nextOffset);
+    } catch {
+      // Unreachable for now: the walk keeps going round, and the next lap asks again.
+    } finally {
+      loadingMore.current = false;
+    }
   }
 
   const nobodyYet = !walkers.length && !query && !loading;

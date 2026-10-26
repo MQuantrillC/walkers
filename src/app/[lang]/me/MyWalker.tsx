@@ -12,6 +12,7 @@ import type { MyWalker as Saved } from "@/walker/records";
 import { clearDraft } from "@/creator/draft";
 import { deleteMyAccount } from "@/walker/moderation";
 import { Pencil, Trash } from "@/components/icons";
+import { settle } from "@/walker/settle";
 import styles from "./me.module.css";
 
 export function MyWalker() {
@@ -31,7 +32,7 @@ export function MyWalker() {
     if (!confirmAccount) return setConfirmAccount(true);
     setConfirmAccount(false);
     setAccountState("deleting");
-    const res = await deleteMyAccount();
+    const res = await deleteMyAccount().catch(() => ({ ok: false }));
     if (!res.ok) return setAccountState("failed");
     clearDraft();
     await signOut();
@@ -41,7 +42,7 @@ export function MyWalker() {
   useEffect(() => {
     if (auth.status !== "signedIn") return;
     let cancelled = false;
-    getMyWalker().then((res) => {
+    settle(getMyWalker).then((res) => {
       if (cancelled) return;
       if (res.ok) setWalker(res.data);
       else setError(res.error);
@@ -54,7 +55,7 @@ export function MyWalker() {
   async function run(action: () => Promise<{ ok: true; data: Saved | null } | { ok: false; error: ActionError }>) {
     setBusy(true);
     setError(null);
-    const res = await action();
+    const res = await settle(action);
     setBusy(false);
     if (!res.ok) return setError(res.error);
     setWalker(res.data);

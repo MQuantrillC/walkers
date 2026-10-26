@@ -61,7 +61,8 @@
   font-size: 16px;
   padding: 0 16px 0 40px;
   border-radius: 999px;
-  border: 1px solid var(--line);
+  /* Visible enough to find (3:1 against the page). */
+  border: 1px solid color-mix(in srgb, var(--foreground) 55%, transparent);
   background: transparent;
   color: var(--foreground);
 }

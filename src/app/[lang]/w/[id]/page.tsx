@@ -8,6 +8,7 @@ import { ReportButton } from "@/components/ReportButton";
 import { isLocale, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { getPublishedWalker } from "@/walker/publicData";
+import { pageMetadata } from "@/lib/seo";
 import styles from "./profile.module.css";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/w/[id]">): Promise<Metadata> {
@@ -16,7 +17,11 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/w/[id]">):
   const walker = await getPublishedWalker(id);
   const t = getDictionary(lang);
   return walker
-    ? { title: `${walker.name} · WALKERS`, description: t.profile.shareText(walker.name) }
+    ? pageMetadata(lang, `/w/${id}`, {
+        title: `${walker.name} · WALKERS`,
+        description: t.profile.shareText(walker.name),
+        type: "profile",
+      })
     : { title: t.meta.title, robots: { index: false } };
 }
 

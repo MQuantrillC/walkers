@@ -1,6 +1,6 @@
 export const LOCALES = ["en", "es"] as const;
 export type Locale = (typeof LOCALES)[number];
-export const DEFAULT_LOCALE: Locale = "en";
+export const DEFAULT_LOCALE: Locale = "es";
 
 // Set when someone picks a language, so it wins over location next time.
 export const LOCALE_COOKIE = "walkers-lang";

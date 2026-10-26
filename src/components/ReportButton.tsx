@@ -49,7 +49,7 @@ export function ReportButton({ walkerId }: { walkerId: string }) {
   async function send() {
     if (!reason) return;
     setState("sending");
-    const res = await reportWalker({ walkerId, reason, details });
+    const res = await reportWalker({ walkerId, reason, details }).catch(() => ({ ok: false }));
     if (res.ok) {
       remember(walkerId);
       setState("sent");
