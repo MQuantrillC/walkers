@@ -5,6 +5,7 @@ import { Gallery } from "@/components/Gallery";
 import { getGalleryPage } from "@/walker/publicData";
 import { isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
+import { ArrowRight } from "@/components/icons";
 import styles from "./home.module.css";
 
 // The Walk: the public gallery. The first page is rendered on the server;
@@ -16,9 +17,12 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   return (
     <div className={styles.home}>
       <div className={styles.intro}>
-        <h1>{t.home.headline}</h1>
+        <h1>
+          {t.home.headline} <em>{t.home.headlineEnd}</em>
+        </h1>
         <Link href={`/${lang}/create`} className={styles.cta}>
           {t.home.cta}
+          <ArrowRight />
         </Link>
       </div>
       <Suspense fallback={<div className={`${styles.walkway} paper`} aria-busy="true" />}>

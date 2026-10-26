@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bricolage_Grotesque, DM_Mono, Instrument_Serif } from "next/font/google";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { THEME_SCRIPT } from "@/components/ThemeToggle";
@@ -10,14 +10,26 @@ import { LOCALES, isLocale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import "../globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Interface text, with a little character of its own.
+const sans = Bricolage_Grotesque({
+  variable: "--font-sans",
   subsets: ["latin"],
+  axes: ["opsz"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Headlines and walkers' names.
+const display = Instrument_Serif({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+});
+
+// Small labels, numbers and name tags.
+const mono = DM_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export async function generateStaticParams() {
@@ -40,7 +52,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   if (!isLocale(lang)) notFound();
   return (
     // The theme script may set data-theme before React hydrates.
-    <html lang={lang} className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
+    <html lang={lang} className={`${sans.variable} ${display.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>

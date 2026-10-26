@@ -55,7 +55,7 @@ export default async function Image({ params }: { params: Promise<{ lang: string
         <div style={{ display: "flex", flexDirection: "column", gap: 18, flex: 1 }}>
           <div style={{ fontSize: 30, letterSpacing: 10, fontWeight: 600 }}>WALKERS</div>
           <div style={{ fontSize: 76, fontWeight: 600, lineHeight: 1.05 }}>{walker?.name ?? "WALKERS"}</div>
-          <div style={{ fontSize: 32, color: MUTED }}>{t.home.headline}</div>
+          <div style={{ fontSize: 32, color: MUTED }}>{t.home.headline} {t.home.headlineEnd}</div>
         </div>
       </div>
     ),

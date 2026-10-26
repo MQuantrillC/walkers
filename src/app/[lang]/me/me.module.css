@@ -11,8 +11,8 @@
 }
 
 .title {
-  font-size: 22px;
-  font-weight: 500;
+  font-size: 36px;
+  line-height: 1.1;
 }
 
 .card {
@@ -24,8 +24,8 @@
 }
 
 .name {
-  font-size: 20px;
-  font-weight: 500;
+  font-size: 30px;
+  line-height: 1.1;
   overflow-wrap: anywhere;
 }
 
@@ -56,6 +56,9 @@
 
 .chip,
 .primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font: inherit;
   font-size: 13px;
   padding: 7px 14px;
@@ -84,6 +87,9 @@
 }
 
 .link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 14px;
   border-bottom: 1px solid currentColor;
 }

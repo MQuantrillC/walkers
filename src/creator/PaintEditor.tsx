@@ -13,6 +13,7 @@ import {
 } from "@/walker/appearance";
 import { SURFACE_BOX, distanceToStroke, roundPoint, simplify, toBox } from "@/walker/paint";
 import { useI18n } from "@/i18n/I18nProvider";
+import { Brush, Eraser, Redo, Trash, Undo } from "@/components/icons";
 import styles from "./creator.module.css";
 
 type Tool = "brush" | "eraser";
@@ -199,16 +200,20 @@ export function PaintEditor({ appearance, surface, onAdd, onReplace, onUndo, onR
 
       <div className={styles.toolRow} role="group" aria-label={t.paint.tool}>
         <button className={styles.chip} aria-pressed={tool === "brush"} onClick={() => setTool("brush")}>
+          <Brush />
           {t.paint.brush}
         </button>
         <button className={styles.chip} aria-pressed={tool === "eraser"} onClick={() => setTool("eraser")}>
+          <Eraser />
           {t.paint.eraser}
         </button>
         <span className={styles.toolGap} />
         <button className={styles.chip} onClick={onUndo} disabled={!canUndo} aria-keyshortcuts="Control+Z">
+          <Undo />
           {t.paint.undo}
         </button>
         <button className={styles.chip} onClick={onRedo} disabled={!canRedo} aria-keyshortcuts="Control+Shift+Z">
+          <Redo />
           {t.paint.redo}
         </button>
         <button
@@ -222,6 +227,7 @@ export function PaintEditor({ appearance, surface, onAdd, onReplace, onUndo, onR
           }}
           onBlur={() => setConfirmClear(false)}
         >
+          <Trash />
           {confirmClear ? t.paint.confirmClear : t.paint.clear}
         </button>
       </div>

@@ -41,6 +41,7 @@ import { PaintEditor } from "./PaintEditor";
 import { SavePanel } from "./SavePanel";
 import { useCloudSync } from "./useCloudSync";
 import { Choices, HeadChoices, Swatches, ToggleChoices } from "./pickers";
+import { ArrowLeft, ArrowRight, Dice, Restart } from "@/components/icons";
 import styles from "./creator.module.css";
 
 const STEPS = ["you", "clothes", "extras", "paint", "preview"] as const;
@@ -311,6 +312,7 @@ function Creator({ initial }: { initial: Draft }) {
         <p className={styles.previewName}>{displayName}</p>
         <div className={`${styles.previewActions} ${styles.lookActions}`}>
           <button className={styles.chip} onClick={() => look(randomLook())}>
+            <Dice />
             {t.creator.randomise}
           </button>
           <button
@@ -325,6 +327,7 @@ function Creator({ initial }: { initial: Draft }) {
             }}
             onBlur={() => setConfirmReset(false)}
           >
+            <Restart />
             {confirmReset ? t.creator.confirmStartOver : t.creator.startOver}
           </button>
         </div>
@@ -345,7 +348,7 @@ function Creator({ initial }: { initial: Draft }) {
               aria-current={s === step ? "step" : undefined}
               onClick={() => setStep(s)}
             >
-              <span>{i + 1}</span>
+              <span>{String(i + 1).padStart(2, "0")}</span>
               {t.creator.steps[s]}
             </button>
           ))}
@@ -387,6 +390,7 @@ function Creator({ initial }: { initial: Draft }) {
                 labels={o.facialHair}
                 value={a.facialHair}
                 onChange={(facialHair) => look({ facialHair })}
+                blank="none"
                 preview={(facialHair) => ({ ...a, facialHair, eyewear: "none" })}
               />
             </>
@@ -427,6 +431,7 @@ function Creator({ initial }: { initial: Draft }) {
                 labels={o.headwear}
                 value={a.headwear}
                 onChange={(headwear) => look({ headwear })}
+                blank="none"
                 preview={(headwear) => ({ ...a, headwear })}
               />
               {a.headwear !== "none" && (
@@ -443,6 +448,7 @@ function Creator({ initial }: { initial: Draft }) {
                 labels={o.eyewear}
                 value={a.eyewear}
                 onChange={(eyewear) => look({ eyewear })}
+                blank="none"
                 preview={(eyewear) => ({ ...a, eyewear })}
               />
               {a.eyewear !== "none" && (
@@ -491,9 +497,9 @@ function Creator({ initial }: { initial: Draft }) {
               </div>
               {surface === "face" && (
                 <div className={styles.featureGrid}>
-                  <Choices title={t.creator.eyes} options={EYE_STYLES} labels={o.eyes} value={a.face.eyes} onChange={(eyes) => face({ eyes })} />
-                  <Choices title={t.creator.brows} options={BROW_STYLES} labels={o.brows} value={a.face.brows} onChange={(brows) => face({ brows })} />
-                  <Choices title={t.creator.mouth} options={MOUTH_STYLES} labels={o.mouth} value={a.face.mouth} onChange={(mouth) => face({ mouth })} />
+                  <Choices title={t.creator.eyes} options={EYE_STYLES} labels={o.eyes} value={a.face.eyes} onChange={(eyes) => face({ eyes })} blank="none" />
+                  <Choices title={t.creator.brows} options={BROW_STYLES} labels={o.brows} value={a.face.brows} onChange={(brows) => face({ brows })} blank="none" />
+                  <Choices title={t.creator.mouth} options={MOUTH_STYLES} labels={o.mouth} value={a.face.mouth} onChange={(mouth) => face({ mouth })} blank="none" />
                   <Choices
                     title={t.creator.blush}
                     options={["off", "on"] as const}
@@ -540,7 +546,8 @@ function Creator({ initial }: { initial: Draft }) {
               <SavePanel sync={sync} onPublished={() => setStep("preview")} />
               {sync.remote?.status === "published" && (
                 <Link className={styles.saveLink} href={`/${locale}`}>
-                  {t.creator.seeTheWalk} →
+                  {t.creator.seeTheWalk}
+                  <ArrowRight />
                 </Link>
               )}
             </div>
@@ -549,11 +556,13 @@ function Creator({ initial }: { initial: Draft }) {
 
         <div className={styles.stepNav}>
           <button className={styles.chip} disabled={index === 0} onClick={() => setStep(STEPS[index - 1])}>
+            <ArrowLeft />
             {t.creator.back}
           </button>
           {index < STEPS.length - 1 && (
             <button className={styles.primary} onClick={() => setStep(STEPS[index + 1])}>
               {step === "paint" ? t.creator.steps.preview : t.creator.next}
+              <ArrowRight />
             </button>
           )}
         </div>

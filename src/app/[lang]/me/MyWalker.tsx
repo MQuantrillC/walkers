@@ -11,6 +11,7 @@ import { deleteMyWalker, getMyWalker, setPublished, type ActionError } from "@/w
 import type { MyWalker as Saved } from "@/walker/records";
 import { clearDraft } from "@/creator/draft";
 import { deleteMyAccount } from "@/walker/moderation";
+import { ArrowRight, Pencil, Trash } from "@/components/icons";
 import styles from "./me.module.css";
 
 export function MyWalker() {
@@ -94,6 +95,7 @@ export function MyWalker() {
         <div className={styles.actions}>
           {!hidden && (
             <Link className={styles.chip} href={`/${locale}/create`}>
+              <Pencil />
               {t.me.edit}
             </Link>
           )}
@@ -125,13 +127,15 @@ export function MyWalker() {
               });
             }}
           >
+            <Trash />
             {confirmDelete ? t.me.confirmDelete : t.me.delete}
           </button>
         </div>
         {published && (
           <div className={styles.actions}>
             <Link className={styles.link} href={profileUrl}>
-              {t.save.viewProfile} →
+              {t.save.viewProfile}
+              <ArrowRight />
             </Link>
             <ShareButton path={profileUrl} title={t.profile.shareText(walker.name)} />
           </div>

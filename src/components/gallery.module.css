@@ -39,15 +39,29 @@
   color: var(--background);
 }
 
-.search {
+.searchBox {
   flex: 1;
   min-width: 160px;
   max-width: 320px;
   margin-left: auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchBox svg {
+  position: absolute;
+  left: 13px;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.search {
+  width: 100%;
   font: inherit;
   /* 16px keeps iOS from zooming into the field. */
   font-size: 16px;
-  padding: 8px 14px;
+  padding: 8px 14px 8px 38px;
   border-radius: 999px;
   border: 1px solid var(--line);
   background: transparent;
@@ -110,7 +124,7 @@
 }
 
 @media (max-width: 560px) {
-  .search {
+  .searchBox {
     max-width: none;
     margin-left: 0;
     flex-basis: 100%;

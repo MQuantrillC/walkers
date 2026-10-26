@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useI18n } from "@/i18n/I18nProvider";
+import { Share } from "./icons";
 import styles from "./shareButton.module.css";
 
 // Uses the device's share sheet where there is one, otherwise copies the link.
@@ -30,6 +31,7 @@ export function ShareButton({ path, title }: { path: string; title: string }) {
 
   return (
     <button className={styles.button} onClick={share} aria-live="polite">
+      <Share />
       {copied ? t.me.copied : t.me.share}
     </button>
   );

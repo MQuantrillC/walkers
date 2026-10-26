@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useI18n } from "@/i18n/I18nProvider";
 import { SITE } from "@/lib/site";
+import { Heart } from "./icons";
 import styles from "./siteFooter.module.css";
 
 export function SiteFooter() {
@@ -10,7 +11,7 @@ export function SiteFooter() {
   return (
     <footer className={styles.footer}>
       <p className={styles.credit}>
-        {t.footer.madeBy} {SITE.author}
+        {t.footer.madeWith} <Heart className={styles.heart} role="img" aria-hidden={false} aria-label="❤️" /> {t.footer.madeBy} {SITE.author}
       </p>
       <p className={styles.links}>
         <a href={SITE.personalPage} target="_blank" rel="noopener noreferrer">

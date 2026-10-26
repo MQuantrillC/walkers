@@ -4,6 +4,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { HeadParts, Walker } from "@/walker/Walker";
 import { INK, type Swatch, type WalkerAppearance } from "@/walker/appearance";
 import { useI18n } from "@/i18n/I18nProvider";
+import { NoneMark } from "@/components/icons";
 import styles from "./creator.module.css";
 
 function Field({ title, help, children }: { title: string; help?: string; children: ReactNode }) {
@@ -22,20 +23,36 @@ export function Choices<T extends string>({
   labels,
   value,
   onChange,
+  blank,
 }: {
   title: string;
   options: readonly T[];
   labels: Record<T, string>;
   value: T;
   onChange: (v: T) => void;
+  // The option meaning "nothing", shown as a no-symbol instead of a word.
+  blank?: T;
 }) {
   return (
     <Field title={title}>
-      {options.map((o) => (
-        <button key={o} className={styles.chip} aria-pressed={o === value} onClick={() => onChange(o)}>
-          {labels[o]}
-        </button>
-      ))}
+      {options.map((o) =>
+        o === blank ? (
+          <button
+            key={o}
+            className={`${styles.chip} ${styles.blank}`}
+            aria-pressed={o === value}
+            aria-label={labels[o]}
+            title={labels[o]}
+            onClick={() => onChange(o)}
+          >
+            <NoneMark />
+          </button>
+        ) : (
+          <button key={o} className={styles.chip} aria-pressed={o === value} onClick={() => onChange(o)}>
+            {labels[o]}
+          </button>
+        ),
+      )}
     </Field>
   );
 }
@@ -79,6 +96,7 @@ export function HeadChoices<T extends string>({
   value,
   onChange,
   preview,
+  blank,
 }: {
   title: string;
   options: readonly T[];
@@ -86,6 +104,7 @@ export function HeadChoices<T extends string>({
   value: T;
   onChange: (v: T) => void;
   preview: (option: T) => WalkerAppearance;
+  blank?: T;
 }) {
   return (
     <Field title={title}>
@@ -98,10 +117,16 @@ export function HeadChoices<T extends string>({
           title={labels[o]}
           onClick={() => onChange(o)}
         >
-          <svg viewBox="54 -4 58 58" aria-hidden style={{ color: INK }}>
-            <HeadParts a={preview(o)} />
-          </svg>
-          <span>{labels[o]}</span>
+          {o === blank ? (
+            <NoneMark className={styles.blankMark} />
+          ) : (
+            <>
+              <svg viewBox="54 -4 58 58" aria-hidden style={{ color: INK }}>
+                <HeadParts a={preview(o)} />
+              </svg>
+              <span>{labels[o]}</span>
+            </>
+          )}
         </button>
       ))}
     </Field>

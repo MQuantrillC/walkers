@@ -29,7 +29,8 @@
 }
 
 .name {
-  font-size: 12px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
   letter-spacing: 0.04em;
   color: var(--muted);
   height: 28px;

@@ -9,6 +9,7 @@ import { useAuth } from "@/auth/AuthProvider";
 import { useUserAgent } from "@/auth/SignInButton";
 import { isInAppBrowser } from "@/lib/inAppBrowser";
 import { ThemeToggle } from "./ThemeToggle";
+import { WalkerMark } from "./icons";
 import styles from "./siteHeader.module.css";
 
 // The current path is only known at request time on dynamic routes (like a
@@ -42,8 +43,9 @@ function HeaderBar({ pathname }: { pathname: string | null }) {
 
   return (
     <header className={styles.header}>
-      <Link href={`/${locale}`} className={styles.brand}>
-        WALKERS
+      <Link href={`/${locale}`} className={styles.brand} aria-label="WALKERS">
+        <WalkerMark />
+        <span>Walkers</span>
       </Link>
       <nav className={styles.nav} aria-label="Main">
         {links.map((l) => (

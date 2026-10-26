@@ -108,7 +108,8 @@ export const es: Dictionary = {
   },
   footer: {
     privacy: "Privacidad",
-    madeBy: "Hecho con ❤️ por",
+    madeWith: "Hecho con",
+    madeBy: "por",
     personalPage: "Página personal",
   },
   gallery: {
@@ -122,7 +123,8 @@ export const es: Dictionary = {
     loading: "Cargando…",
   },
   home: {
-    headline: "Dale vida a tu avatar. Súmalo a El Camino.",
+    headline: "Dale vida a tu avatar.",
+    headlineEnd: "Súmalo a El\u00a0Camino.",
     cta: "Crea tu caminante",
     empty: "Todavía no hay nadie caminando. Crea tu caminante y sé la primera persona en unirse.",
   },

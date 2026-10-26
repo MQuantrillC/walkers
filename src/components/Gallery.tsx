@@ -9,6 +9,7 @@ import type { GalleryOrder, GalleryPage } from "@/walker/publicData";
 import type { PublicWalker } from "@/walker/records";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useMediaQuery } from "@/lib/useMediaQuery";
+import { Search } from "./icons";
 import styles from "./gallery.module.css";
 
 const toProcession = (lang: string) => (w: PublicWalker): ProcessionWalker => ({
@@ -84,15 +85,18 @@ export function Gallery({ initial }: { initial: GalleryPage }) {
               </button>
             ))}
           </div>
-          <input
-            className={styles.search}
-            type="search"
-            value={input}
-            maxLength={24}
-            placeholder={t.gallery.search}
-            aria-label={t.gallery.search}
-            onChange={(e) => setInput(e.target.value)}
-          />
+          <label className={styles.searchBox}>
+            <Search />
+            <input
+              className={styles.search}
+              type="search"
+              value={input}
+              maxLength={24}
+              placeholder={t.gallery.search}
+              aria-label={t.gallery.search}
+              onChange={(e) => setInput(e.target.value)}
+            />
+          </label>
         </div>
       )}
 

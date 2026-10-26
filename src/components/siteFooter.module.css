@@ -13,7 +13,15 @@
 }
 
 .credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   color: var(--foreground);
+}
+
+.heart {
+  color: var(--accent);
+  fill: var(--accent);
 }
 
 .links {

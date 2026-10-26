@@ -106,7 +106,8 @@ export const en = {
   },
   footer: {
     privacy: "Privacy",
-    madeBy: "Made with ❤️ by",
+    madeWith: "Made with",
+    madeBy: "by",
     personalPage: "Personal Page",
   },
   gallery: {
@@ -120,7 +121,8 @@ export const en = {
     loading: "Loading…",
   },
   home: {
-    headline: "Bring your avatar to life. Add it to The Walk.",
+    headline: "Bring your avatar to life.",
+    headlineEnd: "Add it to The\u00a0Walk.",
     cta: "Create your walker",
     empty: "Nobody is walking yet. Create your walker and be the first to join.",
   },

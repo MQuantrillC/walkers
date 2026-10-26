@@ -10,9 +10,21 @@
 }
 
 .brand {
-  font-size: 15px;
-  font-weight: 600;
-  letter-spacing: 0.32em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-size: 27px;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.brand svg {
+  width: 30px;
+  height: 30px;
+  margin: -4px -4px 0 -6px;
+  color: var(--accent);
 }
 
 .nav,
@@ -41,11 +53,12 @@
 
 .nav a[aria-current="page"] {
   color: var(--foreground);
-  border-bottom-color: var(--foreground);
+  border-bottom-color: var(--accent);
 }
 
 .tools a.lang {
-  font-size: 12px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
   letter-spacing: 0.08em;
   padding: 3px 9px;
   border: 1px solid var(--line);
