@@ -6,7 +6,6 @@ import { useAuth } from "@/auth/AuthProvider";
 import { SignInButton } from "@/auth/SignInButton";
 import { useI18n } from "@/i18n/I18nProvider";
 import type { CloudSync } from "./useCloudSync";
-import { ArrowRight } from "@/components/icons";
 import styles from "./creator.module.css";
 
 const noSubscribe = () => () => {};
@@ -82,7 +81,6 @@ export function SavePanel({ sync, onPublished }: { sync: CloudSync; onPublished:
       {published && remote && (
         <Link className={styles.saveLink} href={`/${locale}/w/${remote.id}`}>
           {t.save.viewProfile}
-          <ArrowRight />
         </Link>
       )}
     </div>

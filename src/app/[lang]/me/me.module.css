@@ -148,3 +148,61 @@
 .signOut[data-danger]:hover {
   color: var(--danger);
 }
+
+/* The short explanation before unpublishing or deleting. */
+.confirm {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--menu);
+  box-shadow: 0 12px 32px rgb(31 30 28 / 0.08);
+  animation: confirm-in 0.15s ease-out;
+}
+
+.confirm p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+@keyframes confirm-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-size: 13px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--danger);
+  background: var(--danger);
+  /* Page colour on the danger fill: readable in both themes. */
+  color: var(--background);
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.danger:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.danger:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.danger:disabled {
+  opacity: 0.45;
+  cursor: default;
+}

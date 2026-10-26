@@ -11,7 +11,7 @@ import { deleteMyWalker, getMyWalker, setPublished, type ActionError } from "@/w
 import type { MyWalker as Saved } from "@/walker/records";
 import { clearDraft } from "@/creator/draft";
 import { deleteMyAccount } from "@/walker/moderation";
-import { ArrowRight, Pencil, Trash } from "@/components/icons";
+import { Pencil, Trash } from "@/components/icons";
 import styles from "./me.module.css";
 
 export function MyWalker() {
@@ -21,7 +21,8 @@ export function MyWalker() {
   const [walker, setWalker] = useState<Saved | null | undefined>(undefined);
   const [error, setError] = useState<ActionError | null>(null);
   const [busy, setBusy] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  // Unpublishing and deleting first explain themselves in a small box.
+  const [asking, setAsking] = useState<"unpublish" | "delete" | null>(null);
   const [deleted, setDeleted] = useState(false);
   const [confirmAccount, setConfirmAccount] = useState(false);
   const [accountState, setAccountState] = useState<"idle" | "deleting" | "deleted" | "failed">("idle");
@@ -105,39 +106,74 @@ export function MyWalker() {
             </button>
           )}
           {published && (
-            <button className={styles.chip} disabled={busy} onClick={() => run(() => setPublished(false))}>
+            <button
+              className={styles.chip}
+              disabled={busy}
+              aria-expanded={asking === "unpublish"}
+              aria-controls="me-confirm"
+              onClick={() => setAsking(asking === "unpublish" ? null : "unpublish")}
+            >
               {t.save.unpublish}
             </button>
           )}
           {!hidden && (
             <button
               className={styles.chip}
-              data-danger={confirmDelete || undefined}
               disabled={busy}
-              onBlur={() => setConfirmDelete(false)}
-              onClick={async () => {
-                if (!confirmDelete) return setConfirmDelete(true);
-                setConfirmDelete(false);
-                await run(async () => {
-                  const res = await deleteMyWalker();
-                  if (res.ok) {
-                    clearDraft();
-                    setDeleted(true);
-                  }
-                  return res;
-                });
-              }}
+              aria-expanded={asking === "delete"}
+              aria-controls="me-confirm"
+              onClick={() => setAsking(asking === "delete" ? null : "delete")}
             >
               <Trash />
-              {confirmDelete ? t.me.confirmDelete : t.me.delete}
+              {t.me.delete}
             </button>
           )}
         </div>
+        {asking && (
+          <div id="me-confirm" className={styles.confirm} role="group" aria-label={asking === "delete" ? t.me.delete : t.save.unpublish}>
+            <p>{asking === "delete" ? t.me.deleteInfo : t.me.unpublishInfo}</p>
+            <div className={styles.actions}>
+              <button className={styles.chip} onClick={() => setAsking(null)}>
+                {t.me.cancel}
+              </button>
+              {asking === "unpublish" ? (
+                <button
+                  className={styles.primary}
+                  disabled={busy}
+                  onClick={async () => {
+                    setAsking(null);
+                    await run(() => setPublished(false));
+                  }}
+                >
+                  {t.save.unpublish}
+                </button>
+              ) : (
+                <button
+                  className={styles.danger}
+                  disabled={busy}
+                  onClick={async () => {
+                    setAsking(null);
+                    await run(async () => {
+                      const res = await deleteMyWalker();
+                      if (res.ok) {
+                        clearDraft();
+                        setDeleted(true);
+                      }
+                      return res;
+                    });
+                  }}
+                >
+                  <Trash />
+                  {t.me.delete}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
         {published && (
           <div className={styles.actions}>
             <Link className={styles.chip} href={profileUrl}>
               {t.save.viewProfile}
-              <ArrowRight />
             </Link>
             <ShareButton path={profileUrl} title={t.profile.shareText(walker.name)} />
           </div>

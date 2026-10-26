@@ -47,7 +47,7 @@ export const es: Dictionary = {
     loadedSaved: "Cargamos tu caminante guardado.",
     keptLocal: "Tienes cambios más recientes en este dispositivo que en tu caminante guardado.",
     publishedTitle: (name) => `¡${name} se unió al camino!`,
-    viewProfile: "Ver página pública",
+    viewProfile: "Ver perfil",
     errors: {
       unavailable: "Las cuentas aún no están activadas.",
       signedOut: "Tu sesión terminó. Vuelve a iniciar sesión para guardar.",
@@ -62,13 +62,15 @@ export const es: Dictionary = {
     title: "Mi avatar",
     signInPrompt: "Inicia sesión para ver, editar y publicar tu caminante.",
     empty: "Todavía no has guardado un caminante.",
-    create: "Crea tu caminante",
+    create: "Crea tu avatar",
     edit: "Editar",
     share: "Compartir",
     copyLink: "Copiar enlace",
     copied: "Enlace copiado",
-    delete: "Eliminar caminante",
-    confirmDelete: "Toca otra vez para eliminarlo para siempre",
+    delete: "Eliminar avatar",
+    unpublishInfo: "Deja de caminar en El Camino y su perfil se oculta. Queda guardado y puedes volver a publicarlo cuando quieras.",
+    deleteInfo: "Se borra para siempre, con su dibujo. No se puede deshacer.",
+    cancel: "Cancelar",
     deleted: "Tu caminante fue eliminado.",
     hiddenHelp: "Un moderador lo retiró de la galería. Si crees que fue un error, escríbenos.",
     loading: "Cargando…",
@@ -84,7 +86,7 @@ export const es: Dictionary = {
   profile: {
     walkingSince: (date) => `Camina desde el ${date}`,
     notFound: "Este caminante no está por aquí. Puede que lo hayan despublicado.",
-    createYours: "Crea tu propio caminante",
+    createYours: "Crea tu propio avatar",
     shareText: (name) => `Conoce a ${name} en WALKERS`,
   },
   report: {
@@ -136,7 +138,7 @@ export const es: Dictionary = {
   home: {
     headline: "Dale vida a tu avatar.",
     headlineEnd: "Súmalo a El\u00a0Camino.",
-    cta: "Crea tu caminante",
+    cta: "Crea tu avatar",
     empty: "Todavía no hay nadie caminando. Crea tu caminante y sé la primera persona en unirse.",
   },
   creator: {

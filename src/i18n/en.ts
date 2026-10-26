@@ -45,7 +45,7 @@ export const en = {
     loadedSaved: "Loaded your saved walker.",
     keptLocal: "You have newer changes on this device than your saved walker.",
     publishedTitle: (name: string) => `${name} has joined the walk!`,
-    viewProfile: "View public page",
+    viewProfile: "View profile",
     errors: {
       unavailable: "Accounts aren't switched on yet.",
       signedOut: "Your session ended. Sign in again to save.",
@@ -60,13 +60,15 @@ export const en = {
     title: "My avatar",
     signInPrompt: "Sign in to see, edit and publish your walker.",
     empty: "You haven't saved a walker yet.",
-    create: "Create your walker",
+    create: "Create your avatar",
     edit: "Edit",
     share: "Share",
     copyLink: "Copy link",
     copied: "Link copied",
-    delete: "Delete walker",
-    confirmDelete: "Tap again to delete for good",
+    delete: "Delete avatar",
+    unpublishInfo: "It stops walking on The Walk and its profile is hidden. It stays saved, so you can publish it again any time.",
+    deleteInfo: "It's erased for good, drawing and all. This can't be undone.",
+    cancel: "Cancel",
     deleted: "Your walker was deleted.",
     hiddenHelp: "A moderator took it out of the gallery. If you think that was a mistake, write to us.",
     loading: "Loading…",
@@ -82,7 +84,7 @@ export const en = {
   profile: {
     walkingSince: (date: string) => `Walking since ${date}`,
     notFound: "This walker isn't walking here. It may have been unpublished.",
-    createYours: "Create your own walker",
+    createYours: "Create your own avatar",
     shareText: (name: string) => `Meet ${name} on WALKERS`,
   },
   report: {
@@ -134,7 +136,7 @@ export const en = {
   home: {
     headline: "Bring your avatar to life.",
     headlineEnd: "Add it to The\u00a0Walk.",
-    cta: "Create your walker",
+    cta: "Create your avatar",
     empty: "Nobody is walking yet. Create your walker and be the first to join.",
   },
   creator: {
