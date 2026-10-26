@@ -21,7 +21,7 @@ Database:
 3. Make yourself a moderator (after signing in once):
    `update public.profiles set is_admin = true where id = (select id from auth.users where email = 'YOUR_EMAIL');`
    The moderation page is `/es/admin` (or `/en/admin`).
-3. Locally, `npm run check:rls` runs the same checks against an in-process
+4. Locally, `npm run check:rls` runs the same checks against an in-process
    Postgres.
 
 Auth → URL Configuration:
@@ -59,5 +59,7 @@ production callback to Supabase's redirect URLs.
    - Google Cloud → Clients → WALKERS web: add the URL to Authorized
      JavaScript origins.
    - Google Auth Platform → Branding: home page `<url>/es`, privacy policy
-     `<url>/es/privacy`, authorized domain `vercel.app` (or your own domain).
+     `<url>/es/privacy`, authorized domain: the full Vercel hostname (e.g.
+     `walkers-xyz.vercel.app`; `vercel.app` itself is a shared suffix) or
+     your own domain.
      Then Audience → Publish app.
