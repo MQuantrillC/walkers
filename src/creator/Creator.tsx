@@ -7,115 +7,158 @@ import { SAMPLE_WALKERS } from "@/walker/samples";
 import { GAIT } from "@/walker/gait";
 import { VIEWBOX } from "@/walker/walkCss";
 import {
-  ACCESSORIES,
   BOTTOM_STYLES,
   BROW_STYLES,
+  EXTRAS,
+  EYEWEAR,
   EYE_STYLES,
-  FACE_LIMITS,
+  FACIAL_HAIR,
   HAIR_STYLES,
+  HEADWEAR,
   MOUTH_STYLES,
   NAME_MAX,
+  PAINT_LIMITS,
   PALETTE,
   SHOE_STYLES,
+  SURFACES,
   TOP_STYLES,
+  type Extra,
   type Face,
-  type FaceStroke,
+  type Stroke,
+  type Surface,
   type WalkerAppearance,
 } from "@/walker/appearance";
 import { cleanDisplayName } from "@/walker/validate";
+import { useI18n } from "@/i18n/I18nProvider";
 import { EMPTY_DRAFT, clearDraft, parseDraft, readDraftRaw, writeDraft, type Draft } from "./draft";
-import { FaceEditor } from "./FaceEditor";
-import { Choices, HeadChoices, Swatches } from "./pickers";
+import { PaintEditor } from "./PaintEditor";
+import { Choices, HeadChoices, Swatches, ToggleChoices } from "./pickers";
 import styles from "./creator.module.css";
 
-const STEPS = [
-  { id: "you", label: "You" },
-  { id: "clothes", label: "Clothes" },
-  { id: "extras", label: "Extras" },
-  { id: "face", label: "Face" },
-  { id: "preview", label: "Preview" },
-] as const;
-type StepId = (typeof STEPS)[number]["id"];
+const STEPS = ["you", "clothes", "extras", "paint", "preview"] as const;
+type StepId = (typeof STEPS)[number];
 
 const HISTORY_LIMIT = 100;
 
-type State = Draft & { past: FaceStroke[][]; future: FaceStroke[][] };
+// Undo and redo cover painting, where mistakes are hardest to fix by hand.
+// Each entry remembers which surface it touched so undo can show it.
+type HistoryEntry = { surface: Surface; strokes: Stroke[] };
+// `focus` is the surface being painted; undo and redo switch to whichever
+// surface they change.
+type State = Draft & { past: HistoryEntry[]; future: HistoryEntry[]; focus: Surface };
+
+type Look = Partial<Omit<WalkerAppearance, "face" | "paint" | "extras">>;
 
 type Action =
   | { type: "name"; name: string }
-  | { type: "look"; patch: Partial<Omit<WalkerAppearance, "face">> }
-  | { type: "face"; patch: Partial<Omit<Face, "strokes">> }
-  | { type: "strokes"; strokes: FaceStroke[] }
-  | { type: "addStroke"; stroke: FaceStroke }
+  | { type: "look"; patch: Look }
+  | { type: "face"; patch: Partial<Face> }
+  | { type: "extra"; id: Extra; color: string | null }
+  | { type: "strokes"; surface: Surface; strokes: Stroke[] }
+  | { type: "addStroke"; surface: Surface; stroke: Stroke }
+  | { type: "focus"; surface: Surface }
   | { type: "undo" }
   | { type: "redo" }
   | { type: "reset" };
 
-function withStrokes(a: WalkerAppearance, strokes: FaceStroke[]): WalkerAppearance {
-  return { ...a, face: { ...a.face, strokes } };
+function withStrokes(a: WalkerAppearance, surface: Surface, strokes: Stroke[]): WalkerAppearance {
+  return { ...a, paint: { ...a.paint, [surface]: strokes } };
 }
 
-// Undo and redo cover the face drawing, where mistakes are hardest to fix by hand.
 function reducer(state: State, action: Action): State {
-  const strokes = state.appearance.face.strokes;
+  const a = state.appearance;
   switch (action.type) {
     case "name":
       return { ...state, name: action.name };
     case "look":
-      return { ...state, appearance: { ...state.appearance, ...action.patch } };
+      return { ...state, appearance: { ...a, ...action.patch } };
     case "face":
-      return { ...state, appearance: { ...state.appearance, face: { ...state.appearance.face, ...action.patch } } };
+      return { ...state, appearance: { ...a, face: { ...a.face, ...action.patch } } };
+    case "focus":
+      return { ...state, focus: action.surface };
+    case "extra": {
+      const extras = { ...a.extras };
+      if (action.color) extras[action.id] = action.color;
+      else delete extras[action.id];
+      return { ...state, appearance: { ...a, extras } };
+    }
     case "strokes":
       return {
         ...state,
-        appearance: withStrokes(state.appearance, action.strokes),
-        past: [...state.past, strokes].slice(-HISTORY_LIMIT),
+        appearance: withStrokes(a, action.surface, action.strokes),
+        past: [...state.past, { surface: action.surface, strokes: a.paint[action.surface] }].slice(-HISTORY_LIMIT),
         future: [],
       };
-    case "addStroke":
+    case "addStroke": {
       // Appends to the latest strokes, so quick successive strokes never
       // overwrite each other. Limits are enforced here as a backstop.
-      if (strokes.length >= FACE_LIMITS.strokes) return state;
-      return reducer(state, { type: "strokes", strokes: [...strokes, action.stroke] });
+      const current = a.paint[action.surface];
+      if (current.length >= PAINT_LIMITS.strokesPerSurface) return state;
+      return reducer(state, { type: "strokes", surface: action.surface, strokes: [...current, action.stroke] });
+    }
     case "undo": {
-      if (!state.past.length) return state;
+      const entry = state.past[state.past.length - 1];
+      if (!entry) return state;
       return {
         ...state,
-        appearance: withStrokes(state.appearance, state.past[state.past.length - 1]),
+        appearance: withStrokes(a, entry.surface, entry.strokes),
+        focus: entry.surface,
         past: state.past.slice(0, -1),
-        future: [strokes, ...state.future],
+        future: [{ surface: entry.surface, strokes: a.paint[entry.surface] }, ...state.future],
       };
     }
     case "redo": {
-      if (!state.future.length) return state;
+      const entry = state.future[0];
+      if (!entry) return state;
       return {
         ...state,
-        appearance: withStrokes(state.appearance, state.future[0]),
-        past: [...state.past, strokes],
+        appearance: withStrokes(a, entry.surface, entry.strokes),
+        focus: entry.surface,
+        past: [...state.past, { surface: entry.surface, strokes: a.paint[entry.surface] }],
         future: state.future.slice(1),
       };
     }
     case "reset":
-      return { ...EMPTY_DRAFT, past: [], future: [] };
+      return { ...EMPTY_DRAFT, past: [], future: [], focus: "face" };
   }
 }
 
-const pickAny = <T,>(list: readonly T[]) => list[Math.floor(Math.random() * list.length)];
+const cloth = Object.fromEntries(PALETTE.cloth.map((c) => [c.id, c.hex])) as Record<string, string>;
 
-function randomLook(): Partial<Omit<WalkerAppearance, "face">> {
-  const cloth = PALETTE.cloth.map((c) => c.hex);
+// Sensible first colour when an extra is switched on.
+const EXTRA_DEFAULT_COLOR: Record<Extra, string> = {
+  bracelet: cloth.ochre,
+  watch: cloth.black,
+  gloves: cloth.black,
+  scarf: cloth.red,
+  necklace: cloth.ochre,
+  backpack: cloth.blue,
+};
+
+const pickAny = <T,>(list: readonly T[]) => list[Math.floor(Math.random() * list.length)];
+const sometimes = <T,>(chance: number, list: readonly T[], otherwise: T) =>
+  Math.random() < chance ? pickAny(list) : otherwise;
+
+function randomLook(): Look & { extras: WalkerAppearance["extras"] } {
+  const hexes = PALETTE.cloth.map((c) => c.hex);
+  const extras: WalkerAppearance["extras"] = {};
+  for (const id of EXTRAS) if (Math.random() < 0.18) extras[id] = pickAny(hexes);
   return {
     skin: pickAny(PALETTE.skin).hex,
     hair: pickAny(HAIR_STYLES),
-    hairColor: pickAny(PALETTE.hair).hex,
+    hairColor: pickAny(PALETTE.hair.slice(0, 7)).hex,
+    facialHair: sometimes(0.25, FACIAL_HAIR, "none"),
     top: pickAny(TOP_STYLES),
-    topColor: pickAny(cloth),
+    topColor: pickAny(hexes),
     bottom: pickAny(BOTTOM_STYLES),
-    bottomColor: pickAny(cloth),
+    bottomColor: pickAny(hexes),
     shoes: pickAny(SHOE_STYLES),
-    shoeColor: pickAny(cloth),
-    accessory: Math.random() < 0.6 ? "none" : pickAny(ACCESSORIES),
-    accessoryColor: pickAny(cloth),
+    shoeColor: pickAny(hexes),
+    headwear: sometimes(0.3, HEADWEAR, "none"),
+    headwearColor: pickAny(hexes),
+    eyewear: sometimes(0.25, EYEWEAR, "none"),
+    eyewearColor: pickAny(hexes),
+    extras,
   };
 }
 
@@ -132,12 +175,14 @@ export function CreatorPage() {
 }
 
 function Creator({ initial }: { initial: Draft }) {
-  const [state, dispatch] = useReducer(reducer, { ...initial, past: [], future: [] });
+  const { t, locale } = useI18n();
+  const [state, dispatch] = useReducer(reducer, { ...initial, past: [], future: [], focus: "face" });
   const [step, setStep] = useState<StepId>("you");
   const [saved, setSaved] = useState<boolean | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
-  const { appearance: a, name } = state;
-  const displayName = cleanDisplayName(name) || "Your walker";
+  const { appearance: a, name, focus: surface } = state;
+  const displayName = cleanDisplayName(name) || t.creator.defaultName;
+  const o = t.options;
 
   // Autosave the draft on this device whenever it changes.
   useEffect(() => {
@@ -146,9 +191,9 @@ function Creator({ initial }: { initial: Draft }) {
     if (!ok) queueMicrotask(() => setSaved(false));
   }, [name, a]);
 
-  // Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z (or Ctrl+Y) while painting the face.
+  // Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z (or Ctrl+Y) while painting.
   useEffect(() => {
-    if (step !== "face") return;
+    if (step !== "paint") return;
     function onKey(e: KeyboardEvent) {
       if (e.target instanceof Element && e.target.closest("input, textarea")) return;
       if (!(e.ctrlKey || e.metaKey)) return;
@@ -162,14 +207,15 @@ function Creator({ initial }: { initial: Draft }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [step]);
 
-  const index = STEPS.findIndex((s) => s.id === step);
-  const look = (patch: Extract<Action, { type: "look" }>["patch"]) => dispatch({ type: "look", patch });
-  const face = (patch: Extract<Action, { type: "face" }>["patch"]) => dispatch({ type: "face", patch });
+  const index = STEPS.indexOf(step);
+  const look = (patch: Look) => dispatch({ type: "look", patch });
+  const face = (patch: Partial<Face>) => dispatch({ type: "face", patch });
   const stridePx = GAIT.stride * (PREVIEW_H / VIEWBOX.height);
+  const worn = EXTRAS.filter((id) => a.extras[id]);
 
   return (
     <div className={styles.creator}>
-      <section className={styles.preview} aria-label="Live preview">
+      <section className={styles.preview} aria-label={t.creator.previewLabel}>
         <div
           className={styles.stage}
           style={
@@ -180,12 +226,17 @@ function Creator({ initial }: { initial: Draft }) {
           }
         >
           <div className={styles.ground} />
-          <Walker appearance={a} height={PREVIEW_H} title={`${displayName}, walking`} className={styles.previewWalker} />
+          <Walker
+            appearance={a}
+            height={PREVIEW_H}
+            title={t.creator.walking(displayName)}
+            className={styles.previewWalker}
+          />
         </div>
         <p className={styles.previewName}>{displayName}</p>
         <div className={styles.previewActions}>
           <button className={styles.chip} onClick={() => look(randomLook())}>
-            Randomise look
+            {t.creator.randomise}
           </button>
           <button
             className={styles.chip}
@@ -199,27 +250,23 @@ function Creator({ initial }: { initial: Draft }) {
             }}
             onBlur={() => setConfirmReset(false)}
           >
-            {confirmReset ? "Tap again to start over" : "Start over"}
+            {confirmReset ? t.creator.confirmStartOver : t.creator.startOver}
           </button>
         </div>
-        <p className={styles.saveNote}>
-          {saved === false
-            ? "This browser won't let us save a draft, so keep this tab open."
-            : "Your draft is saved on this device."}
-        </p>
+        <p className={styles.saveNote}>{saved === false ? t.creator.draftUnavailable : t.creator.draftSaved}</p>
       </section>
 
       <section className={styles.panel}>
-        <nav className={styles.steps} aria-label="Creator steps">
+        <nav className={styles.steps} aria-label={t.creator.stepsLabel}>
           {STEPS.map((s, i) => (
             <button
-              key={s.id}
+              key={s}
               className={styles.step}
-              aria-current={s.id === step ? "step" : undefined}
-              onClick={() => setStep(s.id)}
+              aria-current={s === step ? "step" : undefined}
+              onClick={() => setStep(s)}
             >
               <span>{i + 1}</span>
-              {s.label}
+              {t.creator.steps[s]}
             </button>
           ))}
         </nav>
@@ -228,89 +275,159 @@ function Creator({ initial }: { initial: Draft }) {
           {step === "you" && (
             <>
               <label className={styles.nameField}>
-                <span>Display name</span>
+                <span>{t.creator.name}</span>
                 <input
                   value={name}
                   maxLength={NAME_MAX}
-                  placeholder="Give your walker a name"
+                  placeholder={t.creator.namePlaceholder}
                   autoComplete="off"
+                  lang={locale}
                   onChange={(e) => dispatch({ type: "name", name: e.target.value })}
                 />
-                <small>
-                  Shown with your walker in the public gallery. {NAME_MAX - name.length}{" "}
-                  {NAME_MAX - name.length === 1 ? "character" : "characters"} left.
-                </small>
+                <small>{t.creator.nameHelp(NAME_MAX - name.length)}</small>
               </label>
-              <Swatches title="Skin" swatches={PALETTE.skin} value={a.skin} onChange={(skin) => look({ skin })} />
+              <Swatches title={t.creator.skin} swatches={PALETTE.skin} value={a.skin} onChange={(skin) => look({ skin })} />
               <HeadChoices
-                title="Hair"
+                title={t.creator.hair}
                 options={HAIR_STYLES}
+                labels={o.hair}
                 value={a.hair}
                 onChange={(hair) => look({ hair })}
-                preview={(hair) => ({ ...a, hair, accessory: "none" })}
+                preview={(hair) => ({ ...a, hair, headwear: "none", eyewear: "none" })}
               />
               <Swatches
-                title="Hair colour"
+                title={t.creator.hairColor}
                 swatches={PALETTE.hair}
                 value={a.hairColor}
                 onChange={(hairColor) => look({ hairColor })}
+              />
+              <HeadChoices
+                title={t.creator.facialHair}
+                options={FACIAL_HAIR}
+                labels={o.facialHair}
+                value={a.facialHair}
+                onChange={(facialHair) => look({ facialHair })}
+                preview={(facialHair) => ({ ...a, facialHair, eyewear: "none" })}
               />
             </>
           )}
 
           {step === "clothes" && (
             <>
-              <Choices title="Top" options={TOP_STYLES} value={a.top} onChange={(top) => look({ top })} />
-              <Swatches title="Top colour" swatches={PALETTE.cloth} value={a.topColor} onChange={(topColor) => look({ topColor })} />
-              <Choices title="Bottoms" options={BOTTOM_STYLES} value={a.bottom} onChange={(bottom) => look({ bottom })} />
+              <Choices title={t.creator.top} options={TOP_STYLES} labels={o.top} value={a.top} onChange={(top) => look({ top })} />
+              <Swatches title={t.creator.topColor} swatches={PALETTE.cloth} value={a.topColor} onChange={(topColor) => look({ topColor })} />
+              <Choices
+                title={t.creator.bottom}
+                options={BOTTOM_STYLES}
+                labels={o.bottom}
+                value={a.bottom}
+                onChange={(bottom) => look({ bottom })}
+              />
               <Swatches
-                title="Bottoms colour"
+                title={t.creator.bottomColor}
                 swatches={PALETTE.cloth}
                 value={a.bottomColor}
                 onChange={(bottomColor) => look({ bottomColor })}
               />
-              <Choices title="Shoes" options={SHOE_STYLES} value={a.shoes} onChange={(shoes) => look({ shoes })} />
-              <Swatches title="Shoe colour" swatches={PALETTE.cloth} value={a.shoeColor} onChange={(shoeColor) => look({ shoeColor })} />
+              <Choices title={t.creator.shoes} options={SHOE_STYLES} labels={o.shoes} value={a.shoes} onChange={(shoes) => look({ shoes })} />
+              <Swatches
+                title={t.creator.shoeColor}
+                swatches={PALETTE.cloth}
+                value={a.shoeColor}
+                onChange={(shoeColor) => look({ shoeColor })}
+              />
             </>
           )}
 
           {step === "extras" && (
             <>
               <HeadChoices
-                title="Accessory"
-                options={ACCESSORIES}
-                value={a.accessory}
-                onChange={(accessory) => look({ accessory })}
-                preview={(accessory) => ({ ...a, accessory })}
+                title={t.creator.headwear}
+                options={HEADWEAR}
+                labels={o.headwear}
+                value={a.headwear}
+                onChange={(headwear) => look({ headwear })}
+                preview={(headwear) => ({ ...a, headwear })}
               />
-              {a.accessory !== "none" && (
+              {a.headwear !== "none" && (
                 <Swatches
-                  title="Accessory colour"
+                  title={t.creator.headwearColor}
                   swatches={PALETTE.cloth}
-                  value={a.accessoryColor}
-                  onChange={(accessoryColor) => look({ accessoryColor })}
+                  value={a.headwearColor}
+                  onChange={(headwearColor) => look({ headwearColor })}
                 />
               )}
+              <HeadChoices
+                title={t.creator.eyewear}
+                options={EYEWEAR}
+                labels={o.eyewear}
+                value={a.eyewear}
+                onChange={(eyewear) => look({ eyewear })}
+                preview={(eyewear) => ({ ...a, eyewear })}
+              />
+              {a.eyewear !== "none" && (
+                <Swatches
+                  title={t.creator.eyewearColor}
+                  swatches={PALETTE.cloth}
+                  value={a.eyewearColor}
+                  onChange={(eyewearColor) => look({ eyewearColor })}
+                />
+              )}
+              <ToggleChoices
+                title={t.creator.extras}
+                help={t.creator.extrasHelp}
+                options={EXTRAS}
+                labels={o.extras}
+                isOn={(id) => Boolean(a.extras[id])}
+                onToggle={(id) =>
+                  dispatch({ type: "extra", id, color: a.extras[id] ? null : EXTRA_DEFAULT_COLOR[id] })
+                }
+                preview={(id) => ({
+                  ...a,
+                  extras: { ...a.extras, [id]: a.extras[id] ?? EXTRA_DEFAULT_COLOR[id] },
+                })}
+              />
+              {worn.map((id) => (
+                <Swatches
+                  key={id}
+                  title={t.creator.extraColor(o.extras[id])}
+                  swatches={PALETTE.cloth}
+                  value={a.extras[id]!}
+                  onChange={(color) => dispatch({ type: "extra", id, color })}
+                />
+              ))}
             </>
           )}
 
-          {step === "face" && (
+          {step === "paint" && (
             <>
-              <div className={styles.featureGrid}>
-                <Choices title="Eyes" options={EYE_STYLES} value={a.face.eyes} onChange={(eyes) => face({ eyes })} />
-                <Choices title="Brows" options={BROW_STYLES} value={a.face.brows} onChange={(brows) => face({ brows })} />
-                <Choices title="Mouth" options={MOUTH_STYLES} value={a.face.mouth} onChange={(mouth) => face({ mouth })} />
-                <Choices
-                  title="Blush"
-                  options={["off", "on"] as const}
-                  value={a.face.blush ? "on" : "off"}
-                  onChange={(v) => face({ blush: v === "on" })}
-                />
+              <div className={styles.surfaceTabs} role="group" aria-label={t.creator.paintWhat}>
+                {SURFACES.map((s) => (
+                  <button key={s} className={styles.chip} aria-pressed={s === surface} onClick={() => dispatch({ type: "focus", surface: s })}>
+                    {t.paint.surfaces[s]}
+                    {a.paint[s].length > 0 && <span className={styles.dot} aria-hidden />}
+                  </button>
+                ))}
               </div>
-              <FaceEditor
+              {surface === "face" && (
+                <div className={styles.featureGrid}>
+                  <Choices title={t.creator.eyes} options={EYE_STYLES} labels={o.eyes} value={a.face.eyes} onChange={(eyes) => face({ eyes })} />
+                  <Choices title={t.creator.brows} options={BROW_STYLES} labels={o.brows} value={a.face.brows} onChange={(brows) => face({ brows })} />
+                  <Choices title={t.creator.mouth} options={MOUTH_STYLES} labels={o.mouth} value={a.face.mouth} onChange={(mouth) => face({ mouth })} />
+                  <Choices
+                    title={t.creator.blush}
+                    options={["off", "on"] as const}
+                    labels={{ off: t.creator.off, on: t.creator.on }}
+                    value={a.face.blush ? "on" : "off"}
+                    onChange={(v) => face({ blush: v === "on" })}
+                  />
+                </div>
+              )}
+              <PaintEditor
                 appearance={a}
-                onAdd={(stroke) => dispatch({ type: "addStroke", stroke })}
-                onReplace={(strokes) => dispatch({ type: "strokes", strokes })}
+                surface={surface}
+                onAdd={(s, stroke) => dispatch({ type: "addStroke", surface: s, stroke })}
+                onReplace={(s, strokes) => dispatch({ type: "strokes", surface: s, strokes })}
                 onUndo={() => dispatch({ type: "undo" })}
                 onRedo={() => dispatch({ type: "redo" })}
                 canUndo={state.past.length > 0}
@@ -321,36 +438,29 @@ function Creator({ initial }: { initial: Draft }) {
 
           {step === "preview" && (
             <div className={styles.finale}>
-              <h2>{displayName} is ready to walk.</h2>
-              <p>
-                This is how your walker looks in the procession. Signing in and publishing to the public
-                gallery come next.
-              </p>
+              <h2>{t.creator.readyTitle(displayName)}</h2>
+              <p>{t.creator.readyBody}</p>
             </div>
           )}
         </div>
 
         <div className={styles.stepNav}>
-          <button className={styles.chip} disabled={index === 0} onClick={() => setStep(STEPS[index - 1].id)}>
-            Back
+          <button className={styles.chip} disabled={index === 0} onClick={() => setStep(STEPS[index - 1])}>
+            {t.creator.back}
           </button>
           {index < STEPS.length - 1 && (
-            <button className={styles.primary} onClick={() => setStep(STEPS[index + 1].id)}>
-              {step === "face" ? (a.face.strokes.length ? "Preview" : "Skip drawing") : "Next"}
+            <button className={styles.primary} onClick={() => setStep(STEPS[index + 1])}>
+              {step === "paint" ? t.creator.steps.preview : t.creator.next}
             </button>
           )}
         </div>
       </section>
 
       {step === "preview" && (
-        <section className={styles.processionPreview} aria-label="Your walker in the procession">
-          <Procession
-            walkers={[{ name: displayName, appearance: a }, ...SAMPLE_WALKERS.slice(0, 5)]}
-            height={170}
-          />
+        <section className={styles.processionPreview} aria-label={t.creator.processionLabel}>
+          <Procession walkers={[{ name: displayName, appearance: a }, ...SAMPLE_WALKERS.slice(0, 5)]} height={170} />
         </section>
       )}
     </div>
   );
 }
-

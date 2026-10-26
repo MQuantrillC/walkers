@@ -1,25 +1,16 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { HeadParts } from "@/walker/Walker";
+import type { CSSProperties, ReactNode } from "react";
+import { HeadParts, Walker } from "@/walker/Walker";
 import type { Swatch, WalkerAppearance } from "@/walker/appearance";
+import { useI18n } from "@/i18n/I18nProvider";
 import styles from "./creator.module.css";
 
-const LABELS: Record<string, string> = {
-  tee: "T-shirt",
-  longsleeve: "Long sleeve",
-  tank: "Tank top",
-  none: "None",
-};
-
-export function label(value: string) {
-  return LABELS[value] ?? value[0].toUpperCase() + value.slice(1);
-}
-
-function Field({ title, children }: { title: string; children: ReactNode }) {
+function Field({ title, help, children }: { title: string; help?: string; children: ReactNode }) {
   return (
     <fieldset className={styles.field}>
       <legend>{title}</legend>
+      {help && <p className={styles.fieldHelp}>{help}</p>}
       <div className={styles.options}>{children}</div>
     </fieldset>
   );
@@ -28,11 +19,13 @@ function Field({ title, children }: { title: string; children: ReactNode }) {
 export function Choices<T extends string>({
   title,
   options,
+  labels,
   value,
   onChange,
 }: {
   title: string;
   options: readonly T[];
+  labels: Record<T, string>;
   value: T;
   onChange: (v: T) => void;
 }) {
@@ -40,7 +33,7 @@ export function Choices<T extends string>({
     <Field title={title}>
       {options.map((o) => (
         <button key={o} className={styles.chip} aria-pressed={o === value} onClick={() => onChange(o)}>
-          {label(o)}
+          {labels[o]}
         </button>
       ))}
     </Field>
@@ -58,17 +51,19 @@ export function Swatches({
   value: string;
   onChange: (hex: string) => void;
 }) {
+  const { t } = useI18n();
+  const name = (s: Swatch) => t.colors[s.id as keyof typeof t.colors] ?? s.id;
   const current = swatches.find((s) => s.hex === value);
   return (
-    <Field title={current ? `${title} · ${current.name}` : title}>
+    <Field title={current ? `${title} · ${name(current)}` : title}>
       {swatches.map((s) => (
         <button
           key={s.hex}
           className={styles.swatch}
           style={{ background: s.hex }}
           aria-pressed={s.hex === value}
-          aria-label={s.name}
-          title={s.name}
+          aria-label={name(s)}
+          title={name(s)}
           onClick={() => onChange(s.hex)}
         />
       ))}
@@ -76,16 +71,18 @@ export function Swatches({
   );
 }
 
-// Head-and-shoulders thumbnails, for options you need to see (hair, hats).
+// Head thumbnails, for options you need to see (hair, hats, glasses).
 export function HeadChoices<T extends string>({
   title,
   options,
+  labels,
   value,
   onChange,
   preview,
 }: {
   title: string;
   options: readonly T[];
+  labels: Record<T, string>;
   value: T;
   onChange: (v: T) => void;
   preview: (option: T) => WalkerAppearance;
@@ -97,14 +94,52 @@ export function HeadChoices<T extends string>({
           key={o}
           className={styles.thumb}
           aria-pressed={o === value}
-          aria-label={label(o)}
-          title={label(o)}
+          aria-label={labels[o]}
+          title={labels[o]}
           onClick={() => onChange(o)}
         >
           <svg viewBox="54 -4 58 58" aria-hidden>
             <HeadParts a={preview(o)} />
           </svg>
-          <span>{label(o)}</span>
+          <span>{labels[o]}</span>
+        </button>
+      ))}
+    </Field>
+  );
+}
+
+// Full-figure toggles for extras that can be combined (gloves, scarf, ...).
+// The figures hold still mid-stride so wrists and backs are visible.
+export function ToggleChoices<T extends string>({
+  title,
+  help,
+  options,
+  labels,
+  isOn,
+  onToggle,
+  preview,
+}: {
+  title: string;
+  help: string;
+  options: readonly T[];
+  labels: Record<T, string>;
+  isOn: (v: T) => boolean;
+  onToggle: (v: T) => void;
+  preview: (option: T) => WalkerAppearance;
+}) {
+  return (
+    <Field title={title} help={help}>
+      {options.map((o) => (
+        <button
+          key={o}
+          className={styles.thumb}
+          aria-pressed={isOn(o)}
+          title={labels[o]}
+          onClick={() => onToggle(o)}
+          style={{ "--wk-play": "paused" } as CSSProperties}
+        >
+          <Walker appearance={preview(o)} height={64} phase={0.55} />
+          <span>{labels[o]}</span>
         </button>
       ))}
     </Field>

@@ -1,51 +1,71 @@
-import { DEFAULT_FACE, PALETTE, type WalkerAppearance } from "./appearance";
+import { DEFAULT_APPEARANCE, DEFAULT_FACE, EMPTY_PAINT, PALETTE, type WalkerAppearance } from "./appearance";
 
 const skin = PALETTE.skin.map((s) => s.hex);
-const hair = PALETTE.hair.map((s) => s.hex);
-const cloth = Object.fromEntries(PALETTE.cloth.map((s) => [s.name, s.hex])) as Record<
-  (typeof PALETTE.cloth)[number]["name"],
+const hair = Object.fromEntries(PALETTE.hair.map((s) => [s.id, s.hex])) as Record<(typeof PALETTE.hair)[number]["id"], string>;
+const cloth = Object.fromEntries(PALETTE.cloth.map((s) => [s.id, s.hex])) as Record<
+  (typeof PALETTE.cloth)[number]["id"],
   string
 >;
 
-const base = {
-  shoes: "sneaker",
-  accessory: "none",
-  accessoryColor: cloth.Black,
-  face: DEFAULT_FACE,
-} as const satisfies Partial<WalkerAppearance>;
+const look = (o: Partial<WalkerAppearance>): WalkerAppearance => ({ ...DEFAULT_APPEARANCE, ...o });
+
+// Horizontal stripes across the top (painted strokes, in top-box units).
+const stripes = [0.3, 0.42, 0.54, 0.66].map((v) => ({ color: "#ffffff", size: 2, points: [0.1, v, 0.9, v] }));
 
 // Hand-made sample walkers for testing outfits and colours.
 export const SAMPLE_WALKERS: { name: string; appearance: WalkerAppearance }[] = [
   {
     name: "Ada",
-    appearance: { ...base, skin: skin[1], hair: "short", hairColor: hair[1], top: "tee", topColor: cloth.Red, bottom: "trousers", bottomColor: cloth["Ink blue"], shoeColor: cloth.Chalk },
+    appearance: look({ skin: skin[1], hair: "short", hairColor: hair.darkBrown, topColor: cloth.red, bottomColor: cloth.inkBlue, shoeColor: cloth.chalk }),
   },
   {
     name: "Noor",
-    appearance: { ...base, skin: skin[3], hair: "long", hairColor: hair[0], top: "longsleeve", topColor: cloth.Ochre, bottom: "skirt", bottomColor: cloth["Ink blue"], shoes: "flat", shoeColor: cloth.Black, face: { ...DEFAULT_FACE, mouth: "smile" } },
+    appearance: look({
+      skin: skin[3], hair: "long", hairColor: hair.black, top: "longsleeve", topColor: cloth.ochre, bottom: "skirt",
+      bottomColor: cloth.inkBlue, shoes: "flat", shoeColor: cloth.black, face: { ...DEFAULT_FACE, mouth: "smile" },
+      extras: { bracelet: cloth.chalk },
+    }),
   },
   {
     name: "Theo",
-    appearance: { ...base, skin: skin[0], hair: "bob", hairColor: hair[4], top: "tee", topColor: cloth.Green, bottom: "shorts", bottomColor: cloth.Umber, shoeColor: cloth.Red },
+    appearance: look({
+      skin: skin[0], hair: "quiff", hairColor: hair.blonde, top: "tee", topColor: cloth.green, bottom: "shorts",
+      bottomColor: cloth.umber, shoes: "hightop", shoeColor: cloth.red, extras: { backpack: cloth.ochre },
+    }),
   },
   {
     name: "Mia",
-    appearance: { ...base, skin: skin[2], hair: "ponytail", hairColor: hair[2], top: "longsleeve", topColor: cloth.Pink, bottom: "trousers", bottomColor: cloth.Blue, shoeColor: cloth.Chalk, face: { ...DEFAULT_FACE, blush: true } },
+    appearance: look({
+      skin: skin[2], hair: "ponytail", hairColor: hair.brown, top: "longsleeve", topColor: cloth.pink, bottomColor: cloth.blue,
+      face: { ...DEFAULT_FACE, blush: true }, paint: { ...EMPTY_PAINT, top: stripes },
+    }),
   },
   {
     name: "Kofi",
-    appearance: { ...base, skin: skin[5], hair: "afro", hairColor: hair[0], top: "tank", topColor: cloth.Chalk, bottom: "trousers", bottomColor: cloth.Black, shoeColor: cloth.Red },
+    appearance: look({
+      skin: skin[5], hair: "afro", hairColor: hair.black, facialHair: "beard", top: "tank", topColor: cloth.chalk,
+      bottomColor: cloth.black, shoeColor: cloth.red, headwear: "beanie", headwearColor: cloth.ochre,
+    }),
   },
   {
     name: "Lena",
-    appearance: { ...base, skin: skin[1], hair: "long", hairColor: hair[5], top: "tee", topColor: cloth["Ink blue"], bottom: "skirt", bottomColor: cloth.Violet, shoes: "boot", shoeColor: cloth.Black, accessory: "sunglasses" },
+    appearance: look({
+      skin: skin[1], hair: "braid", hairColor: hair.auburn, top: "tee", topColor: cloth.inkBlue, bottom: "skirt",
+      bottomColor: cloth.violet, shoes: "boot", shoeColor: cloth.black, eyewear: "sunglasses", extras: { scarf: cloth.ochre },
+    }),
   },
   {
     name: "Sami",
-    appearance: { ...base, skin: skin[4], hair: "short", hairColor: hair[0], top: "longsleeve", topColor: cloth.Blue, bottom: "trousers", bottomColor: cloth.Umber, shoeColor: cloth.Ochre, accessory: "cap", accessoryColor: cloth.Ochre },
+    appearance: look({
+      skin: skin[4], hair: "curly", hairColor: hair.black, facialHair: "moustache", top: "hoodie", topColor: cloth.blue,
+      bottom: "cropped", bottomColor: cloth.umber, shoes: "sandal", shoeColor: cloth.ochre, headwear: "cap", headwearColor: cloth.ochre,
+    }),
   },
   {
     name: "Iris",
-    appearance: { ...base, skin: skin[0], hair: "bun", hairColor: hair[6], top: "longsleeve", topColor: cloth.Violet, bottom: "trousers", bottomColor: cloth.Chalk, shoeColor: cloth["Ink blue"], accessory: "glasses", accessoryColor: cloth["Ink blue"] },
+    appearance: look({
+      skin: skin[0], hair: "bun", hairColor: hair.grey, top: "longsleeve", topColor: cloth.violet, bottomColor: cloth.chalk,
+      shoeColor: cloth.inkBlue, eyewear: "glasses", eyewearColor: cloth.inkBlue, extras: { necklace: cloth.ochre, watch: cloth.inkBlue },
+    }),
   },
 ];

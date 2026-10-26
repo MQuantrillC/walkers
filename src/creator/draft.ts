@@ -5,7 +5,8 @@ import { sanitizeAppearance } from "@/walker/validate";
 // the visitor signs in. Storage can be unavailable (private mode, blocked
 // site data), so every access is guarded and failure just means no draft.
 
-const KEY = "walkers:draft:v1";
+// v2: paint on several surfaces, separate headwear/eyewear, extras.
+const KEY = "walkers:draft:v2";
 
 export type Draft = { name: string; appearance: WalkerAppearance };
 

@@ -1,19 +1,24 @@
 import {
-  ACCESSORIES,
   BOTTOM_STYLES,
   BRUSH_SIZES,
   BROW_STYLES,
   DEFAULT_APPEARANCE,
+  EXTRAS,
+  EYEWEAR,
   EYE_STYLES,
-  FACE_LIMITS,
+  FACIAL_HAIR,
   HAIR_STYLES,
+  HEADWEAR,
   MOUTH_STYLES,
   NAME_MAX,
+  PAINT_LIMITS,
   PALETTE,
   SHOE_STYLES,
+  SURFACES,
   TOP_STYLES,
   type Face,
-  type FaceStroke,
+  type Paint,
+  type Stroke,
   type Swatch,
   type WalkerAppearance,
 } from "./appearance";
@@ -28,7 +33,7 @@ const hexes = (swatches: readonly Swatch[]) => new Set(swatches.map((s) => s.hex
 const SKIN = hexes(PALETTE.skin);
 const HAIR = hexes(PALETTE.hair);
 const CLOTH = hexes(PALETTE.cloth);
-const FACE_COLORS = hexes(PALETTE.face);
+const PAINT_COLORS = hexes(PALETTE.paint);
 const SIZES = new Set<number>(BRUSH_SIZES.map((b) => b.size));
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -47,44 +52,70 @@ function color(v: unknown, allowed: Set<string>, fallback: string, field: string
   return fallback;
 }
 
-function strokes(v: unknown, issues: Issues): FaceStroke[] {
+function strokes(v: unknown, field: string, issues: Issues): Stroke[] {
+  if (v === undefined) return [];
   if (!Array.isArray(v)) {
-    issues.push("face.strokes must be a list");
+    issues.push(`${field} must be a list`);
     return [];
   }
-  const out: FaceStroke[] = [];
+  const out: Stroke[] = [];
   let total = 0;
   for (const [i, s] of v.entries()) {
-    if (out.length >= FACE_LIMITS.strokes) {
-      issues.push(`face drawings are limited to ${FACE_LIMITS.strokes} strokes`);
+    if (out.length >= PAINT_LIMITS.strokesPerSurface) {
+      issues.push(`${field} is limited to ${PAINT_LIMITS.strokesPerSurface} strokes`);
       break;
     }
     if (!isRecord(s) || !Array.isArray(s.points)) {
-      issues.push(`face.strokes[${i}] is malformed`);
+      issues.push(`${field}[${i}] is malformed`);
       continue;
     }
     const pts = s.points;
-    if (pts.length < 2 || pts.length % 2 !== 0 || pts.length / 2 > FACE_LIMITS.pointsPerStroke) {
-      issues.push(`face.strokes[${i}] has an invalid number of points`);
+    if (pts.length < 2 || pts.length % 2 !== 0 || pts.length / 2 > PAINT_LIMITS.pointsPerStroke) {
+      issues.push(`${field}[${i}] has an invalid number of points`);
       continue;
     }
     if (!pts.every((n) => typeof n === "number" && Number.isFinite(n) && n >= 0 && n <= 1)) {
-      issues.push(`face.strokes[${i}] has points outside the head`);
+      issues.push(`${field}[${i}] has points outside the surface`);
       continue;
     }
-    if (total + pts.length / 2 > FACE_LIMITS.totalPoints) {
-      issues.push(`face drawings are limited to ${FACE_LIMITS.totalPoints} points`);
+    if (total + pts.length / 2 > PAINT_LIMITS.pointsPerSurface) {
+      issues.push(`${field} is limited to ${PAINT_LIMITS.pointsPerSurface} points`);
       break;
     }
     total += pts.length / 2;
     let size: number = BRUSH_SIZES[1].size;
     if (typeof s.size === "number" && SIZES.has(s.size)) size = s.size;
-    else issues.push(`face.strokes[${i}].size is invalid`);
+    else issues.push(`${field}[${i}].size is invalid`);
     out.push({
-      color: color(s.color, FACE_COLORS, PALETTE.face[0].hex, `face.strokes[${i}].color`, issues),
+      color: color(s.color, PAINT_COLORS, PALETTE.paint[0].hex, `${field}[${i}].color`, issues),
       size,
       points: pts as number[],
     });
+  }
+  return out;
+}
+
+function paint(v: unknown, issues: Issues): Paint {
+  if (!isRecord(v)) {
+    issues.push("paint is missing");
+    return DEFAULT_APPEARANCE.paint;
+  }
+  return Object.fromEntries(SURFACES.map((s) => [s, strokes(v[s], `paint.${s}`, issues)])) as Paint;
+}
+
+function extras(v: unknown, issues: Issues): WalkerAppearance["extras"] {
+  if (!isRecord(v)) {
+    issues.push("extras must be an object");
+    return {};
+  }
+  const out: WalkerAppearance["extras"] = {};
+  for (const [key, value] of Object.entries(v)) {
+    if (!(EXTRAS as readonly string[]).includes(key)) {
+      issues.push(`extras.${key} is not a known extra`);
+      continue;
+    }
+    if (typeof value === "string" && CLOTH.has(value)) out[key as keyof typeof out] = value;
+    else issues.push(`extras.${key} must be a palette colour`);
   }
   return out;
 }
@@ -101,7 +132,6 @@ function face(v: unknown, issues: Issues): Face {
     brows: pick(v.brows, BROW_STYLES, d.brows, "face.brows", issues),
     mouth: pick(v.mouth, MOUTH_STYLES, d.mouth, "face.mouth", issues),
     blush: typeof v.blush === "boolean" ? v.blush : d.blush,
-    strokes: strokes(v.strokes, issues),
   };
 }
 
@@ -115,15 +145,20 @@ function appearance(v: unknown, issues: Issues): WalkerAppearance {
     skin: color(v.skin, SKIN, d.skin, "skin", issues),
     hair: pick(v.hair, HAIR_STYLES, d.hair, "hair", issues),
     hairColor: color(v.hairColor, HAIR, d.hairColor, "hairColor", issues),
+    facialHair: pick(v.facialHair, FACIAL_HAIR, d.facialHair, "facialHair", issues),
     top: pick(v.top, TOP_STYLES, d.top, "top", issues),
     topColor: color(v.topColor, CLOTH, d.topColor, "topColor", issues),
     bottom: pick(v.bottom, BOTTOM_STYLES, d.bottom, "bottom", issues),
     bottomColor: color(v.bottomColor, CLOTH, d.bottomColor, "bottomColor", issues),
     shoes: pick(v.shoes, SHOE_STYLES, d.shoes, "shoes", issues),
     shoeColor: color(v.shoeColor, CLOTH, d.shoeColor, "shoeColor", issues),
-    accessory: pick(v.accessory, ACCESSORIES, d.accessory, "accessory", issues),
-    accessoryColor: color(v.accessoryColor, CLOTH, d.accessoryColor, "accessoryColor", issues),
+    headwear: pick(v.headwear, HEADWEAR, d.headwear, "headwear", issues),
+    headwearColor: color(v.headwearColor, CLOTH, d.headwearColor, "headwearColor", issues),
+    eyewear: pick(v.eyewear, EYEWEAR, d.eyewear, "eyewear", issues),
+    eyewearColor: color(v.eyewearColor, CLOTH, d.eyewearColor, "eyewearColor", issues),
+    extras: extras(v.extras, issues),
     face: face(v.face, issues),
+    paint: paint(v.paint, issues),
   };
 }
 
@@ -147,11 +182,9 @@ export function cleanDisplayName(v: unknown): string {
     .slice(0, NAME_MAX);
 }
 
-export function validateDisplayName(v: unknown): { ok: true; value: string } | { ok: false; issue: string } {
+export function validateDisplayName(v: unknown): { ok: true; value: string } | { ok: false; issue: "empty" | "tooLong" } {
   const value = cleanDisplayName(v);
-  if (!value) return { ok: false, issue: "Give your walker a name" };
-  if (typeof v === "string" && v.trim().length > NAME_MAX) {
-    return { ok: false, issue: `Names can be up to ${NAME_MAX} characters` };
-  }
+  if (!value) return { ok: false, issue: "empty" };
+  if (typeof v === "string" && v.trim().length > NAME_MAX) return { ok: false, issue: "tooLong" };
   return { ok: true, value };
 }

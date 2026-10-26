@@ -17,7 +17,8 @@
 
 .nav {
   display: flex;
-  gap: 24px;
+  align-items: center;
+  gap: 20px;
   font-size: 14px;
 }
 
@@ -34,4 +35,16 @@
 .nav a[aria-current="page"] {
   color: var(--foreground);
   border-bottom-color: var(--foreground);
+}
+
+.nav a.lang {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.nav a.lang:hover {
+  border-color: var(--foreground);
 }

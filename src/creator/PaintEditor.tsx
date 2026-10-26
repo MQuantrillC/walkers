@@ -1,41 +1,53 @@
 "use client";
 
-import { useRef, useState, type PointerEvent } from "react";
-import { HeadParts } from "@/walker/Walker";
+import { useRef, useState, type PointerEvent, type ReactNode } from "react";
+import { HeadParts, LegParts, ShoeParts, TorsoParts } from "@/walker/Walker";
 import {
   BRUSH_SIZES,
-  FACE_LIMITS,
   INK,
+  PAINT_LIMITS,
   PALETTE,
-  type FaceStroke,
+  type Stroke,
+  type Surface,
   type WalkerAppearance,
 } from "@/walker/appearance";
-import { HEAD_BOX, distanceToStroke, roundPoint, simplify, strokePath, toBox } from "@/walker/face";
+import { SURFACE_BOX, distanceToStroke, roundPoint, simplify, toBox } from "@/walker/paint";
+import { useI18n } from "@/i18n/I18nProvider";
 import styles from "./creator.module.css";
 
 type Tool = "brush" | "eraser";
 
-// Square view around the head, roomy enough for tall hair and a cap brim.
-const VIEW = { x: 56, y: -1, size: 55 };
+// What each surface's canvas shows, in that surface's frame.
+const VIEWS: Record<Surface, { x: number; y: number; w: number; h: number; render: (a: WalkerAppearance) => ReactNode }> = {
+  face: { x: 56, y: -1, w: 55, h: 55, render: (a) => <HeadParts a={a} /> },
+  top: { x: 52, y: 37, w: 56, h: 92, render: (a) => <TorsoParts a={a} /> },
+  bottom: { x: 55, y: 95, w: 52, h: 120, render: (a) => <LegParts a={a} /> },
+  shoes: { x: -11, y: -25, w: 36, h: 36, render: (a) => <ShoeParts a={a} /> },
+};
+
+const MAX_CANVAS = { w: 400, h: 440 };
 // Skip pointer samples closer than this to the previous one (box units).
-const MIN_STEP = 0.004;
-const ERASER_RADIUS = 0.035;
+const MIN_STEP = 0.003;
+// Eraser reach in walker units.
+const ERASER_RADIUS = 1.6;
 
 type Props = {
   appearance: WalkerAppearance;
-  onAdd: (stroke: FaceStroke) => void;
-  onReplace: (strokes: FaceStroke[]) => void;
+  surface: Surface;
+  onAdd: (surface: Surface, stroke: Stroke) => void;
+  onReplace: (surface: Surface, strokes: Stroke[]) => void;
   onUndo: () => void;
   onRedo: () => void;
   canUndo: boolean;
   canRedo: boolean;
 };
 
-function totalPoints(strokes: readonly FaceStroke[]) {
+function pointCount(strokes: readonly Stroke[]) {
   return strokes.reduce((n, s) => n + s.points.length / 2, 0);
 }
 
-export function FaceEditor({ appearance, onAdd, onReplace, onUndo, onRedo, canUndo, canRedo }: Props) {
+export function PaintEditor({ appearance, surface, onAdd, onReplace, onUndo, onRedo, canUndo, canRedo }: Props) {
+  const { t } = useI18n();
   const svgRef = useRef<SVGSVGElement>(null);
   const [tool, setTool] = useState<Tool>("brush");
   const [color, setColor] = useState<string>(INK);
@@ -44,16 +56,18 @@ export function FaceEditor({ appearance, onAdd, onReplace, onUndo, onRedo, canUn
   // hold the truth (pointer events can arrive faster than React re-renders);
   // the state copies only drive what is drawn on screen.
   const liveRef = useRef<number[] | null>(null);
-  const erasedRef = useRef<FaceStroke[] | null>(null);
+  const erasedRef = useRef<Stroke[] | null>(null);
   const [live, setLive] = useState<number[] | null>(null);
-  const [erased, setErased] = useState<FaceStroke[] | null>(null);
+  const [erased, setErased] = useState<Stroke[] | null>(null);
   const [hover, setHover] = useState<{ x: number; y: number } | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
-  const strokes = appearance.face.strokes;
+  const box = SURFACE_BOX[surface];
+  const view = VIEWS[surface];
+  const strokes = appearance.paint[surface];
   const full =
-    strokes.length >= FACE_LIMITS.strokes || totalPoints(strokes) >= FACE_LIMITS.totalPoints;
+    strokes.length >= PAINT_LIMITS.strokesPerSurface || pointCount(strokes) >= PAINT_LIMITS.pointsPerSurface;
 
   function toSvg(e: { clientX: number; clientY: number }) {
     const m = svgRef.current?.getScreenCTM();
@@ -62,11 +76,13 @@ export function FaceEditor({ appearance, onAdd, onReplace, onUndo, onRedo, canUn
     return { x: p.x, y: p.y };
   }
 
-  function eraseAt(current: FaceStroke[], e: { clientX: number; clientY: number }) {
+  function eraseAt(current: Stroke[], e: { clientX: number; clientY: number }) {
     const p = toSvg(e);
     if (!p) return current;
-    const b = toBox(p.x, p.y);
-    return current.filter((s) => distanceToStroke(s.points, b.x, b.y) > ERASER_RADIUS + s.size / 2);
+    const b = toBox(box, p.x, p.y);
+    return current.filter(
+      (s) => distanceToStroke(s.points, b.x, b.y) * box.size > ERASER_RADIUS + s.size / 2,
+    );
   }
 
   function onPointerDown(e: PointerEvent<SVGSVGElement>) {
@@ -85,11 +101,11 @@ export function FaceEditor({ appearance, onAdd, onReplace, onUndo, onRedo, canUn
       return;
     }
     if (full) {
-      setNotice("This face has reached its drawing limit. Erase or undo a stroke to draw more.");
+      setNotice(t.paint.full);
       return;
     }
     setNotice(null);
-    const b = toBox(p.x, p.y);
+    const b = toBox(box, p.x, p.y);
     liveRef.current = [roundPoint(b.x), roundPoint(b.y)];
     setLive(liveRef.current);
   }
@@ -110,10 +126,10 @@ export function FaceEditor({ appearance, onAdd, onReplace, onUndo, onRedo, canUn
     if (!pts) return;
     const before = pts.length;
     for (const s of samples) {
-      if (pts.length / 2 >= FACE_LIMITS.pointsPerStroke) break;
+      if (pts.length / 2 >= PAINT_LIMITS.pointsPerStroke) break;
       const q = toSvg(s);
       if (!q) continue;
-      const b = toBox(q.x, q.y);
+      const b = toBox(box, q.x, q.y);
       const u = roundPoint(b.x);
       const v = roundPoint(b.y);
       if (Math.hypot(u - pts[pts.length - 2], v - pts[pts.length - 1]) >= MIN_STEP) pts.push(u, v);
@@ -124,80 +140,74 @@ export function FaceEditor({ appearance, onAdd, onReplace, onUndo, onRedo, canUn
   function finish() {
     const remaining = erasedRef.current;
     if (remaining) {
-      if (remaining.length !== strokes.length) onReplace(remaining);
+      if (remaining.length !== strokes.length) onReplace(surface, remaining);
       erasedRef.current = null;
       setErased(null);
     }
     const pts = liveRef.current;
     if (pts) {
       const points = simplify(pts).map(roundPoint);
-      if (totalPoints(strokes) + points.length / 2 <= FACE_LIMITS.totalPoints) onAdd({ color, size, points });
-      else setNotice("That stroke would go over the drawing limit.");
+      if (pointCount(strokes) + points.length / 2 <= PAINT_LIMITS.pointsPerSurface) {
+        onAdd(surface, { color, size, points });
+      } else {
+        setNotice(t.paint.tooBig);
+      }
       liveRef.current = null;
       setLive(null);
     }
   }
 
-  const shown = erased ? { ...appearance, face: { ...appearance.face, strokes: erased } } : appearance;
-  const brushPx = size * HEAD_BOX.size;
+  // Draw through the real renderer so the live stroke is clipped exactly
+  // like the saved ones.
+  const shownStrokes = erased ?? (live ? [...strokes, { color, size, points: live }] : strokes);
+  const shown = { ...appearance, paint: { ...appearance.paint, [surface]: shownStrokes } };
+  const canvasMaxW = Math.min(MAX_CANVAS.w, (MAX_CANVAS.h * view.w) / view.h);
+  const part = t.paint.surfaceNouns[surface];
 
   return (
-    <div className={styles.faceEditor}>
+    <div className={styles.paintEditor}>
       <svg
         ref={svgRef}
-        className={styles.faceCanvas}
+        className={styles.paintCanvas}
+        style={{ aspectRatio: `${view.w} / ${view.h}`, maxWidth: canvasMaxW }}
         data-tool={tool}
-        viewBox={`${VIEW.x} ${VIEW.y} ${VIEW.size} ${VIEW.size}`}
+        viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={finish}
         onPointerCancel={finish}
         onPointerLeave={() => setHover(null)}
         role="img"
-        aria-label="Face drawing area. Draw with a mouse, pen or finger."
+        aria-label={t.paint.canvasLabel(part)}
       >
-        <HeadParts
-          a={shown}
-          drawing={
-            live && (
-              <path
-                d={strokePath(live)}
-                fill="none"
-                stroke={color}
-                strokeWidth={brushPx}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            )
-          }
-        />
+        {view.render(shown)}
         {hover && (
           <circle
             cx={hover.x}
             cy={hover.y}
-            r={tool === "eraser" ? ERASER_RADIUS * HEAD_BOX.size : brushPx / 2}
+            r={tool === "eraser" ? ERASER_RADIUS : size / 2}
             fill="none"
-            stroke={tool === "eraser" ? INK : color}
-            strokeWidth={0.3}
-            strokeDasharray={tool === "eraser" ? "0.8 0.6" : undefined}
+            stroke={tool === "eraser" ? INK : color === "#ffffff" ? INK : color}
+            strokeWidth={view.w / 200}
+            strokeDasharray={tool === "eraser" ? `${view.w / 70} ${view.w / 100}` : undefined}
             pointerEvents="none"
           />
         )}
       </svg>
 
-      <div className={styles.toolRow} role="group" aria-label="Drawing tool">
+      <div className={styles.toolRow} role="group" aria-label={t.paint.tool}>
         <button className={styles.chip} aria-pressed={tool === "brush"} onClick={() => setTool("brush")}>
-          Brush
+          {t.paint.brush}
         </button>
         <button className={styles.chip} aria-pressed={tool === "eraser"} onClick={() => setTool("eraser")}>
-          Eraser
+          {t.paint.eraser}
         </button>
         <span className={styles.toolGap} />
         <button className={styles.chip} onClick={onUndo} disabled={!canUndo} aria-keyshortcuts="Control+Z">
-          Undo
+          {t.paint.undo}
         </button>
         <button className={styles.chip} onClick={onRedo} disabled={!canRedo} aria-keyshortcuts="Control+Shift+Z">
-          Redo
+          {t.paint.redo}
         </button>
         <button
           className={styles.chip}
@@ -205,40 +215,42 @@ export function FaceEditor({ appearance, onAdd, onReplace, onUndo, onRedo, canUn
           disabled={strokes.length === 0}
           onClick={() => {
             if (!confirmClear) return setConfirmClear(true);
-            onReplace([]);
+            onReplace(surface, []);
             setConfirmClear(false);
           }}
           onBlur={() => setConfirmClear(false)}
         >
-          {confirmClear ? "Tap again to clear" : "Clear"}
+          {confirmClear ? t.paint.confirmClear : t.paint.clear}
         </button>
       </div>
 
-      <div className={styles.toolRow} role="group" aria-label="Brush size">
+      <div className={styles.toolRow} role="group" aria-label={t.paint.size}>
         {BRUSH_SIZES.map((b) => (
           <button
             key={b.size}
             className={styles.sizeButton}
             aria-pressed={size === b.size}
-            aria-label={`${b.name} brush`}
-            title={b.name}
+            aria-label={t.paint.sizes[b.id]}
+            title={t.paint.sizes[b.id]}
             onClick={() => {
               setSize(b.size);
               setTool("brush");
             }}
           >
-            <span style={{ width: 6 + b.size * 120, height: 6 + b.size * 120 }} />
+            <span style={{ width: 4 + b.size * 4, height: 4 + b.size * 4 }} />
           </button>
         ))}
-        <span className={styles.toolGap} />
-        {PALETTE.face.map((c) => (
+      </div>
+
+      <div className={styles.toolRow} role="group" aria-label={t.paint.colour}>
+        {PALETTE.paint.map((c) => (
           <button
             key={c.hex}
             className={styles.swatch}
             style={{ background: c.hex }}
-            aria-pressed={color === c.hex}
-            aria-label={c.name}
-            title={c.name}
+            aria-pressed={tool === "brush" && color === c.hex}
+            aria-label={t.colors[c.id]}
+            title={t.colors[c.id]}
             onClick={() => {
               setColor(c.hex);
               setTool("brush");
@@ -248,8 +260,7 @@ export function FaceEditor({ appearance, onAdd, onReplace, onUndo, onRedo, canUn
       </div>
 
       <p className={styles.hint} aria-live="polite">
-        {notice ??
-          `Draw details on the face. ${strokes.length} of ${FACE_LIMITS.strokes} strokes used.`}
+        {notice ?? t.paint.hint(part, strokes.length, PAINT_LIMITS.strokesPerSurface)}
       </p>
     </div>
   );
