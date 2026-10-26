@@ -90,6 +90,13 @@ const lock = (x: number, y: number, len: number, w: number, lean = 0) => {
   return `M${x - r} ${y}Q${mx - r} ${my} ${bx - r} ${by}A${r} ${r} 0 0 0 ${bx + r} ${by}Q${mx + r} ${my} ${x + r} ${y}Z`;
 };
 
+// The lower of the two pigtails, with its tie; under a hat it is all that shows.
+const LOW_PIGTAIL: HairLayer[] = [
+  { d: "M72 29.5C66 30.5 62.5 36 62 43.5C61.8 47.5 63.5 50 65.5 49.3C67 48.8 66.8 45.5 67 42.5C67.5 38 70 35.5 73.5 35Z" },
+  { d: SHORT_HAIR },
+  { d: circle(72.2, 32.2, 2.3) },
+];
+
 // Hair layers in drawing order. `faint` layers are a soft tint with no
 // outline (shaved sides, stubble).
 export type HairLayer = { d: string; faint?: boolean };
@@ -124,9 +131,7 @@ export const HAIR: Record<HairStyle, HairLayer[]> = {
   pigtails: [
     { d: "M68.5 20.5C62.5 17.5 56.5 19.8 54 25.5C52.8 28.5 54.3 30.6 56.4 29.7C58 29 58.6 26.8 60.2 25.5C62.6 23.6 65.8 23.4 69 24.6Z" },
     { d: circle(68.6, 22.4, 2.2) },
-    { d: "M72 29.5C66 30.5 62.5 36 62 43.5C61.8 47.5 63.5 50 65.5 49.3C67 48.8 66.8 45.5 67 42.5C67.5 38 70 35.5 73.5 35Z" },
-    { d: SHORT_HAIR },
-    { d: circle(72.2, 32.2, 2.3) },
+    ...LOW_PIGTAIL,
   ],
   ponytail: [{ d: "M69 17C61 18 57 27 58 40C58.5 45 62.5 46 64 42C63.5 34 65 27 71 22Z" }, { d: SHORT_HAIR }],
   braid: [
@@ -189,6 +194,8 @@ export const HAIR_CLIP: Partial<Record<Headwear, string>> = {
 // of the head below the hat's edge, instead of whatever wedge of the full
 // shape would be left after hiding the top.
 export const HAIR_UNDER_HAT: Partial<Record<HairStyle, HairLayer[]>> = {
+  // The high pigtail would poke out past the hat as a stray tip.
+  pigtails: LOW_PIGTAIL,
   afro: [
     { d: "M66.5 22C62.5 24.5 61 30 62.3 34.6C63.4 38.6 66.8 41.6 71.2 41.8L76.2 36.5C74.6 32.3 74.8 28.2 77.4 24.6Z" },
   ],
