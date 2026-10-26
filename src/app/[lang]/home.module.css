@@ -63,3 +63,16 @@
     gap: 28px;
   }
 }
+
+.cta {
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.cta:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.cta:active {
+  transform: scale(0.98);
+}

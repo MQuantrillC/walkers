@@ -7,7 +7,7 @@ export const en = {
   nav: {
     walk: "The Walk",
     create: "Create",
-    me: "My Walker",
+    me: "My avatar",
     language: "Language",
     switchTo: "Español",
     toDark: "Switch to dark mode",
@@ -57,7 +57,7 @@ export const en = {
     },
   },
   me: {
-    title: "My Walker",
+    title: "My avatar",
     signInPrompt: "Sign in to see, edit and publish your walker.",
     empty: "You haven't saved a walker yet.",
     create: "Create your walker",
@@ -68,8 +68,16 @@ export const en = {
     delete: "Delete walker",
     confirmDelete: "Tap again to delete for good",
     deleted: "Your walker was deleted.",
-    hiddenHelp: "It no longer appears in the gallery. You can still delete it.",
+    hiddenHelp: "A moderator took it out of the gallery. If you think that was a mistake, write to us.",
     loading: "Loading…",
+  },
+  errors: {
+    notFoundTitle: "Nothing walks here",
+    notFoundBody: "This page doesn't exist, or it moved.",
+    home: "Go to The Walk",
+    title: "Something tripped",
+    body: "Something went wrong on our side. Try again in a moment.",
+    retry: "Try again",
   },
   profile: {
     walkingSince: (date: string) => `Walking since ${date}`,

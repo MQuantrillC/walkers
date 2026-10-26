@@ -9,7 +9,7 @@ export const es: Dictionary = {
   nav: {
     walk: "El Camino",
     create: "Crear",
-    me: "Mi caminante",
+    me: "Mi avatar",
     language: "Idioma",
     switchTo: "English",
     toDark: "Cambiar a modo oscuro",
@@ -59,7 +59,7 @@ export const es: Dictionary = {
     },
   },
   me: {
-    title: "Mi caminante",
+    title: "Mi avatar",
     signInPrompt: "Inicia sesión para ver, editar y publicar tu caminante.",
     empty: "Todavía no has guardado un caminante.",
     create: "Crea tu caminante",
@@ -70,8 +70,16 @@ export const es: Dictionary = {
     delete: "Eliminar caminante",
     confirmDelete: "Toca otra vez para eliminarlo para siempre",
     deleted: "Tu caminante fue eliminado.",
-    hiddenHelp: "Ya no aparece en la galería. Aún puedes eliminarlo.",
+    hiddenHelp: "Un moderador lo retiró de la galería. Si crees que fue un error, escríbenos.",
     loading: "Cargando…",
+  },
+  errors: {
+    notFoundTitle: "Por aquí no camina nadie",
+    notFoundBody: "Esta página no existe o se movió.",
+    home: "Ir a El Camino",
+    title: "Algo tropezó",
+    body: "Algo salió mal de nuestro lado. Inténtalo de nuevo en un momento.",
+    retry: "Reintentar",
   },
   profile: {
     walkingSince: (date) => `Camina desde el ${date}`,

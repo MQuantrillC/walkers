@@ -121,3 +121,9 @@
   color: var(--background);
   border-color: var(--foreground);
 }
+
+.primary:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}

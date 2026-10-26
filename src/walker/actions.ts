@@ -37,7 +37,8 @@ export async function listLatestWalkers(): Promise<PublicWalker[]> {
 export async function browseWalkers(input: { order: GalleryOrder; query: string; offset: number }): Promise<GalleryPage> {
   const order: GalleryOrder = input.order === "latest" ? "latest" : "everyone";
   const query = typeof input.query === "string" ? input.query : "";
-  const offset = Number.isFinite(input.offset) ? input.offset : 0;
+  // Far beyond any real gallery; keeps deep scans off the database.
+  const offset = Number.isFinite(input.offset) ? Math.min(Math.max(0, input.offset), 10_000) : 0;
   return getGalleryPage({ order, query, offset });
 }
 

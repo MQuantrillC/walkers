@@ -19,6 +19,10 @@
   animation-iteration-count: infinite;
 }
 
+.procession[data-offscreen] * {
+  animation-play-state: paused !important;
+}
+
 @keyframes cross {
   from {
     transform: translateX(calc(var(--walker-w) * -1));

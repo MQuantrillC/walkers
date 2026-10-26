@@ -16,3 +16,17 @@
   outline: 2px solid var(--foreground);
   outline-offset: 2px;
 }
+
+/* Hover and press */
+.button {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--hover);
+  border-color: var(--muted);
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.97);
+}

@@ -109,31 +109,33 @@ export function MyWalker() {
               {t.save.unpublish}
             </button>
           )}
-          <button
-            className={styles.chip}
-            data-danger={confirmDelete || undefined}
-            disabled={busy}
-            onBlur={() => setConfirmDelete(false)}
-            onClick={async () => {
-              if (!confirmDelete) return setConfirmDelete(true);
-              setConfirmDelete(false);
-              await run(async () => {
-                const res = await deleteMyWalker();
-                if (res.ok) {
-                  clearDraft();
-                  setDeleted(true);
-                }
-                return res;
-              });
-            }}
-          >
-            <Trash />
-            {confirmDelete ? t.me.confirmDelete : t.me.delete}
-          </button>
+          {!hidden && (
+            <button
+              className={styles.chip}
+              data-danger={confirmDelete || undefined}
+              disabled={busy}
+              onBlur={() => setConfirmDelete(false)}
+              onClick={async () => {
+                if (!confirmDelete) return setConfirmDelete(true);
+                setConfirmDelete(false);
+                await run(async () => {
+                  const res = await deleteMyWalker();
+                  if (res.ok) {
+                    clearDraft();
+                    setDeleted(true);
+                  }
+                  return res;
+                });
+              }}
+            >
+              <Trash />
+              {confirmDelete ? t.me.confirmDelete : t.me.delete}
+            </button>
+          )}
         </div>
         {published && (
           <div className={styles.actions}>
-            <Link className={styles.link} href={profileUrl}>
+            <Link className={styles.chip} href={profileUrl}>
               {t.save.viewProfile}
               <ArrowRight />
             </Link>

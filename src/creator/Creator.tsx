@@ -152,7 +152,7 @@ const pickAny = <T,>(list: readonly T[]) => list[Math.floor(Math.random() * list
 const sometimes = <T,>(chance: number, list: readonly T[], otherwise: T) =>
   Math.random() < chance ? pickAny(list) : otherwise;
 
-function randomLook(): Look & { extras: WalkerAppearance["extras"] } {
+export function randomLook(): Look & { extras: WalkerAppearance["extras"] } {
   const hexes = PALETTE.cloth.map((c) => c.hex);
   const extras: WalkerAppearance["extras"] = {};
   for (const id of EXTRAS) if (Math.random() < 0.18) extras[id] = pickAny(hexes);

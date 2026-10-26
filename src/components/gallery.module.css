@@ -141,3 +141,26 @@
     width: 100%;
   }
 }
+
+/* Hover and press */
+.more {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+}
+
+.more:hover:not(:disabled) {
+  background: var(--hover);
+  border-color: var(--muted);
+}
+
+.more:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.toggle button {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+}
+
+.toggle button[aria-pressed="false"]:hover {
+  color: var(--foreground);
+  background: var(--hover);
+}

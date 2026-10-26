@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { Procession, type ProcessionWalker } from "./Procession";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import type { ProcessionWalker } from "./Procession";
+import { Walkway } from "./Walkway";
 import { Walker } from "@/walker/Walker";
 import { browseWalkers } from "@/walker/actions";
 import type { GalleryOrder, GalleryPage } from "@/walker/publicData";
@@ -32,7 +33,6 @@ export function Gallery({ initial }: { initial: GalleryPage }) {
   const firstLoad = useRef(true);
   const still = useMediaQuery("(prefers-reduced-motion: reduce)");
   const compact = useMediaQuery("(max-width: 560px)");
-  const [stageRef, stageH] = useStageHeight();
 
   // Debounce typing into the search box.
   useEffect(() => {
@@ -103,7 +103,11 @@ export function Gallery({ initial }: { initial: GalleryPage }) {
 
       {/* The walk itself fills the screen: scroll down and only the walkers
           are left. */}
-      <div className={`${styles.stage} paper`} ref={stageRef}>
+      <Walkway
+        walkers={walkers.map(toProcession(locale))}
+        resetKey={`${order}|${query}`}
+        onNearEnd={loadMore}
+      >
         {nobodyYet ? (
           <p className={styles.empty}>{t.home.empty}</p>
         ) : !walkers.length ? (
@@ -123,47 +127,8 @@ export function Gallery({ initial }: { initial: GalleryPage }) {
               </button>
             )}
           </div>
-        ) : (
-          stageH > 0 &&
-          lanesFor(walkers.length, stageH, compact).map((lane) => (
-            <Procession
-              key={`${order}|${query}|${lane.index}/${lane.count}`}
-              walkers={walkers.filter((_, k) => k % lane.count === lane.index).map(toProcession(locale))}
-              height={lane.height}
-              onNearEnd={loadMore}
-            />
-          ))
-        )}
-      </div>
+        ) : null}
+      </Walkway>
     </section>
   );
-}
-
-// Tracks the walkway's height, which follows the screen's.
-function useStageHeight() {
-  const [value, setValue] = useState(0);
-  const ref = useCallback((el: HTMLDivElement | null) => {
-    if (!el) return;
-    setValue(el.clientHeight);
-    const ro = new ResizeObserver(([entry]) => setValue(entry.contentRect.height));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  return [ref, value] as const;
-}
-
-const NAME_BAND = 28;
-// Front, middle and back lanes: further away is smaller (and, since walkers
-// move at their own ground speed, slower).
-const LANE_SCALE = [1, 0.7, 0.5];
-
-// Splits the walkway into up to three lanes, filling the screen. Lane 0 is
-// at the front (the bottom of the screen); the list is returned back to
-// front, in page order.
-function lanesFor(walkers: number, stageH: number, compact: boolean) {
-  const count = Math.max(1, Math.min(LANE_SCALE.length, walkers, stageH < 520 ? 2 : 3));
-  const scales = LANE_SCALE.slice(0, count);
-  const room = stageH * 0.9 - count * NAME_BAND;
-  const front = Math.min(room / scales.reduce((a, b) => a + b, 0), compact ? 300 : 420, stageH * 0.55);
-  return scales.map((scale, index) => ({ index, count, height: Math.round(front * scale) })).reverse();
 }

@@ -155,11 +155,14 @@ select rls_test.expect('Visitors no longer see the hidden walker',
   $q$select id from public.walkers where display_name = 'Ana'$q$, true, 0);
 
 select rls_test.act_as('ana');
-select rls_test.expect('Ana can still delete her walker',
+select rls_test.expect('Ana cannot delete her hidden walker to start over',
+  $q$delete from public.walkers where display_name = 'Ana'$q$, true, 0);
+
+select rls_test.act_as('ben');
+select rls_test.expect('A moderator deletes the hidden walker',
   $q$delete from public.walkers where display_name = 'Ana'$q$, true, 1);
 
 -- Reports and accounts (second migration) ---------------------------------
-select rls_test.act_as('ben');
 select rls_test.expect('Ana''s deleted walker is gone for moderators too',
   $q$select id from public.walkers where display_name = 'Ana'$q$, true, 0);
 select rls_test.expect('Ben creates a walker and publishes it',
@@ -172,6 +175,10 @@ select rls_test.expect('Ana cannot report the same walker twice',
   $q$insert into public.reports (walker_id, reason) select id, 'drawing' from public.walkers where display_name = 'Ben'$q$, false);
 
 select rls_test.act_as('anon');
+select rls_test.expect('Visitors report Ben''s walker five times in an hour',
+  $q$insert into public.reports (walker_id, reason) select w.id, 'other' from public.walkers w, generate_series(1, 5) where w.display_name = 'Ben'$q$, true, 5);
+select rls_test.expect('A sixth anonymous report that hour is refused',
+  $q$insert into public.reports (walker_id, reason) select id, 'other' from public.walkers where display_name = 'Ben'$q$, false);
 select rls_test.expect('Visitors cannot delete accounts',
   $q$select public.delete_my_account()$q$, false);
 

@@ -86,13 +86,6 @@
   cursor: default;
 }
 
-.link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  border-bottom: 1px solid currentColor;
-}
 
 .signOut {
   font: inherit;
@@ -118,4 +111,40 @@
 
 .signOut[data-danger] {
   color: #c2412f;
+}
+
+/* Hover and press */
+.chip,
+.primary {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+}
+
+.chip:hover:not(:disabled),
+.primary:hover:not(:disabled) {
+  background: var(--hover);
+  border-color: var(--muted);
+}
+
+.chip:active:not(:disabled),
+.primary:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.chip[data-danger]:hover:not(:disabled) {
+  background: var(--danger-hover);
+  border-color: var(--danger);
+}
+
+.signOut:hover {
+  color: var(--foreground);
+}
+
+.signOut[data-danger]:hover {
+  color: var(--danger);
 }

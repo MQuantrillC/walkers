@@ -39,3 +39,18 @@
   background: var(--foreground);
   color: var(--background);
 }
+
+.primary {
+  display: inline-flex;
+  align-items: center;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.primary:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.primary:active {
+  transform: scale(0.97);
+}

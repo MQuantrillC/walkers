@@ -54,8 +54,12 @@ production callback to Supabase's redirect URLs.
 3. Deploy. Every push to `main` redeploys automatically.
 4. With the production URL (e.g. `https://walkers-xyz.vercel.app`):
    - Supabase → Auth → URL Configuration: set Site URL to it, and add
-     `<url>/auth/callback` and `https://*-mquantrillc.vercel.app/auth/callback`
-     (previews) to Redirect URLs. Keep the localhost entries for development.
+     exactly `<url>/auth/callback` to Redirect URLs, nothing else. No
+     wildcards: anyone can create a Vercel project whose address matches
+     `*-mquantrillc.vercel.app`, and a matching redirect would hand them the
+     sign-in code of whoever clicks their link. No localhost entries on the
+     production project either; for local development or previews, use a
+     separate Supabase project.
    - Google Cloud → Clients → WALKERS web: add the URL to Authorized
      JavaScript origins.
    - Google Auth Platform → Branding: home page `<url>/es`, privacy policy

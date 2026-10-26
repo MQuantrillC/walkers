@@ -46,3 +46,26 @@
   color: var(--foreground);
   border-color: var(--line);
 }
+
+/* Hover and press */
+.secondary,
+.primary {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+}
+
+.secondary:hover:not(:disabled),
+.primary:hover:not(:disabled) {
+  background: var(--hover);
+  border-color: var(--muted);
+}
+
+.secondary:active:not(:disabled),
+.primary:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
