@@ -10,13 +10,18 @@ import styles from "./procession.module.css";
 // `href` makes the walker clickable (e.g. to its public profile).
 export type ProcessionWalker = { name: string; appearance: WalkerAppearance; href?: string };
 
-// At most this many walkers are drawn at a time; on wide
-// screens they spread out instead. Each one's limbs repaint every frame, so
-// this keeps the walk smooth with any number of walkers.
-const MAX_ON_SCREEN = 6;
+// At most this many walkers are drawn at a time; on very wide screens they
+// spread out a little instead. Each one's limbs repaint every frame, so this
+// keeps the walk smooth with any number of walkers.
+const MAX_ON_SCREEN = 8;
+// Gap from one walker to the next, in walker widths: close, one behind the
+// other, with room for their names.
+const GAP = 1;
 
-// Walkers cross the band at exactly their ground speed, evenly spaced and
-// with staggered phases. Only as many as fit on screen are drawn: each
+// Walkers cross the band at exactly their ground speed, close together and
+// with staggered phases. A few walk as a group (starting mid-screen) and go
+// round again; when there are more than fit, the line fills the screen and
+// only as many as fit on screen are drawn: each
 // "slot" shows one walker and, every time it re-enters from the left, moves
 // on to the next one in the list. A long gallery therefore looks endless
 // without rendering everyone at once. `onNearEnd` asks for more walkers
@@ -52,10 +57,13 @@ export function Procession({
 
   const walkerW = (height * VIEWBOX.width) / VIEWBOX.height;
   const travel = trackW + walkerW;
-  const spacing = Math.max(walkerW * 1.3, travel / MAX_ON_SCREEN);
+  const spacing = Math.max(walkerW * GAP, travel / MAX_ON_SCREEN);
   const slots = Math.min(walkers.length, Math.max(1, Math.ceil(travel / spacing)));
   const loop = Math.max(travel, slots * spacing);
   const crossS = loop / walkSpeedPx(height);
+  // Where the line starts: a small group centred on screen, a full line
+  // offset by half a gap so someone is already in view.
+  const start = slots * spacing < travel ? (travel - slots * spacing) / 2 : spacing / 2;
   const total = walkers.length;
 
   function lapDone(slot: number, e: AnimationEvent) {
@@ -81,8 +89,10 @@ export function Procession({
         Array.from({ length: slots }, (_, slot) => {
           const index = (slot + (laps[slot] ?? 0) * slots) % total;
           const w = walkers[index];
-          // Offset by half a gap so someone is already on screen at the start.
-          const style = { animationDuration: `${crossS}s`, animationDelay: `${(-(slot + 0.5) / slots) * crossS}s` };
+          const style = {
+            animationDuration: `${crossS}s`,
+            animationDelay: `${(-(start + slot * spacing) / loop) * crossS}s`,
+          };
           const figure = (
             <Figure
               key={`${index}-${w.name}`}
