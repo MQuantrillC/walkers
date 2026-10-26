@@ -1,22 +1,32 @@
-import type { CSSProperties, ReactNode } from "react";
+import { useId, type CSSProperties, type ReactNode } from "react";
 import { RIG } from "./gait";
-import { PALETTE, type WalkerAppearance } from "./appearance";
+import { INK, type FaceStroke, type WalkerAppearance } from "./appearance";
 import { VIEWBOX, WALK_CSS } from "./walkCss";
+import { HEAD, HEAD_BOX, NOSE, strokePath } from "./face";
+import {
+  ACCESSORY_LAYERS,
+  BLUSH,
+  BROWS,
+  EYES,
+  HAIR,
+  MOUTHS,
+  NECK,
+  SHOES,
+  SHORTS,
+  SKIRT,
+  TEE_SLEEVE,
+  TORSO_SEAT,
+  TORSO_TOP,
+  circle,
+} from "./parts";
 
 // Outline thickness. Overlapping limb segments are drawn in two passes, all
 // ink first and then all fills, so a limb reads as one continuous shape.
 const OUT = 2.2;
-const INK = PALETTE.ink;
 
 type Pass = "ink" | "fill";
 
 const W = { thigh: 17, shin: 13, upperArm: 10, forearm: 9, hand: 5.5 };
-
-const HEAD = { x: 83, y: 27, r: 15.5 };
-
-function circle(cx: number, cy: number, r: number) {
-  return `M${cx - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`;
-}
 
 // Darken a #rrggbb colour; used to push far-side limbs back.
 function shade(hex: string, amount: number) {
@@ -56,34 +66,6 @@ function Outlined({ d, color }: { d: string; color: string }) {
   return <path d={d} fill={color} stroke={INK} strokeWidth={OUT} strokeLinejoin="round" />;
 }
 
-const SHOE = "M-6 2C-6-1-3-2 0-2L3-2C6-1 9 1 13 2C17 3 20 5 20 6.5C20 7.6 19.2 8 18 8L-6 8Z";
-const SHORTS = "M-10 21L-10 0A10 10 0 0 1 10 0L10 21Z";
-const TEE_SLEEVE = "M-7 15L-7 0A7 7 0 0 1 7 0L7 15Z";
-
-const TORSO_TOP =
-  "M70 61C70 56.5 74 54 80 54C87 54 93 57 93.5 64L93 82C92.5 91 91.5 97 91 104L69 104C68 94 67.5 82 68 72C68.3 66 69 63 70 61Z";
-const TORSO_SEAT =
-  "M69 100L91 100C92.5 108 92.5 116 89.5 121C85.5 125.5 73 125.5 68.5 120.5C66 115 66.5 106 69 100Z";
-const NECK = "M77 36L87 36L87 58L77 58Z";
-const SKIRT = "M69 100L91 100C95 114 99 128 101 140C90 143 70 143 61 140C63 128 66 113 69 100Z";
-
-const HAIR: Record<WalkerAppearance["hair"], string[]> = {
-  short: [
-    "M96 20C95 11 87 9 81 9.5C72 10 66 16 66.5 25C67 31 69 35 72 37L75 33C74 29 75 25 79 23C85 21 91 22 96 20Z",
-  ],
-  bob: [
-    "M97 19C95 10 86 8 80 9C70 10 64.5 18 65 28C65.5 36 67 41 71 44L80 44C77 38 76 30 79 24C85 21 92 22 97 19Z",
-  ],
-  bun: [
-    circle(70, 12, 6),
-    "M96 20C95 11 87 9 81 9.5C72 10 66 16 66.5 25C67 31 69 35 72 37L75 33C74 29 75 25 79 23C85 21 91 22 96 20Z",
-  ],
-  long: [
-    "M97 19C95 10 86 8 80 9C70 10 64 18 64 28L63 58C63 61 66 62 71 61L78 60C77 50 76 34 79 24C85 21 92 22 97 19Z",
-  ],
-  none: [],
-};
-
 type Colors = {
   skin: string;
   top: string;
@@ -93,6 +75,7 @@ type Colors = {
 
 function Leg({ pass, c, a }: { pass: Pass; c: Colors; a: WalkerAppearance }) {
   const covered = a.bottom === "trousers";
+  const shoe = SHOES[a.shoes];
   return (
     <g transform={`translate(${RIG.hip.x} ${RIG.hip.y})`}>
       <g className="wk-a wk-thigh">
@@ -103,7 +86,7 @@ function Leg({ pass, c, a }: { pass: Pass; c: Colors; a: WalkerAppearance }) {
             <Seg pass={pass} len={RIG.shin} w={W.shin} color={covered ? c.bottom : c.skin} />
             <g transform={`translate(0 ${RIG.shin})`}>
               <g className="wk-a wk-foot">
-                {pass === "ink" ? <Shape pass="ink" d={SHOE} color={c.shoe} /> : <Outlined d={SHOE} color={c.shoe} />}
+                {pass === "ink" ? <Shape pass="ink" d={shoe} color={c.shoe} /> : <Outlined d={shoe} color={c.shoe} />}
               </g>
             </g>
           </g>
@@ -119,7 +102,7 @@ function Arm({ pass, c, a }: { pass: Pass; c: Colors; a: WalkerAppearance }) {
     <g transform={`translate(${RIG.shoulder.x} ${RIG.shoulder.y})`}>
       <g className="wk-a wk-shoulder">
         <Seg pass={pass} len={RIG.upperArm} w={W.upperArm} color={long ? c.top : c.skin} />
-        {pass === "fill" && !long && <Outlined d={TEE_SLEEVE} color={c.top} />}
+        {pass === "fill" && a.top === "tee" && <Outlined d={TEE_SLEEVE} color={c.top} />}
         <g transform={`translate(0 ${RIG.upperArm})`}>
           <g className="wk-a wk-elbow">
             <Seg pass={pass} len={RIG.forearm} w={W.forearm} color={long ? c.top : c.skin} />
@@ -136,6 +119,91 @@ function Passes({ children }: { children: (pass: Pass) => ReactNode }) {
     <>
       {children("ink")}
       {children("fill")}
+    </>
+  );
+}
+
+function FaceFeatures({ face }: { face: WalkerAppearance["face"] }) {
+  const line = { fill: "none", stroke: INK, strokeWidth: 1.3, strokeLinecap: "round" as const };
+  return (
+    <>
+      {face.blush && <circle cx={BLUSH.cx} cy={BLUSH.cy} r={BLUSH.r} fill={BLUSH.color} opacity={0.55} />}
+      {face.eyes === "dot" && <circle {...EYES.dot} fill={INK} />}
+      {face.eyes === "wide" && (
+        <>
+          <circle cx={EYES.wide.cx} cy={EYES.wide.cy} r={EYES.wide.r} fill="#fff" stroke={INK} strokeWidth={0.9} />
+          <circle {...EYES.wide.pupil} fill={INK} />
+        </>
+      )}
+      {face.eyes === "closed" && <path d={EYES.closed} {...line} />}
+      {face.brows !== "none" && <path d={BROWS[face.brows]} {...line} strokeWidth={1.4} />}
+      {face.mouth === "open" && <path d={MOUTHS.open} fill={INK} />}
+      {(face.mouth === "smile" || face.mouth === "line") && <path d={MOUTHS[face.mouth]} {...line} />}
+    </>
+  );
+}
+
+export function FaceStrokes({ strokes }: { strokes: readonly FaceStroke[] }) {
+  return strokes.map((s, i) => (
+    <path
+      key={i}
+      d={strokePath(s.points)}
+      fill="none"
+      stroke={s.color}
+      strokeWidth={s.size * HEAD_BOX.size}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  ));
+}
+
+function Accessory({ a }: { a: WalkerAppearance }) {
+  const fills = { color: a.accessoryColor, dark: "#1e1d1c", glass: "rgba(255,255,255,0.28)", none: "none" };
+  return ACCESSORY_LAYERS[a.accessory].map((layer, i) => (
+    <path
+      key={i}
+      d={layer.d}
+      fill={fills[layer.fill]}
+      stroke={layer.stroke === "color" ? a.accessoryColor : INK}
+      strokeWidth={layer.width ?? OUT}
+      strokeLinejoin="round"
+      strokeLinecap="round"
+    />
+  ));
+}
+
+// The head with hair, face and accessory, in the head's own frame. Shared by
+// the walker and the face editor so drawing happens on the exact same head.
+// `drawing` renders extra strokes (e.g. one in progress) inside the face clip.
+export function HeadParts({ a, drawing }: { a: WalkerAppearance; drawing?: ReactNode }) {
+  const clipId = `wk-face-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  return (
+    <>
+      <clipPath id={clipId}>
+        <circle cx={HEAD.x} cy={HEAD.y} r={HEAD.r} />
+        <circle cx={NOSE.x} cy={NOSE.y} r={NOSE.r} />
+      </clipPath>
+      <Passes>
+        {(pass) => (
+          <>
+            <Shape pass={pass} d={circle(HEAD.x, HEAD.y, HEAD.r)} color={a.skin} />
+            <Shape pass={pass} d={circle(NOSE.x, NOSE.y, NOSE.r)} color={a.skin} />
+          </>
+        )}
+      </Passes>
+      <g clipPath={`url(#${clipId})`}>
+        <FaceFeatures face={a.face} />
+      </g>
+      {HAIR[a.hair].map((d, i) => (
+        <Outlined key={i} d={d} color={a.hairColor} />
+      ))}
+      {/* Drawn strokes sit above the hair so what you draw is always what you
+          see, but stay clipped to the head. */}
+      <g clipPath={`url(#${clipId})`}>
+        <FaceStrokes strokes={a.face.strokes} />
+        {drawing}
+      </g>
+      <Accessory a={a} />
     </>
   );
 }
@@ -201,18 +269,7 @@ export function Walker({ appearance: a, phase = 0, height = 220, className, styl
 
         <g transform={lean}>
           {a.bottom === "skirt" && <Outlined d={SKIRT} color={a.bottomColor} />}
-          <Passes>
-            {(pass) => (
-              <>
-                <Shape pass={pass} d={circle(HEAD.x, HEAD.y, HEAD.r)} color={a.skin} />
-                <Shape pass={pass} d={circle(HEAD.x + 15, HEAD.y + 3, 3.2)} color={a.skin} />
-              </>
-            )}
-          </Passes>
-          {HAIR[a.hair].map((d, i) => (
-            <Outlined key={i} d={d} color={a.hairColor} />
-          ))}
-          <circle cx={HEAD.x + 9.5} cy={HEAD.y - 3} r={1.7} fill={INK} />
+          <HeadParts a={a} />
           <Passes>{(pass) => <Arm pass={pass} c={near} a={a} />}</Passes>
         </g>
       </g>

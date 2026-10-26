@@ -1,40 +1,51 @@
-import { PALETTE, type WalkerAppearance } from "./appearance";
+import { DEFAULT_FACE, PALETTE, type WalkerAppearance } from "./appearance";
 
-const { skin, hair, cloth } = PALETTE;
+const skin = PALETTE.skin.map((s) => s.hex);
+const hair = PALETTE.hair.map((s) => s.hex);
+const cloth = Object.fromEntries(PALETTE.cloth.map((s) => [s.name, s.hex])) as Record<
+  (typeof PALETTE.cloth)[number]["name"],
+  string
+>;
 
-// Hand-made sample walkers for testing outfits and colours before the
-// creator exists.
+const base = {
+  shoes: "sneaker",
+  accessory: "none",
+  accessoryColor: cloth.Black,
+  face: DEFAULT_FACE,
+} as const satisfies Partial<WalkerAppearance>;
+
+// Hand-made sample walkers for testing outfits and colours.
 export const SAMPLE_WALKERS: { name: string; appearance: WalkerAppearance }[] = [
   {
     name: "Ada",
-    appearance: { skin: skin[1], hair: "short", hairColor: hair[1], top: "tee", topColor: cloth[3], bottom: "trousers", bottomColor: cloth[1], shoeColor: cloth[0] },
+    appearance: { ...base, skin: skin[1], hair: "short", hairColor: hair[1], top: "tee", topColor: cloth.Red, bottom: "trousers", bottomColor: cloth["Ink blue"], shoeColor: cloth.Chalk },
   },
   {
     name: "Noor",
-    appearance: { skin: skin[3], hair: "long", hairColor: hair[0], top: "longsleeve", topColor: cloth[4], bottom: "skirt", bottomColor: cloth[1], shoeColor: cloth[9] },
+    appearance: { ...base, skin: skin[3], hair: "long", hairColor: hair[0], top: "longsleeve", topColor: cloth.Ochre, bottom: "skirt", bottomColor: cloth["Ink blue"], shoes: "flat", shoeColor: cloth.Black, face: { ...DEFAULT_FACE, mouth: "smile" } },
   },
   {
     name: "Theo",
-    appearance: { skin: skin[0], hair: "bob", hairColor: hair[4], top: "tee", topColor: cloth[5], bottom: "shorts", bottomColor: cloth[8], shoeColor: cloth[3] },
+    appearance: { ...base, skin: skin[0], hair: "bob", hairColor: hair[4], top: "tee", topColor: cloth.Green, bottom: "shorts", bottomColor: cloth.Umber, shoeColor: cloth.Red },
   },
   {
     name: "Mia",
-    appearance: { skin: skin[2], hair: "bun", hairColor: hair[2], top: "longsleeve", topColor: cloth[7], bottom: "trousers", bottomColor: cloth[2], shoeColor: cloth[0] },
+    appearance: { ...base, skin: skin[2], hair: "ponytail", hairColor: hair[2], top: "longsleeve", topColor: cloth.Pink, bottom: "trousers", bottomColor: cloth.Blue, shoeColor: cloth.Chalk, face: { ...DEFAULT_FACE, blush: true } },
   },
   {
     name: "Kofi",
-    appearance: { skin: skin[5], hair: "none", hairColor: hair[0], top: "tee", topColor: cloth[0], bottom: "trousers", bottomColor: cloth[9], shoeColor: cloth[3] },
+    appearance: { ...base, skin: skin[5], hair: "afro", hairColor: hair[0], top: "tank", topColor: cloth.Chalk, bottom: "trousers", bottomColor: cloth.Black, shoeColor: cloth.Red },
   },
   {
     name: "Lena",
-    appearance: { skin: skin[1], hair: "long", hairColor: hair[5], top: "tee", topColor: cloth[1], bottom: "skirt", bottomColor: cloth[6], shoeColor: cloth[9] },
+    appearance: { ...base, skin: skin[1], hair: "long", hairColor: hair[5], top: "tee", topColor: cloth["Ink blue"], bottom: "skirt", bottomColor: cloth.Violet, shoes: "boot", shoeColor: cloth.Black, accessory: "sunglasses" },
   },
   {
     name: "Sami",
-    appearance: { skin: skin[4], hair: "short", hairColor: hair[0], top: "longsleeve", topColor: cloth[2], bottom: "trousers", bottomColor: cloth[8], shoeColor: cloth[4] },
+    appearance: { ...base, skin: skin[4], hair: "short", hairColor: hair[0], top: "longsleeve", topColor: cloth.Blue, bottom: "trousers", bottomColor: cloth.Umber, shoeColor: cloth.Ochre, accessory: "cap", accessoryColor: cloth.Ochre },
   },
   {
     name: "Iris",
-    appearance: { skin: skin[0], hair: "bob", hairColor: hair[6], top: "longsleeve", topColor: cloth[6], bottom: "trousers", bottomColor: cloth[0], shoeColor: cloth[1] },
+    appearance: { ...base, skin: skin[0], hair: "bun", hairColor: hair[6], top: "longsleeve", topColor: cloth.Violet, bottom: "trousers", bottomColor: cloth.Chalk, shoeColor: cloth["Ink blue"], accessory: "glasses", accessoryColor: cloth["Ink blue"] },
   },
 ];

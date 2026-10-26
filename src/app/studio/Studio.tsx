@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Walker } from "@/walker/Walker";
 import { SAMPLE_WALKERS } from "@/walker/samples";
 import { GAIT } from "@/walker/gait";
-import { VIEWBOX, WALK_DURATION_S, walkSpeedPx } from "@/walker/walkCss";
-import styles from "./page.module.css";
+import { VIEWBOX, WALK_DURATION_S } from "@/walker/walkCss";
+import { Procession } from "@/components/Procession";
+import styles from "./studio.module.css";
 
 const SPEEDS = [
   { label: "Normal", factor: 1 },
@@ -15,7 +16,6 @@ const SPEEDS = [
 
 const TREADMILL_H = 360;
 const SIZES = [48, 96, 160, 240];
-const PROCESSION_H = 150;
 const SHEET_FRAMES = 8;
 const SHEET_H = 300;
 
@@ -47,8 +47,8 @@ export function Studio() {
   return (
     <div className={styles.studio}>
       <header className={styles.header}>
-        <h1>WALKERS</h1>
-        <p>Stage 1 · walk cycle studio</p>
+        <h1>Walk cycle studio</h1>
+        <p>Developer view for checking the walk, outfits and sizes.</p>
       </header>
 
       <section className={styles.treadmillSection}>
@@ -137,54 +137,8 @@ export function Studio() {
 
       <section>
         <h2 className={styles.h2}>Procession</h2>
-        <Procession />
+        <Procession walkers={SAMPLE_WALKERS} />
       </section>
-    </div>
-  );
-}
-
-// Walkers cross the band at exactly their ground speed, evenly spaced and
-// with staggered phases.
-function Procession() {
-  const [trackW, setTrackW] = useState(0);
-
-  // Measure straight away, then follow resizes.
-  const ref = useCallback((el: HTMLDivElement | null) => {
-    if (!el) return;
-    setTrackW(el.clientWidth);
-    const ro = new ResizeObserver(([entry]) => setTrackW(entry.contentRect.width));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  const walkerW = (PROCESSION_H * VIEWBOX.width) / VIEWBOX.height;
-  const n = SAMPLE_WALKERS.length;
-  const travel = trackW + walkerW;
-  // Keep at least one walker-width between figures; widen the loop if the
-  // screen is too narrow to fit everyone.
-  const loop = Math.max(travel, n * walkerW * 1.15);
-  const crossS = loop / walkSpeedPx(PROCESSION_H);
-
-  return (
-    <div
-      ref={ref}
-      className={styles.procession}
-      style={vars({ height: `${PROCESSION_H + 28}px`, "--loop": `${loop}px`, "--walker-w": `${walkerW}px` })}
-    >
-      {trackW > 0 &&
-        SAMPLE_WALKERS.map((w, i) => (
-          <div
-            key={w.name}
-            className={styles.marcher}
-            style={vars({
-              animationDuration: `${crossS}s`,
-              animationDelay: `${(-i / n) * crossS}s`,
-            })}
-          >
-            <Walker appearance={w.appearance} height={PROCESSION_H} phase={(i * 0.37) % 1} title={w.name} />
-            <span className={styles.name}>{w.name}</span>
-          </div>
-        ))}
     </div>
   );
 }

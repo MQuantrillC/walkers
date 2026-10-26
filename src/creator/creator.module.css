@@ -1,0 +1,375 @@
+.creator {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px 16px 64px;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 32px 48px;
+  align-items: start;
+}
+
+.loading {
+  flex: 1;
+  min-height: 60vh;
+}
+
+/* Live preview */
+
+.preview {
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: 12px;
+  overflow: hidden;
+}
+
+/* Ground ticks scroll one stride per cycle, in step with the walker. */
+.ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--ground-y);
+  height: 10px;
+  border-top: 1.5px solid var(--foreground);
+  background-image: linear-gradient(90deg, var(--foreground) 1.5px, transparent 1.5px);
+  background-size: calc(var(--stride-px) / 4) 8px;
+  background-repeat: repeat-x;
+  opacity: 0.3;
+  animation: ground var(--wk-dur, 1.2s) linear infinite;
+}
+
+@keyframes ground {
+  to {
+    background-position-x: calc(var(--stride-px) * -1);
+  }
+}
+
+.previewWalker {
+  position: relative;
+}
+
+.previewName {
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  min-height: 1.4em;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.previewActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.saveNote {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Controls panel */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.steps {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--line);
+}
+
+.step {
+  font: inherit;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 9px;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.step span {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  font-size: 11px;
+}
+
+.step[aria-current="step"] {
+  color: var(--foreground);
+  border-bottom-color: var(--foreground);
+}
+
+.stepBody {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.stepNav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.field {
+  border: 0;
+  min-width: 0;
+}
+
+.field legend,
+.nameField > span {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+  padding: 0;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px 24px;
+}
+
+.nameField {
+  display: flex;
+  flex-direction: column;
+}
+
+.nameField input {
+  font: inherit;
+  font-size: 18px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.nameField input:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 1px;
+}
+
+.nameField small {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Buttons */
+
+.chip,
+.primary {
+  font: inherit;
+  font-size: 13px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.chip[aria-pressed="true"],
+.primary {
+  background: var(--foreground);
+  color: var(--background);
+  border-color: var(--foreground);
+}
+
+.chip[data-danger] {
+  border-color: #c2412f;
+  color: #c2412f;
+}
+
+.chip:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.chip:focus-visible,
+.primary:focus-visible,
+.swatch:focus-visible,
+.thumb:focus-visible,
+.sizeButton:focus-visible,
+.step:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+}
+
+.swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgb(0 0 0 / 0.18);
+  cursor: pointer;
+  padding: 0;
+}
+
+.swatch[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 2px var(--background),
+    0 0 0 4px var(--foreground);
+}
+
+.thumb {
+  font: inherit;
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 76px;
+  padding: 6px 4px 6px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.thumb svg {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 4px;
+  overflow: visible;
+}
+
+.thumb[aria-pressed="true"] {
+  border-color: var(--foreground);
+  color: var(--foreground);
+  box-shadow: inset 0 0 0 1px var(--foreground);
+}
+
+/* Face editor */
+
+.faceEditor {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.faceCanvas {
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 1;
+  align-self: center;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  touch-action: none;
+  cursor: crosshair;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.toolRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolGap {
+  flex: 1;
+  min-width: 8px;
+}
+
+.sizeButton {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sizeButton span {
+  border-radius: 50%;
+  background: var(--foreground);
+}
+
+.sizeButton[aria-pressed="true"] {
+  border-color: var(--foreground);
+  box-shadow: inset 0 0 0 1px var(--foreground);
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Preview step */
+
+.finale h2 {
+  font-size: 22px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.finale p {
+  color: var(--muted);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.processionPreview {
+  grid-column: 1 / -1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ground {
+    animation: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .creator {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .preview {
+    position: static;
+  }
+}

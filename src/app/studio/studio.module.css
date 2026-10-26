@@ -9,8 +9,7 @@
 }
 
 .header h1 {
-  font-size: 20px;
-  letter-spacing: 0.32em;
+  font-size: 22px;
   font-weight: 600;
 }
 
@@ -156,44 +155,8 @@
   color: var(--muted);
 }
 
-.procession {
-  position: relative;
-  overflow: hidden;
-  border-bottom: 1.5px solid var(--line);
-}
-
-.marcher {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation-name: cross;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-
-@keyframes cross {
-  from {
-    transform: translateX(calc(var(--walker-w) * -1));
-  }
-  to {
-    transform: translateX(calc(var(--loop) - var(--walker-w)));
-  }
-}
-
-.name {
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  height: 28px;
-  line-height: 28px;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .ground,
-  .marcher {
+  .ground {
     animation-play-state: paused;
   }
 }
