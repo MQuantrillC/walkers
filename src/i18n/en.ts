@@ -125,9 +125,7 @@ export const en = {
   },
   gallery: {
     label: "The Walk",
-    filters: "Gallery filters",
-    everyone: "Everyone",
-    latest: "Latest",
+    filters: "Search The Walk",
     search: "Search by name",
     noResults: (q: string) => `No avatars called “${q}”.`,
     more: "Show more avatars",

@@ -6,7 +6,7 @@ import type { ProcessionWalker } from "./Procession";
 import { Walkway } from "./Walkway";
 import { Walker } from "@/walker/Walker";
 import { browseWalkers } from "@/walker/actions";
-import type { GalleryOrder, GalleryPage } from "@/walker/publicData";
+import type { GalleryPage } from "@/walker/publicData";
 import type { PublicWalker } from "@/walker/records";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useMediaQuery } from "@/lib/useMediaQuery";
@@ -19,12 +19,11 @@ const toProcession = (lang: string) => (w: PublicWalker): ProcessionWalker => ({
   href: `/${lang}/w/${w.id}`,
 });
 
-// The public gallery: everyone (in the order they joined) or the latest,
-// optionally filtered by name. Pages load as the procession needs them.
+// The public gallery: everyone, in the order they joined, optionally
+// filtered by name. Pages load as the procession needs them.
 // `featured` leads the line (and isn't repeated further back).
 export function Gallery({ initial, featured }: { initial: GalleryPage; featured?: PublicWalker | null }) {
   const { t, locale } = useI18n();
-  const [order, setOrder] = useState<GalleryOrder>("everyone");
   const [input, setInput] = useState("");
   const [query, setQuery] = useState("");
   const [walkers, setWalkers] = useState<PublicWalker[]>(() =>
@@ -33,8 +32,8 @@ export function Gallery({ initial, featured }: { initial: GalleryPage; featured?
   const [nextOffset, setNextOffset] = useState<number | null>(initial.nextOffset);
   const [loading, setLoading] = useState(false);
   const loadingMore = useRef(false);
-  // The order and search the list currently shows.
-  const shownKey = useRef("everyone|");
+  // The search the list currently shows.
+  const shownQuery = useRef("");
   const still = useMediaQuery("(prefers-reduced-motion: reduce)");
   const compact = useMediaQuery("(max-width: 560px)");
 
@@ -44,15 +43,14 @@ export function Gallery({ initial, featured }: { initial: GalleryPage; featured?
     return () => clearTimeout(timer);
   }, [input]);
 
-  // New order or search: start again from the first page. The server
-  // already rendered the default view, so nothing to do until it changes.
+  // New search: start again from the first page. The server already
+  // rendered the unfiltered walk, so nothing to do until it changes.
   useEffect(() => {
-    const key = `${order}|${query}`;
-    if (key === shownKey.current) return;
-    shownKey.current = key;
+    if (query === shownQuery.current) return;
+    shownQuery.current = query;
     let cancelled = false;
     queueMicrotask(() => setLoading(true));
-    browseWalkers({ order, query, offset: 0 })
+    browseWalkers({ order: "everyone", query, offset: 0 })
       .then((page) => {
         if (cancelled) return;
         setWalkers(page.walkers);
@@ -66,13 +64,13 @@ export function Gallery({ initial, featured }: { initial: GalleryPage; featured?
     return () => {
       cancelled = true;
     };
-  }, [order, query]);
+  }, [query]);
 
   async function loadMore() {
     if (nextOffset === null || loadingMore.current) return;
     loadingMore.current = true;
     try {
-      const page = await browseWalkers({ order, query, offset: nextOffset });
+      const page = await browseWalkers({ order: "everyone", query, offset: nextOffset });
       setWalkers((prev) => {
         const seen = new Set(prev.map((w) => w.id));
         return [...prev, ...page.walkers.filter((w) => !seen.has(w.id))];
@@ -92,13 +90,6 @@ export function Gallery({ initial, featured }: { initial: GalleryPage; featured?
     <section className={styles.gallery} aria-label={t.gallery.label}>
       {!nobodyYet && (
         <div className={`container ${styles.controls}`} role="search" aria-label={t.gallery.filters}>
-          <div className={styles.toggle}>
-            {(["everyone", "latest"] as const).map((o) => (
-              <button key={o} aria-pressed={order === o} onClick={() => setOrder(o)}>
-                {o === "everyone" ? t.gallery.everyone : t.gallery.latest}
-              </button>
-            ))}
-          </div>
           <label className={styles.searchBox}>
             <Search />
             <input
@@ -118,7 +109,7 @@ export function Gallery({ initial, featured }: { initial: GalleryPage; featured?
           are left. */}
       <Walkway
         walkers={walkers.map(toProcession(locale))}
-        resetKey={`${order}|${query}`}
+        resetKey={query}
         onNearEnd={loadMore}
       >
         {nobodyYet ? (

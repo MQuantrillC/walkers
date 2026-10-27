@@ -127,9 +127,7 @@ export const es: Dictionary = {
   },
   gallery: {
     label: "El Camino",
-    filters: "Filtros de la galería",
-    everyone: "Todos",
-    latest: "Recientes",
+    filters: "Buscar en El Camino",
     search: "Buscar por nombre",
     noResults: (q) => `No hay avatares con el nombre «${q}».`,
     more: "Ver más avatares",

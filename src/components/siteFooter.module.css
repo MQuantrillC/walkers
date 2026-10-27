@@ -40,3 +40,15 @@
 .links a:hover {
   color: var(--foreground);
 }
+
+/* On phones the links wrap; dots would dangle at line ends, so spacing
+   alone separates them. */
+@media (max-width: 560px) {
+  .links {
+    gap: 6px 16px;
+  }
+
+  .links span {
+    display: none;
+  }
+}
