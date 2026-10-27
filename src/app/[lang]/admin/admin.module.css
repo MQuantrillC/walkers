@@ -127,3 +127,95 @@
   border-color: var(--accent);
   color: #fff;
 }
+
+/* Every avatar: totals, then one row per avatar. */
+.logSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.sectionTitle {
+  font-size: 22px;
+}
+
+.totals {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.totals div {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.totals dt {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.totals dd {
+  font-family: var(--font-display), sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.log {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.logItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.logHead {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: #f2f0eb;
+}
+
+.owner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.owner span + span {
+  color: var(--muted);
+}
+
+.dates {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.badge[data-status="published"] {
+  color: var(--foreground);
+  border-color: var(--foreground);
+}
+
+.badge[data-status="hidden"] {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+@media (max-width: 480px) {
+  .totals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

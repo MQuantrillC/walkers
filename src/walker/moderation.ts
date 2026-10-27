@@ -75,6 +75,52 @@ export async function getModerationQueue(): Promise<QueueItem[] | null> {
   return items.sort((a, b) => b.reports.length - a.reports.length);
 }
 
+export type LogEntry = {
+  id: string;
+  name: string;
+  appearance: WalkerAppearance;
+  status: WalkerStatus;
+  createdAt: string;
+  publishedAt: string | null;
+  updatedAt: string;
+  // Who made it; null until the admin_walker_log migration has been run.
+  owner: { name: string | null; email: string | null } | null;
+};
+
+const statusOf = (s: unknown): WalkerStatus => (s === "published" || s === "hidden" ? s : "draft");
+
+// Every walker, newest first, for moderators. Uses admin_walker_log (which
+// adds who made each one) and falls back to the walkers alone if that
+// function hasn't been created yet. null when the caller isn't a moderator.
+export async function getWalkerLog(): Promise<LogEntry[] | null> {
+  const supabase = await moderatorClient();
+  if (!supabase) return null;
+  const entry = (w: Record<string, unknown>, owner: LogEntry["owner"]): LogEntry => ({
+    id: String(w.id),
+    name: cleanDisplayName(w.display_name),
+    appearance: sanitizeAppearance(w.appearance),
+    status: statusOf(w.status),
+    createdAt: String(w.created_at),
+    publishedAt: (w.published_at as string | null) ?? null,
+    updatedAt: String(w.updated_at),
+    owner,
+  });
+
+  const log = await supabase.rpc("admin_walker_log");
+  if (!log.error) {
+    return ((log.data ?? []) as Record<string, unknown>[]).map((w) =>
+      entry(w, { name: (w.owner_name as string | null) ?? null, email: (w.owner_email as string | null) ?? null }),
+    );
+  }
+  const { data, error } = await supabase
+    .from("walkers")
+    .select("id, display_name, appearance, status, created_at, published_at, updated_at")
+    .order("created_at", { ascending: false })
+    .limit(500);
+  if (error) throw new Error(`Couldn't read the walker log: ${error.message}`);
+  return (data ?? []).map((w) => entry(w, null));
+}
+
 export type ModerationAction = "hide" | "restore" | "delete" | "dismiss";
 
 export async function moderate(walkerId: string, action: ModerationAction): Promise<{ ok: boolean }> {

@@ -135,6 +135,12 @@ select rls_test.expect('Ben still cannot edit it',
   $q$update public.walkers set display_name = 'Hacked' where display_name = 'Ana'$q$, true, 0);
 select rls_test.expect('Ben cannot read reports',
   $q$select * from public.reports$q$, true, 0);
+select rls_test.expect('Non-moderators get nothing from the walker log',
+  $q$select * from public.admin_walker_log()$q$, true, 0);
+
+select rls_test.act_as('anon');
+select rls_test.expect('Visitors cannot open the walker log',
+  $q$select * from public.admin_walker_log()$q$, false);
 
 -- Ben becomes a moderator and hides Ana's walker -------------------------
 reset role;
@@ -143,6 +149,8 @@ update public.profiles set is_admin = true where id = 'b0000000-0000-4000-8000-0
 select rls_test.act_as('ben');
 select rls_test.expect('A moderator reads reports',
   $q$select * from public.reports$q$, true, 1);
+select rls_test.expect('A moderator sees who made each walker in the log',
+  $q$select * from public.admin_walker_log() where owner_email = 'ana@rls-test.invalid'$q$, true, 1);
 select rls_test.expect('A moderator hides a walker',
   $q$update public.walkers set status = 'hidden' where display_name = 'Ana'$q$, true, 1);
 

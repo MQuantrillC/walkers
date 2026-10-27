@@ -7,6 +7,7 @@ import { SignInButton } from "@/auth/SignInButton";
 import { useI18n } from "@/i18n/I18nProvider";
 import { Walker } from "@/walker/Walker";
 import { getModerationQueue, moderate, type ModerationAction, type QueueItem } from "@/walker/moderation";
+import { WalkerLog } from "./WalkerLog";
 import styles from "./admin.module.css";
 
 // Reported walkers for moderators: hide or restore, delete, or dismiss the
@@ -107,6 +108,7 @@ export function Moderation() {
       <h1 className={styles.title}>{t.admin.title}</h1>
       {body}
       {failed && <p className={styles.error}>{t.admin.failed}</p>}
+      {queue && <WalkerLog />}
     </div>
   );
 }

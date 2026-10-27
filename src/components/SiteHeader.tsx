@@ -6,6 +6,7 @@ import { Suspense, useEffect, useRef, useState, type KeyboardEvent, type RefObje
 import { useI18n } from "@/i18n/I18nProvider";
 import { LOCALE_COOKIE, type Locale } from "@/i18n/config";
 import { useAuth, type Profile } from "@/auth/AuthProvider";
+import { getBrowserSupabase } from "@/lib/supabase/client";
 import { useUserAgent } from "@/auth/SignInButton";
 import { isInAppBrowser } from "@/lib/inAppBrowser";
 import { ThemeToggle } from "./ThemeToggle";
@@ -167,6 +168,24 @@ function initials(name: string) {
   return ((parts[0]?.[0] ?? "") + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase() || "?";
 }
 
+// Whether the signed-in account is a moderator, to offer the moderation
+// page in the menu. Only a shortcut: the page and the database check again.
+function useIsAdmin() {
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    getBrowserSupabase()
+      ?.rpc("is_admin")
+      .then(({ data }) => {
+        if (!cancelled) setIsAdmin(data === true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return isAdmin;
+}
+
 function AccountMenu({ profile }: { profile: Profile }) {
   const { locale, t } = useI18n();
   const { signOut } = useAuth();
@@ -175,6 +194,7 @@ function AccountMenu({ profile }: { profile: Profile }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const isAdmin = useIsAdmin();
   useDismiss(open, () => setOpen(false), wrapRef);
 
   // Opening moves focus to the first item, as menus do.
@@ -229,6 +249,11 @@ function AccountMenu({ profile }: { profile: Profile }) {
           <Link role="menuitem" href={`/${locale}/me`} onClick={() => setOpen(false)}>
             {t.nav.me}
           </Link>
+          {isAdmin && (
+            <Link role="menuitem" href={`/${locale}/admin`} onClick={() => setOpen(false)}>
+              {t.nav.moderation}
+            </Link>
+          )}
           <button
             role="menuitem"
             className={styles.menuDanger}
