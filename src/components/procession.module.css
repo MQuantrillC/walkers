@@ -19,6 +19,14 @@
   animation-iteration-count: infinite;
 }
 
+.link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+}
+
 .procession[data-offscreen] * {
   animation-play-state: paused !important;
 }
@@ -48,8 +56,8 @@
   }
 }
 
-a.marcher:hover .name,
-a.marcher:focus-visible .name {
+.link:hover .name,
+.link:focus-visible .name {
   color: var(--foreground);
   text-decoration: underline;
 }

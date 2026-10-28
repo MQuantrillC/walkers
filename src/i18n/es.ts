@@ -25,6 +25,7 @@ export const es: Dictionary = {
     continueWithGoogle: "Continuar con Google",
     unavailable: "Las cuentas aún no están activadas.",
     failed: "No se pudo iniciar sesión. Inténtalo de nuevo.",
+    retry: "Reintentar",
   },
   inApp: {
     title: "Abre WALKERS en tu navegador",
@@ -222,7 +223,7 @@ export const es: Dictionary = {
   },
   options: {
     hair: {
-      short: "Corto", buzz: "Rapado", quiff: "Tupé", sidepart: "Raya al lado", curly: "Rizado", bob: "Bob", bun: "Moño",
+      short: "Corto", buzz: "Rapado", quiff: "Tupé", curly: "Rizado", bob: "Bob", bun: "Moño",
       topknot: "Moño alto", ponytail: "Coleta", pigtails: "Coletas", braid: "Trenza", long: "Largo", locs: "Rastas",
       afro: "Afro", mohawk: "Cresta", none: "Sin pelo",
     },

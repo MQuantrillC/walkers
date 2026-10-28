@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Suspense, useEffect, useRef, useState, type KeyboardEvent, type RefObject } from "react";
+import { Suspense, useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent, type RefObject } from "react";
 import { useI18n } from "@/i18n/I18nProvider";
 import { LOCALE_COOKIE, type Locale } from "@/i18n/config";
 import { useAuth, type Profile } from "@/auth/AuthProvider";
@@ -127,8 +127,40 @@ function HeaderBar({ pathname }: { pathname: string | null }) {
           {nav(styles.sheetNav)}
           <div className={styles.sheetSettings}>{settings}</div>
         </div>
+        {/* The creator says so beside its own sign-in button instead. */}
+        {auth.status === "signedOut" && pathname && !pathname.endsWith("/create") && (
+          <SignInFailed retry={inApp ? null : (next) => signIn(next)} pathname={pathname} />
+        )}
       </div>
     </header>
+  );
+}
+
+const noSubscribe = () => () => {};
+const signInFailed = () => new URLSearchParams(window.location.search).get("signin") === "failed";
+
+// After a sign-in that didn't work out (the callback adds ?signin=failed):
+// says so, with a button to try again from the same page.
+function SignInFailed({ retry, pathname }: { retry: ((next: string) => void) | null; pathname: string }) {
+  const { t } = useI18n();
+  const failed = useSyncExternalStore(noSubscribe, signInFailed, () => false);
+  if (!failed) return null;
+  return (
+    <p className={styles.notice} role="alert">
+      {t.auth.failed}
+      {retry && (
+        <button
+          onClick={() => {
+            const params = new URLSearchParams(window.location.search);
+            params.delete("signin");
+            const query = params.toString();
+            retry(query ? `${pathname}?${query}` : pathname);
+          }}
+        >
+          {t.auth.retry}
+        </button>
+      )}
+    </p>
   );
 }
 

@@ -417,10 +417,6 @@
   overflow: hidden;
 }
 
-.finale .savePanel {
-  align-self: stretch;
-  max-width: none;
-}
 
 @media (prefers-reduced-motion: reduce) {
   .ground {
@@ -685,11 +681,66 @@
   overflow: hidden;
 }
 
-/* After publishing: share the profile, or go and see the walk. */
-.finaleLinks {
+/* The last step's save controls: status, then one row of actions, all
+   lined up with the heading. */
+.finalePanel {
+  align-self: stretch;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.finalePanel .previewActions {
   justify-content: flex-start;
-  gap: 10px;
+}
+
+.finalePanel .saveNote,
+.finalePanel .saveError {
+  text-align: left;
+}
+
+/* A green dot before "Published". */
+.saveStatus[data-status="published"]::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: #2f9e5b;
+  vertical-align: 1px;
+}
+
+.saveState {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* A plain text button for the rarely used "Unpublish". */
+.quiet {
+  font: inherit;
+  font-size: 12px;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.quiet:hover:not(:disabled) {
+  color: var(--foreground);
+}
+
+.quiet:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.quiet:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
 }

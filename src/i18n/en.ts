@@ -23,6 +23,7 @@ export const en = {
     continueWithGoogle: "Continue with Google",
     unavailable: "Accounts aren't switched on yet.",
     failed: "Sign-in didn't work. Please try again.",
+    retry: "Try again",
   },
   inApp: {
     title: "Open WALKERS in your browser",
@@ -220,7 +221,7 @@ export const en = {
   },
   options: {
     hair: {
-      short: "Short", buzz: "Buzz cut", quiff: "Quiff", sidepart: "Side part", curly: "Curly", bob: "Bob", bun: "Bun",
+      short: "Short", buzz: "Buzz cut", quiff: "Quiff", curly: "Curly", bob: "Bob", bun: "Bun",
       topknot: "Top knot", ponytail: "Ponytail", pigtails: "Pigtails", braid: "Braid", long: "Long", locs: "Locs",
       afro: "Afro", mohawk: "Mohawk", none: "None",
     },

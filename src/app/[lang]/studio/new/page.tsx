@@ -50,7 +50,6 @@ const Body = ({ a, height = 300, frame = 0.3 }: { a: WalkerAppearance; height?: 
 export default function NewPage() {
   if (process.env.NODE_ENV === "production") notFound();
   const newHair = [
-    { id: "sidepart", label: "Raya al lado", color: hair.darkBrown },
     { id: "topknot", label: "Moño alto", color: hair.black },
     { id: "pigtails", label: "Coletas", color: hair.auburn },
     { id: "locs", label: "Rastas", color: hair.black },
@@ -222,7 +221,7 @@ export default function NewPage() {
           { ...base, hair: "locs" as const, hairColor: hair.black, skin: skin[9].hex, extras: { headphones: cloth.ochre }, topPattern: "band" as const, topColor: cloth.inkBlue, topPatternColor: cloth.ochre },
           { ...base, hair: "pigtails" as const, hairColor: hair.auburn, skin: skin[0].hex, face: face({ freckles: true, mouth: "smile", blush: true }), topPattern: "dots" as const, topColor: cloth.sky, topPatternColor: cloth.chalk, bottom: "skirt" as const, bottomColor: cloth.black },
           { ...base, hair: "topknot" as const, hairColor: hair.black, skin: skin[5].hex, eyewear: "sport" as const, eyewearColor: cloth.red, headwear: "helmet" as const, headwearColor: cloth.chalk, top: "tank" as const, topColor: cloth.black, bottom: "shorts" as const },
-          { ...base, hair: "sidepart" as const, hairColor: hair.blonde, skin: skin[2].hex, top: "longsleeve" as const, topPattern: "stripes" as const, topColor: cloth.chalk, topPatternColor: cloth.inkBlue, headwear: "beret" as const, headwearColor: cloth.red },
+          { ...base, hair: "long" as const, hairColor: hair.blonde, skin: skin[2].hex, top: "longsleeve" as const, topPattern: "stripes" as const, topColor: cloth.chalk, topPatternColor: cloth.inkBlue, headwear: "beret" as const, headwearColor: cloth.red },
           { ...base, hair: "short" as const, skin: skin[7].hex, top: "hoodie" as const, topPattern: "checks" as const, topColor: cloth.red, topPatternColor: cloth.black, headwear: "chullo" as const, headwearColor: cloth.ochre, extras: { headphones: cloth.black } },
           { ...base, hair: "afro" as const, hairColor: hair.black, skin: skin[11].hex, headwear: "tophat" as const, headwearColor: cloth.black, topColor: cloth.violet, face: face({ freckles: true }) },
         ].map((a, i) => (

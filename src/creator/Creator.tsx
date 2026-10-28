@@ -601,18 +601,29 @@ function Creator({ initial }: { initial: Draft }) {
                   height={compact ? 120 : 140}
                 />
               </div>
-              <SavePanel sync={sync} step={step} onPublished={() => setStep("preview")} />
-              {sync.remote?.status === "published" && (
-                <div className={styles.finaleLinks}>
-                  {/* The profile link, whose preview shows their avatar. */}
-                  <ShareButton path={`/${locale}/w/${sync.remote.id}`} title={t.profile.shareText(sync.remote.name)} />
-                  {/* Their avatar leads the line, so they see it walk straight away. */}
-                  <Link className={styles.saveLink} href={`/${locale}?w=${sync.remote.id}`}>
-                    {t.creator.seeTheWalk}
-                    <ArrowRight />
-                  </Link>
-                </div>
-              )}
+              <SavePanel
+                sync={sync}
+                step={step}
+                onPublished={() => setStep("preview")}
+                finale
+                links={
+                  sync.remote && (
+                    <>
+                      {/* The profile link, whose preview shows their avatar. */}
+                      <ShareButton
+                        path={`/${locale}/w/${sync.remote.id}`}
+                        title={t.profile.shareText(sync.remote.name)}
+                        className={sync.dirty ? undefined : styles.primary}
+                      />
+                      {/* Their avatar leads the line, so they see it walk straight away. */}
+                      <Link className={styles.saveLink} href={`/${locale}?w=${sync.remote.id}`}>
+                        {t.creator.seeTheWalk}
+                        <ArrowRight />
+                      </Link>
+                    </>
+                  )
+                }
+              />
             </div>
           )}
         </div>

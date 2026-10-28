@@ -22,12 +22,18 @@ function safeNext(value: string | null, origin: string): URL {
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const next = safeNext(searchParams.get("next"), origin);
+  // A retry after a failed attempt shouldn't keep the old failure.
+  next.searchParams.delete("signin");
   const code = searchParams.get("code");
   const supabase = await getServerSupabase();
 
   if (code && supabase) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) return NextResponse.redirect(next);
+    // Shows up in the deployment's logs; never includes the code itself.
+    console.error("Sign-in failed:", error.code ?? error.name, error.message);
+  } else {
+    console.error("Sign-in failed:", searchParams.get("error") ?? "no code", searchParams.get("error_description") ?? "");
   }
 
   const failed = new URL(next);

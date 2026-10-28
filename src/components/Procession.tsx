@@ -144,19 +144,17 @@ function Line({
       animationDelay: `${(-(start + slot * spacing) / loop) * crossS}s`,
     };
     const figure = <Figure key={`${index}-${w.name}`} walker={w} height={height} phase={(slot * 0.37) % 1} />;
-    return w.href ? (
-      <Link
-        key={slot}
-        href={w.href}
-        className={styles.marcher}
-        style={style}
-        onAnimationIteration={(e) => lapDone(slot, e)}
-      >
-        {figure}
-      </Link>
-    ) : (
+    // The slot itself is always the same element, link or not: swapping it
+    // would restart its crossing out of step with the rest of the line.
+    return (
       <div key={slot} className={styles.marcher} style={style} onAnimationIteration={(e) => lapDone(slot, e)}>
-        {figure}
+        {w.href ? (
+          <Link href={w.href} className={styles.link}>
+            {figure}
+          </Link>
+        ) : (
+          figure
+        )}
       </div>
     );
   });

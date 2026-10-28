@@ -59,6 +59,9 @@ function later<T>(v: unknown, read: () => T, fallback: T): T {
   return v === undefined ? fallback : read();
 }
 
+// Hairstyles since retired, and the closest one still offered.
+const RETIRED_HAIR: Record<string, string> = { sidepart: "long" };
+
 function strokes(v: unknown, field: string, issues: Issues): Stroke[] {
   if (v === undefined) return [];
   if (!Array.isArray(v)) {
@@ -164,7 +167,7 @@ function appearance(v: unknown, issues: Issues): WalkerAppearance {
   }
   return {
     skin: color(v.skin, SKIN, d.skin, "skin", issues),
-    hair: pick(v.hair, HAIR_STYLES, d.hair, "hair", issues),
+    hair: pick((typeof v.hair === "string" && RETIRED_HAIR[v.hair]) || v.hair, HAIR_STYLES, d.hair, "hair", issues),
     hairColor: color(v.hairColor, HAIR, d.hairColor, "hairColor", issues),
     facialHair: pick(v.facialHair, FACIAL_HAIR, d.facialHair, "facialHair", issues),
     top: pick(v.top, TOP_STYLES, d.top, "top", issues),

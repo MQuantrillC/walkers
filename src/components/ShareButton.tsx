@@ -6,7 +6,8 @@ import { Share } from "./icons";
 import styles from "./shareButton.module.css";
 
 // Uses the device's share sheet where there is one, otherwise copies the link.
-export function ShareButton({ path, title }: { path: string; title: string }) {
+// `className` replaces the default look (e.g. to make it the main button).
+export function ShareButton({ path, title, className }: { path: string; title: string; className?: string }) {
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
 
@@ -31,7 +32,7 @@ export function ShareButton({ path, title }: { path: string; title: string }) {
   }
 
   return (
-    <button className={styles.button} onClick={share} aria-live="polite">
+    <button className={className ?? styles.button} onClick={share} aria-live="polite">
       <Share />
       {copied ? t.me.copied : t.me.share}
     </button>

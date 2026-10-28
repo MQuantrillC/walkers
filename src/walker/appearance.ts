@@ -2,7 +2,7 @@
 // renderer rebuilds the figure from these values.
 
 export const HAIR_STYLES = [
-  "short", "buzz", "quiff", "sidepart", "curly", "bob", "bun", "topknot", "ponytail", "pigtails", "braid", "long",
+  "short", "buzz", "quiff", "curly", "bob", "bun", "topknot", "ponytail", "pigtails", "braid", "long",
   "locs", "afro", "mohawk", "none",
 ] as const;
 export const FACIAL_HAIR = ["none", "stubble", "moustache", "beard"] as const;

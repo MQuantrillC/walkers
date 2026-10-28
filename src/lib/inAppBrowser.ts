@@ -1,10 +1,13 @@
 // Social apps open links in their own embedded browser, where Google
 // refuses to sign people in ("disallowed_useragent"). Detect those so we can
-// send people to their real browser first.
-const IN_APP = /Instagram|FBAN|FBAV|FB_IAB|FBIOS|Messenger|musical_ly|TikTok|Bytedance|Snapchat|Line\/|LinkedInApp|Twitter/i;
+// send people to their real browser first. "Barcelona" is Threads.
+const IN_APP =
+  /Instagram|FBAN|FBAV|FB_IAB|FBIOS|Messenger|Barcelona|musical_ly|TikTok|Bytedance|Snapchat|Line\/|LinkedInApp|Twitter|Pinterest|WhatsApp|Discord/i;
+// Any other app's built-in Android browser (a WebView) marks itself "; wv)".
+const ANDROID_WEBVIEW = /Android.*; wv\)/;
 
 export function isInAppBrowser(userAgent: string): boolean {
-  return IN_APP.test(userAgent);
+  return IN_APP.test(userAgent) || ANDROID_WEBVIEW.test(userAgent);
 }
 
 export function isAndroid(userAgent: string): boolean {

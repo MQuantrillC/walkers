@@ -5,6 +5,7 @@ import { HeadParts, Walker } from "@/walker/Walker";
 import {
   DEFAULT_APPEARANCE,
   EYEWEAR,
+  HAIR_STYLES,
   HEADWEAR,
   INK,
   PALETTE,
@@ -15,8 +16,6 @@ import {
 
 export const metadata: Metadata = { title: "Heads · WALKERS", robots: { index: false } };
 
-const HAIR: HairStyle[] = ["short", "long", "afro", "ponytail", "none"];
-const NEW_HAIR: HairStyle[] = ["sidepart", "topknot", "pigtails", "locs"];
 const cloth = Object.fromEntries(PALETTE.cloth.map((c) => [c.id, c.hex])) as Record<string, string>;
 const skin = PALETTE.skin.map((s) => s.hex);
 const base = { ...DEFAULT_APPEARANCE, headwearColor: cloth.red };
@@ -31,7 +30,7 @@ function Row({ name, children }: { name: string; children: ReactNode }) {
 }
 
 const head = (key: string, a: WalkerAppearance) => (
-  <svg key={key} viewBox="54 -8 62 62" width={220} height={220} style={{ color: INK, background: "#f2f0eb" }}>
+  <svg key={key} viewBox="50 -8 62 66" width={150} height={160} style={{ color: INK, background: "#f2f0eb" }}>
     <HeadParts a={a} />
   </svg>
 );
@@ -48,15 +47,12 @@ export default function HeadsPage() {
   if (process.env.NODE_ENV === "production") notFound();
   return (
     <div style={{ padding: 16, display: "grid", gap: 8 }}>
+      {/* Every hairstyle under every hat. */}
       {HEADWEAR.map((h) => (
         <Row key={h} name={h}>
-          {HAIR.map((hair) => head(hair, { ...base, hair, headwear: h }))}
+          {HAIR_STYLES.map((hair) => head(hair, { ...base, hair, hairColor: PALETTE.hair[2].hex, headwear: h }))}
         </Row>
       ))}
-      <Row name="new hair">
-        {NEW_HAIR.map((hair) => head(hair, { ...base, hair, hairColor: PALETTE.hair[2].hex }))}
-        {NEW_HAIR.map((hair) => head(`${hair}-beanie`, { ...base, hair, headwear: "beanie" }))}
-      </Row>
       <Row name="phones">
         {(["short", "long", "locs", "afro"] as HairStyle[]).map((hair) =>
           head(hair, { ...base, hair, extras: { headphones: cloth.black } }),

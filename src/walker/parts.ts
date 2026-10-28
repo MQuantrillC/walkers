@@ -90,6 +90,21 @@ const lock = (x: number, y: number, len: number, w: number, lean = 0) => {
   return `M${x - r} ${y}Q${mx - r} ${my} ${bx - r} ${by}A${r} ${r} 0 0 0 ${bx + r} ${by}Q${mx + r} ${my} ${x + r} ${y}Z`;
 };
 
+// A dreadlock hanging from under a hat: straight down out of the brim, so
+// it leaves the hat where the hat covers it, then swinging back.
+const tuckedLock = (x: number, y: number, len: number, w: number, lean: number) => {
+  const r = w / 2;
+  const bx = x + lean;
+  const by = y + len;
+  const c1 = y + len * 0.5;
+  const c2 = y + len * 0.6;
+  return `M${x - r} ${y}C${x - r} ${c1} ${bx - r} ${c2} ${bx - r} ${by}A${r} ${r} 0 0 0 ${bx + r} ${by}C${bx + r} ${c2} ${x + r} ${c1} ${x + r} ${y}Z`;
+};
+
+// The crown of the locs, also what shows of it at the nape under a hat.
+const LOCS_CROWN =
+  "M96 19C94 11 88 8.5 81.5 8.5C72.5 8.5 66 15 66 24C66 28 67 31 68.5 33.5L74 30C73.5 27 74.5 24 77.5 22.5C83 20.2 90 21 96 19Z";
+
 // The lower of the two pigtails, with its tie; under a hat it is all that shows.
 const LOW_PIGTAIL: HairLayer[] = [
   { d: "M72 29.5C66 30.5 62.5 36 62 43.5C61.8 47.5 63.5 50 65.5 49.3C67 48.8 66.8 45.5 67 42.5C67.5 38 70 35.5 73.5 35Z" },
@@ -103,12 +118,6 @@ export type HairLayer = { d: string; faint?: boolean };
 export const HAIR: Record<HairStyle, HairLayer[]> = {
   short: [{ d: SHORT_HAIR }],
   buzz: [{ d: BUZZ }],
-  // Long, with the fringe swept to one side above the eye.
-  sidepart: [
-    {
-      d: "M98.6 14.5C96 10 89 7.6 80 8.4C70 9.6 63.5 18 63.5 28L62.5 58C62.5 61 65.5 62 70.5 61L78 60C77 50 76.5 36 79 27C82.5 22 88 19.6 93 20C96.5 20.3 98.8 22 99.6 24.6C100.8 21.4 100.4 17.2 98.6 14.5Z",
-    },
-  ],
   quiff: [
     {
       d: "M99 15C100 8 95 3.5 87 4C80 4.5 75 7 71 11C67 15 66 21 66.5 26C67 31 69 35 72 37L75 33C74 29 75 25 79 23C85 21 91 21.5 96 20C98 19 99 17 99 15Z",
@@ -153,9 +162,7 @@ export const HAIR: Record<HairStyle, HairLayer[]> = {
     { d: lock(66.5, 17, 38, 5.2, -4) },
     { d: lock(70.5, 20, 35, 5.2, -2.5) },
     { d: lock(74.5, 24, 30, 5, -1) },
-    {
-      d: "M96 19C94 11 88 8.5 81.5 8.5C72.5 8.5 66 15 66 24C66 28 67 31 68.5 33.5L74 30C73.5 27 74.5 24 77.5 22.5C83 20.2 90 21 96 19Z",
-    },
+    { d: LOCS_CROWN },
   ],
   afro: [
     {
@@ -196,6 +203,21 @@ export const HAIR_CLIP: Partial<Record<Headwear, string>> = {
 export const HAIR_UNDER_HAT: Partial<Record<HairStyle, HairLayer[]>> = {
   // The high pigtail would poke out past the hat as a stray tip.
   pigtails: LOW_PIGTAIL,
+  // Hair that hangs behind the head starts under the back of the brim,
+  // rather than rising beside the hat and being cut off at its edge.
+  ponytail: [
+    {
+      d: "M73.5 21.5C68.5 24.5 66 29.5 64.8 35.5C63.6 41.5 62.8 45.5 65 46.3C67 47 67.8 44 68.3 40.5C69 35 70.8 31 74.5 28.5Z",
+    },
+    { d: SHORT_HAIR },
+  ],
+  locs: [
+    { d: tuckedLock(69, 16, 38, 5.2, -6) },
+    { d: tuckedLock(72, 17, 38, 5.2, -4) },
+    { d: tuckedLock(75, 19, 35, 5.2, -2) },
+    { d: tuckedLock(78, 22, 30, 5, -0.5) },
+    { d: LOCS_CROWN },
+  ],
   afro: [
     { d: "M66.5 22C62.5 24.5 61 30 62.3 34.6C63.4 38.6 66.8 41.6 71.2 41.8L76.2 36.5C74.6 32.3 74.8 28.2 77.4 24.6Z" },
   ],
